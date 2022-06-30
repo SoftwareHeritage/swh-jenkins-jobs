@@ -6,7 +6,7 @@
 # 1. update dep, test and push tag
 
 # Pseudo code
-# swh-apps/update-dependencies
+# swh-apps/update-dependencies:
 #     project: swh-core
 
 #     clone swh-apps
@@ -18,3 +18,53 @@
 #         git tag <apps>-YYYYmmdd.<inc>
 #         git push
 #         docker push
+
+- job:
+    name: 'swh-apps'
+    display-name: 'swh-apps'
+    project-type: folder
+    raw:
+      xml: |
+        <healthMetrics>
+          <com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric>
+            <nonRecursive>false</nonRecursive>
+          </com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric>
+        </healthMetrics>
+
+- job:
+    name: swh-apps/update-dependencies
+    description: Build parametric swh-apps dependencies
+    node: built-in
+    project-type: pipeline
+
+    scm:
+      - git:
+          url: https://forge.softwareheritage.org/source/swh-apps.git
+          branches:
+            - "*/master"
+
+    triggers:
+        - timed: "@midnight"
+
+    wrappers:
+      - timeout:
+          timeout: 10
+          abort: true
+      - timestamps
+
+    # dsl:
+    #   !include-jinja2: templates/swh-apps-update-dependencies.groovy.j2
+
+    dsl: |
+      pipeline {
+          agent {
+              docker { image 'python:3.9' }
+          }
+          stages {
+              stage('Test') {
+                  steps {
+                      sh 'python --version'
+                  }
+              }
+          }
+      }
