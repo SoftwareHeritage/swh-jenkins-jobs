@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   jenkins_data:
+  gogs:
 
 services:
   jenkins:
@@ -18,3 +19,9 @@ services:
     ports:
       - 8080:8080
     entrypoint: /docker/entrypoint.sh
+  gogs:
+    image: gogs/gogs
+    volumes:
+      - gogs:/data
+    ports:
+      - 3000:3000
