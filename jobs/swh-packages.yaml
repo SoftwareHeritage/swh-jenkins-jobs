@@ -73,6 +73,7 @@
     python_module: swh.graphql
     jobs:
       - "swh-jobs-{name}"
+      - "{name}/build-and-push"
 
 - project:
     name: DCIDX
