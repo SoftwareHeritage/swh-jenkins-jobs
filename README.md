@@ -19,6 +19,11 @@ The output displays the jenkins configuration files as they will be applied on t
 
 # Run on docker
 
+Jenkins jobs configuration can be tested on a local temporary Jenkins instance
+executed in a docker container. The local ``swh-jenkins-jobs`` repository will be
+mounted as a volume and cloned by Jenkins so do not forget to commit the changes
+you want to test.
+
 - Launch jenkins
 ```
 docker-compose build
@@ -30,7 +35,7 @@ Connect to localhost:8080, then within the jenkins ui:
 - Change the `admin` password to `admin123`
 - Create a jenkins folder `jenkins-tools`
 - Create a new `free-style` job named `job-builder` inside the `jenkins-tools` targeting
-  this git repository `https://forge.softwareheritage.org/source/swh-jenkins-jobs.git`
+  this git repository `file:///opt/swh-jenkins-jobs`
   - Configure the branch (e.g. `*/master`)
   - Add a `build` step `Execute shell` with this content
 ```
