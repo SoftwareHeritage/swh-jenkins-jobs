@@ -56,25 +56,29 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh """
-          # Build javascript assets
-          if [ -f yarn.lock ]; then
-            yarn install --frozen-lockfile
-            yarn build
-          fi
+        withCredentials([
+          string(credentialsId: 'sentry-auth-token',
+                 variable: 'SENTRY_AUTH_TOKEN')]) {
+          sh """
+            # Build javascript assets
+            if [ -f yarn.lock ]; then
+              yarn install --frozen-lockfile
+              yarn build
+            fi
 
-          # Build java assets
-          if [ -d java ]; then
-            for pom in \$( find java/ -name pom.xml ) ; do
-              mvn -f \$pom compile assembly:single
-            done
-          fi
+            # Build java assets
+            if [ -d java ]; then
+              for pom in \$( find java/ -name pom.xml ) ; do
+                mvn -f \$pom compile assembly:single
+              done
+            fi
 
-          python3 setup.py sdist ${BDIST_WHEEL}
-        """
-        archiveArtifacts allowEmptyArchive: true,
-          artifacts: 'dist/*',
-          fingerprint: true
+            python3 setup.py sdist ${BDIST_WHEEL}
+          """
+          archiveArtifacts allowEmptyArchive: true,
+            artifacts: 'dist/*',
+            fingerprint: true
+        }
       }
     }
 
