@@ -38,6 +38,8 @@
           ./bin/install
           cd swh-graph
           make java >/dev/null
+          cd ../swh-web
+          yarn install
           cd ..
           # execute tests in each swh module
           exit_code=0
@@ -47,9 +49,11 @@
               tests_dir=$(echo $module | sed 's/-/\//g')/tests
               if [ -d "$tests_dir" ]
               then
-                # pipe tests output to stdout and log file
-                make test 2>&1 | tee ../$module.log
+                # pipe checks and tests output to stdout and log file
+                make check 2>&1 | tee ../$module.log
                 tests_status=${PIPESTATUS[0]}
+                make test 2>&1 | tee -a ../$module.log
+                tests_status=$(($tests_status + ${PIPESTATUS[0]}))
                 # remove log file if tests succeeded
                 if [[ "$tests_status" == "0" ]]
                 then
