@@ -98,7 +98,7 @@ pipeline {
         {%- endif %}
 
         stage('Sphinx documentation') {
-          {% filter indent(width=6) %}
+          {% filter indent(width=10) %}
             {%- include 'includes/agent-docker-sphinx.groovy.j2' -%}
           {% endfilter %}
 
