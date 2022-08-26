@@ -310,7 +310,9 @@
     pkg: web
     python_module: swh.web
     do_cypress: true
+    nb_cypress_runners: 4
     timeout: 30
+    max_concurrent: 3
     jobs:
       - "swh-jobs-{name}"
 

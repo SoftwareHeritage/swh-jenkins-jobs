@@ -1,74 +1,148 @@
 stage('Cypress tests') {
-  {% filter indent(width=2) %}
-    {%- include 'includes/agent-docker-cypress.groovy.j2' -%}
-  {% endfilter %}
+  steps {
+    script {
+      // set some useful environment variables
+      env.SORRY_CYPRESS_NETWORK = "sorry-cypress-network-${env.JOB_NAME}-${env.BUILD_ID}"
+      env.SORRY_CYPRESS_BUILD_ID = "${env.JOB_NAME}-${env.BUILD_ID}"
 
-  stages {
-    stage ('Setup cypress environment') {
-      steps {
-        sh '''
-          python3 -m pip install --no-use-pep517 --user -e .[testing]
-          yarn install --frozen-lockfile
-          yarn build-test
-        '''
-      }
-    }
+      // create a dedicated docker network to allow communication between sorry-cypress
+      // container and tests runner container
+      sh 'docker network create --driver bridge $SORRY_CYPRESS_NETWORK'
 
-    stage ('Run cypress tests') {
-      steps {
-        sh '''#!/bin/bash
-          export PYTHONPATH=$PWD
-          python3 swh/web/manage.py migrate --settings=swh.web.settings.tests
-          python3 swh/web/manage.py createcachetable --settings=swh.web.settings.tests
-          for create_users_script in swh/web/tests/create_test_*
-          do
-            cat $create_users_script | python3 swh/web/manage.py shell --settings=swh.web.settings.tests
-          done
-          python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests &
-          wait-for-it localhost:5004
-          yarn run cypress run --config numTestsKeptInMemory=0
-        '''
-      }
-      post {
-        always {
-          junit(
-            allowEmptyResults: true,
-            testResults: 'cypress/junit/results/*.xml',
-          )
+      // pull sorry-cypress docker image
+      def sorryCypressDirector = docker.image('agoldis/sorry-cypress-director')
+      sorryCypressDirector.pull()
 
-          sh '''
-            yarn run mochawesome || true
-            yarn run nyc report --reporter=lcov || true
-            yarn run nyc report --reporter=cobertura || true
-            rm -rf node_modules
-          '''
+      // execute sorry-cypress as a sidecar container
+      sorryCypressDirector.withRun("--network-alias sorry-cypress --network ${env.SORRY_CYPRESS_NETWORK}") { c ->
 
-          publishHTML (target: [
-            allowMissing: true,
-            alwaysLinkToLastBuild: false,
-            keepAll: true,
-            reportDir: 'cypress/mochawesome/report',
-            reportFiles: 'mochawesome.html',
-            reportName: "Mochawesome Tests Report"
-          ])
+        // run cypress tests into dedicated container with mounted yarn cache
+        docker.image('swh-jenkins/cypress').inside("--network ${env.SORRY_CYPRESS_NETWORK} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
-          publishHTML (target: [
-            allowMissing: true,
-            alwaysLinkToLastBuild: false,
-            keepAll: true,
-            reportDir: 'cypress/coverage/lcov-report',
-            reportFiles: 'index.html',
-            reportName: "Istanbul Code Coverage"
-          ])
+          script {
+            sh '''
+            # ensure sorry-cypress server is up
+            wait-for-it sorry-cypress:1234
 
-          publishCoverage(
-            adapters: [
-              coberturaAdapter(path: 'cypress/coverage/cobertura-coverage.xml'),
-            ],
-            tag: 'cypress',
-          )
+            # install swh-web python requirements
+            python3 -m pip install --no-use-pep517 --user -e .[testing]
+
+            # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
+            rm -f swh-web-test*.sqlite3*
+
+            # apply django migrations and create users (will produce swh-web-test.sqlite3 file)
+            python3 swh/web/manage.py migrate --settings=swh.web.settings.tests
+            for create_users_script in swh/web/tests/create_test_*
+            do
+              cat $create_users_script | python3 swh/web/manage.py shell --settings=swh.web.settings.tests
+            done
+
+            # build swh-web static assets in test mode (for code coverage)
+            yarn install --frozen-lockfile
+            yarn build-test
+
+            # change cypress API URL using cy2 one time to avoid race condition
+            # https://github.com/sorry-cypress/cy2/issues/16
+            node -e "const { patch } = require('cy2'); \
+            async function main() { \
+              await patch('http://sorry-cypress:1234'); \
+            } \
+            main().catch(console.error);"
+
+            # create needed folders for code coverage outputs
+            mkdir -p cypress/coverage
+            mkdir -p cypress/coverage_output
+            mkdir .nyc_output
+            mkdir .nyc_outputs
+
+            # create dedicated X11 server manually for cypress tests (recommended for parallel mode)
+            # https://docs.cypress.io/guides/continuous-integration/introduction#Xvfb
+            Xvfb -screen 0 1920x1080x24 :99 &
+            '''
+
+            parallel([
+              // create n cypress processes that will run tests affected by sorry-cypress in parallel
+              {% for n in range(1, nb_cypress_runners + 1) %}
+              'Cypress runner {{ n }}': {
+                sh '''
+                  # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
+                  export CYPRESS_PARALLEL_BUILD_ID={{ n }}
+
+                  # force use of manually created X11 server
+                  export DISPLAY=:99
+
+                  # copy database file to the one that will be used by django for that test runner
+                  cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
+
+                  # run django server on a dedicated port for that test runner and wait for it to be up
+                  python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
+                  wait-for-it -t 90 localhost:500{{ n }}
+
+                  # execute cypress tests
+                  yarn run cypress run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
+
+                  # copy nyc coverage outputs to dedicated merge folders for later processing
+                  cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
+                  cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
+                '''
+              },
+              {% endfor %}
+            ])
+          }
         }
       }
+    }
+  }
+  post {
+    always {
+      junit(
+        allowEmptyResults: true,
+        testResults: 'cypress/junit/results/*.xml',
+      )
+
+      sh '''
+        # generate HTML report for tests
+        yarn run mochawesome || true
+
+        # merge code coverage data produced by each cypress runner
+        yarn run nyc merge cypress/coverage_output cypress/coverage/coverage-final.json
+        yarn run nyc merge .nyc_outputs .nyc_output/out.json
+
+        # generate coverage reports
+        yarn run nyc report --reporter=lcov || true
+        yarn run nyc report --reporter=cobertura || true
+
+        # remove node_modules folder
+        rm -rf node_modules
+
+        # remove docker network created at the beginning of that stage
+        docker network rm $SORRY_CYPRESS_NETWORK || true
+      '''
+
+      publishHTML (target: [
+        allowMissing: true,
+        alwaysLinkToLastBuild: false,
+        keepAll: true,
+        reportDir: 'cypress/mochawesome/report',
+        reportFiles: 'mochawesome.html',
+        reportName: "Mochawesome Tests Report"
+      ])
+
+      publishHTML (target: [
+        allowMissing: true,
+        alwaysLinkToLastBuild: false,
+        keepAll: true,
+        reportDir: 'cypress/coverage/lcov-report',
+        reportFiles: 'index.html',
+        reportName: "Istanbul Code Coverage"
+      ])
+
+      publishCoverage(
+        adapters: [
+          coberturaAdapter(path: 'cypress/coverage/cobertura-coverage.xml'),
+        ],
+        tag: 'cypress',
+      )
     }
   }
 }
