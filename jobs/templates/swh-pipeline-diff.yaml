@@ -8,10 +8,11 @@
     default-tox-environment: py3
     concurrent: true
     sandbox: true
-    auth-token: 'ph4br1cat0r'
+    auth-token: "ph4br1cat0r"
     phabricator_diff: true
     do_cypress: false
     timeout: 10
+    max_concurrent: 0
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -39,6 +40,4 @@
           description: tox environment to use for the main tox run
           default: "{default-tox-environment}"
 
-    dsl:
-      !include-jinja2: swh-pipeline.groovy.j2
-
+    dsl: !include-jinja2: swh-pipeline.groovy.j2

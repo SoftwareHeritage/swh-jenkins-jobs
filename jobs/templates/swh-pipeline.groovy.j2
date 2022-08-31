@@ -3,6 +3,19 @@ pipeline {
     {%- include 'includes/agent-docker.groovy.j2' -%}
   {% endfilter %}
 
+  options {
+    // require "Throttle Concurrent Builds" Jenkins plugin
+    throttleJobProperty(
+      categories: [],
+      limitOneJobWithMatchingParams: false,
+      maxConcurrentPerNode: {{ max_concurrent }},
+      maxConcurrentTotal: {{ max_concurrent }},
+      paramsToUseForLimit: '',
+      throttleEnabled: true,
+      throttleOption: 'project',
+    )
+  }
+
   environment {
     PHAB_CONDUIT_URL = 'https://forge.softwareheritage.org/api/'
   }
