@@ -19,7 +19,7 @@
             - "*/master"
     wrappers:
       - timeout:
-          timeout: 90
+          timeout: 120
           abort: true
       - timestamps
 
