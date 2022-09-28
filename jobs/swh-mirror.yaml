@@ -1,0 +1,23 @@
+- project:
+    name: DFP
+    display-name: swh-mirror
+    jobs:
+      - "{name}"
+      - "{name}/run-tests"
+
+- job-template:
+    name: "{name}/run-tests"
+    project-type: pipeline
+    docker_image: tox
+    node: built-in
+
+    scm:
+      - git:
+          url: https://forge.softwareheritage.org/source/swh-mirror.git
+          branches:
+            - "*/master"
+
+    triggers:
+      - timed: "@midnight"
+
+    dsl: !include-jinja2: templates/swh-mirror-run-tests.groovy.j2
