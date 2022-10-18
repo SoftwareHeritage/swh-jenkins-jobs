@@ -26,6 +26,8 @@
     builders:
       - shell: |
           #!/bin/bash
+          # Don't fetch potentially large branches, we only need master
+          sed -i 's/git clone/git clone --single-branch/g' .mrconfig
           # fetch swh repositories
           mr -j 4 -t update
           # setup a virtualenv
