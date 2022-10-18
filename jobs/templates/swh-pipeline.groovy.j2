@@ -30,11 +30,12 @@ pipeline {
           $class: 'GitSCM',
           branches: [[name: "${params.REVISION}"]],
           doGenerateSubmoduleConfigurations: false,
-          extensions: [],
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
           gitTool: 'Default',
           submoduleCfg: [],
           userRemoteConfigs: [
-            [url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git'],
+            [url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
+             refspec: '+refs/heads/master:refs/remotes/origin/master'],
           ],
           browser: [$class: 'Phabricator', repoUrl: 'https://forge.softwareheritage.org', repo: '{{name}}']
         ])
