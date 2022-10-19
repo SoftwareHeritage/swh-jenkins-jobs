@@ -145,7 +145,7 @@ pipeline {
             }
 
             if ('cassandra' in wanted_extra_repositories) {
-              extra_repositories.add("deb http://www.apache.org/dist/cassandra/debian 40x main")
+              extra_repositories.add("deb https://debian.cassandra.apache.org 40x main")
               extra_repository_keys.add('cassandra.asc')
             }
 
