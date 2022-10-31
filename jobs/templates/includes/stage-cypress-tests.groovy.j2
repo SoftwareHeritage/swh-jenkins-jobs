@@ -74,11 +74,6 @@ stage('Cypress tests') {
                   # copy database file to the one that will be used by django for that test runner
                   cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
 
-                  # prevent a race condition when multiple cypress processes load the same support file in parallel
-                  # as copy operations are performed
-                  cp cypress/support/e2e.js cypress/support/e2e{{ n }}.js
-                  sed -i "s/supportFile: 'cypress\\/support\\/e2e.js'/supportFile: 'cypress\\/support\\/e2e{{ n }}.js'/" cypress.config.js
-
                   # run django server on a dedicated port for that test runner and wait for it to be up
                   python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
                   wait-for-it -t 90 localhost:500{{ n }}
