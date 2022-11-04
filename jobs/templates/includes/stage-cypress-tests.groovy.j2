@@ -71,6 +71,12 @@ stage('Cypress tests') {
                   # force use of manually created X11 server
                   export DISPLAY=:99
 
+                  # to avoid possible race conditions, each cypress runner will execute tests from
+                  # a copy of the swh-web repository filesystem (without root hidden folders)
+                  mkdir .swh-web{{ n }}
+                  cp -r ./* .swh-web{{ n }}
+                  cd .swh-web{{ n }}
+
                   # copy database file to the one that will be used by django for that test runner
                   cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
 
@@ -82,8 +88,8 @@ stage('Cypress tests') {
                   yarn run cypress run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
 
                   # copy nyc coverage outputs to dedicated merge folders for later processing
-                  cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
-                  cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
+                  cp cypress/coverage{{ n }}/coverage-final.json ../cypress/coverage_output/coverage-final{{ n }}.json
+                  cp .nyc_output{{ n }}/out.json ../.nyc_outputs/out{{ n }}.json
                 '''
               },
               {% endfor %}
