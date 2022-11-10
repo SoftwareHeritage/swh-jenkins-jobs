@@ -1,6 +1,14 @@
-- job:
+- project:
     name: swh-docker-dev
-    description: Build the swh/stack:latest image
+    jobs:
+      - swh-docker-dev
+
+
+- job-template:
+    name: swh-docker-dev
+    description: "Build the swh/stack:latest image"
+    project-type: pipeline
+    docker_image: tox
     node: built-in
 
     scm:
@@ -10,22 +18,6 @@
             - "*/master"
 
     triggers:
-        - timed: "@midnight"
+      - timed: "@midnight"
 
-    wrappers:
-      - timeout:
-          timeout: 30
-          abort: true
-      - timestamps
-
-    builders:
-      - shell: |
-            #!/bin/bash
-            cd docker
-            docker build --pull --no-cache -t swh/stack .
-            tox
-
-    publishers:
-        - archive:
-            artifacts: 'docker/**/*.logs'
-            allow-empty: true
+    dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2

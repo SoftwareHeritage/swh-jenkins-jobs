@@ -1,0 +1,55 @@
+pipeline {
+  agent none
+
+  options {
+    timeout(time: 30, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages {
+    stage('Checkout') {
+      agent {
+        label "built-in"
+      }
+
+      steps {
+        git url: "https://forge.softwareheritage.org/source/swh-environment.git"
+      }
+    }
+
+    stage('Build Docker images') {
+      agent {
+        label "built-in"
+      }
+
+      steps {
+        dir('docker') {
+          sh 'docker build --pull --no-cache -t swh/stack .'
+        }
+      }
+    }
+
+    stage('Run tests') {
+      {% filter indent(width=6) %}
+        {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+      {% endfilter %}
+
+      steps {
+        dir('docker') {
+          sh 'python3 -m tox -- -v'
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      node('built-in') {
+        archiveArtifacts(
+          allowEmptyArchive: true,
+          artifacts: 'docker/**/*.logs',
+        )
+      }
+    }
+  }
+}
