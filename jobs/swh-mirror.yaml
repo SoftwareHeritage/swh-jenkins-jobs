@@ -18,6 +18,6 @@
             - "*/master"
 
     triggers:
-      - timed: "@midnight"
+      - timed: "0 4 * * *"
 
     dsl: !include-jinja2: templates/swh-mirror-run-tests.groovy.j2
