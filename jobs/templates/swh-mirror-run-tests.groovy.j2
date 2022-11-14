@@ -51,17 +51,19 @@ pipeline {
 
       steps {
         unstash 'image-tag-env'
-        withCredentials([
-          usernamePassword(credentialsId: 'swh-mirror-test-kafka',
-                           usernameVariable: 'SWH_MIRROR_TEST_KAFKA_USERNAME',
-                           passwordVariable: 'SWH_MIRROR_TEST_KAFKA_PASSWORD'),
-          usernameColonPassword(credentialsId: 'swh-mirror-test-objstorage',
-                                variable: 'SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS')]) {
-          sh '''
-          python3 -m pip install -rrequirements-test.txt
-          SWH_MIRROR_TEST_OBJSTORAGE_URL="https://$SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS@$SWH_MIRROR_TEST_OBJSTORAGE_HOST/" \
-          python3 -m pytest -v --envfile=image-tag.env --timeout=3600
-          '''
+        lock('docker-agent-host-port-5080') {
+          withCredentials([
+            usernamePassword(credentialsId: 'swh-mirror-test-kafka',
+                             usernameVariable: 'SWH_MIRROR_TEST_KAFKA_USERNAME',
+                             passwordVariable: 'SWH_MIRROR_TEST_KAFKA_PASSWORD'),
+            usernameColonPassword(credentialsId: 'swh-mirror-test-objstorage',
+                                  variable: 'SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS')]) {
+            sh '''
+            python3 -m pip install -rrequirements-test.txt
+            SWH_MIRROR_TEST_OBJSTORAGE_URL="https://$SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS@$SWH_MIRROR_TEST_OBJSTORAGE_HOST/" \
+            python3 -m pytest -v --envfile=image-tag.env --timeout=3600
+            '''
+          }
         }
       }
     }

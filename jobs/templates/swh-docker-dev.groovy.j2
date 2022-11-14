@@ -35,8 +35,10 @@ pipeline {
       {% endfilter %}
 
       steps {
-        dir('docker') {
-          sh 'python3 -m tox -- -v'
+        lock('docker-agent-host-port-5080') {
+          dir('docker') {
+            sh 'python3 -m tox -- -v'
+          }
         }
       }
     }
