@@ -41,14 +41,6 @@ stage('Cypress tests') {
             yarn install --frozen-lockfile
             yarn build-test
 
-            # change cypress API URL using cy2 one time to avoid race condition
-            # https://github.com/sorry-cypress/cy2/issues/16
-            node -e "const { patch } = require('cy2'); \
-            async function main() { \
-              await patch('http://sorry-cypress:1234'); \
-            } \
-            main().catch(console.error);"
-
             # create needed folders for code coverage outputs
             mkdir -p cypress/coverage
             mkdir -p cypress/coverage_output
@@ -85,7 +77,8 @@ stage('Cypress tests') {
                   wait-for-it -t 90 localhost:500{{ n }}
 
                   # execute cypress tests
-                  yarn run cypress run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
+                  export CYPRESS_API_URL=http://sorry-cypress:1234
+                  yarn run cy2 run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
 
                   # copy nyc coverage outputs to dedicated merge folders for later processing
                   cp cypress/coverage{{ n }}/coverage-final.json ../cypress/coverage_output/coverage-final{{ n }}.json
