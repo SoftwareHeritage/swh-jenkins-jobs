@@ -38,6 +38,7 @@ stage('Cypress tests') {
             done
 
             # build swh-web static assets in test mode (for code coverage)
+            export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
             yarn install --frozen-lockfile
             yarn build-test
 
@@ -59,6 +60,7 @@ stage('Cypress tests') {
                 sh '''
                   # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
                   export CYPRESS_PARALLEL_BUILD_ID={{ n }}
+                  export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
 
                   # force use of manually created X11 server
                   export DISPLAY=:99
