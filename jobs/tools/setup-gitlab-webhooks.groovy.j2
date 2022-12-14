@@ -1,0 +1,84 @@
+pipeline {
+  agent any
+
+  environment {
+    GITLAB_TOKEN = credentials("jenkins-gitlab-token")
+  }
+
+  stages {
+
+    stage('Checkout Repository') {
+      steps {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: 'master']],
+          userRemoteConfigs: [[
+            url: "http://forge.softwareheritage.org/source/swh-jenkins-jobs.git",
+          ]],
+        ])
+      }
+    }
+
+    stage('Setup gitlab integration') {
+      steps {
+        script {
+          setupGitlabWebhook("swh/infra/ci-cd/swh-jenkins-jobs",
+                             "jenkins-tools/swh-jenkins-jobs-builder",
+                             true, true, false)
+
+          projects = readYaml(file: 'jobs/swh-packages.yaml')
+          for (project in projects) {
+            if (project.containsKey("project")) {
+              def jenkinsFolder = project.get('project').get('name')
+              def repoName= project.get('project').get('repo_name')
+              def gitlabProjectName = "swh/devel/${repoName}"
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-tests")
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void setupGitlabWebhook(gitlabProjectName, jenkinsProjectName, pushEvents = true,
+                        mergeRequestEvents = true, tagPushEvents = false) {
+
+  def webhookUrl = "${jenkins_url}/project/${jenkinsProjectName}"
+  def gitlabProjectEncoded = java.net.URLEncoder.encode(gitlabProjectName, "UTF-8")
+  def payload = """
+    {
+      "id": "${gitlabProjectEncoded}",
+      "url": "${webhookUrl}",
+      "push_events": "${pushEvents}",
+      "merge_requests_events": "${mergeRequestEvents}",
+      "tag_push_events": "${tagPushEvents}",
+      "token": "{{jenkins_token}}"
+    }
+    """
+
+    def url = "${gitlab_url}/api/v4/projects/${gitlabProjectEncoded}/hooks"
+
+    // get current webhooks of the gitlab project
+    def response = httpRequest httpMode: 'GET', url: url,
+          contentType: 'APPLICATION_JSON',
+          customHeaders: [[name: 'Authorization', value: "Bearer $GITLAB_TOKEN"]]
+
+    def hooks = readJSON text: response.content
+    for (hook in hooks) {
+      if (hook.url == webhookUrl) {
+        // update previously set webhook for jenkins job
+        httpRequest httpMode: 'PUT', url: "${url}/${hook.id}",
+          contentType: 'APPLICATION_JSON', requestBody: payload,
+          customHeaders: [[name: 'Authorization', value: "Bearer $GITLAB_TOKEN"]]
+        return
+      }
+    }
+
+    // add webhook for jenkins job
+    httpRequest httpMode: 'POST', url: url,
+      contentType: 'APPLICATION_JSON', requestBody: payload,
+      customHeaders: [[name: 'Authorization', value: "Bearer $GITLAB_TOKEN"]]
+
+}
+

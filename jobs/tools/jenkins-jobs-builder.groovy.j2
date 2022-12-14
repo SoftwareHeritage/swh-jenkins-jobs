@@ -37,6 +37,9 @@ pipeline {
       steps {
         script {
           sh('tox -- update --delete-old')
+          build(
+            job: '/jenkins-tools/setup-gitlab-webhooks',
+          )
         }
       }
     }
