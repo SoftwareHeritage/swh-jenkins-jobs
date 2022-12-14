@@ -10,6 +10,7 @@
     sandbox: true
     auth-token: "ph4br1cat0r"
     phabricator_diff: true
+    gitlab_project: false
     do_cypress: false
     timeout: 10
     max_concurrent: 0
