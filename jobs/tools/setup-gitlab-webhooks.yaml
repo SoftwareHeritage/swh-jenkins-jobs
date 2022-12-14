@@ -1,0 +1,25 @@
+- job-template:
+    name: jenkins-tools/{name}
+    project-type: pipeline
+    description: Setup Jenkins integration for a GitLab repository
+    node: built-in
+    # secret jenkins token is generated when executing tox
+    jenkins_token: !include-raw: jobs/templates/jenkins-token
+    parameters:
+      - string:
+          name: gitlab_url
+          description: URL of GitLab instance
+          default: https://gitlab-staging.swh.network
+      - string:
+          name: jenkins_url
+          description: URL of Jenkins instance
+          default: https://jenkins.softwareheritage.org
+
+    dsl: !include-jinja2: setup-gitlab-webhooks.groovy.j2
+
+# we use a project and a job template here as we need jinja2 processing
+# to inline the generated jenkins token into the pipeline groovy script
+- project:
+    name: setup-gitlab-webhooks
+    jobs:
+      - "jenkins-tools/{name}"
