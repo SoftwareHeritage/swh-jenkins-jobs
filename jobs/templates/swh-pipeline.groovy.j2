@@ -16,33 +16,60 @@ pipeline {
     )
   }
 
+  {%- if not gitlab_project %}
   environment {
     PHAB_CONDUIT_URL = 'https://forge.softwareheritage.org/api/'
   }
+  {%- endif %}
 
   stages {
     stage('Checkout') {
       steps {
+        {%- if not gitlab_project %}
         {% filter indent(width=8) %}
           {%- include 'includes/create-phabricator-artifacts.groovy.j2' -%}
         {% endfilter %}
+        {%- else %}
+          updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        {%- endif %}
         checkout([
           $class: 'GitSCM',
-          branches: [[name: "${params.REVISION}"]],
+          {%- if gitlab_project %}
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/* \
+                      +refs/tags/*:refs/remotes/origin/tags*',
+          ]],
+          branches: [[
+            name: params.REVISION ?: "${env.gitlabSourceBranch}"
+          ]],
+          browser: [
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ],
+          {%- else %}
+          userRemoteConfigs: [[
+            url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
+            refspec: '+refs/heads/master:refs/remotes/origin/master',
+          ]],
+          branches: [[
+            name: "${params.REVISION}"
+          ]],
+          browser: [
+            $class: 'Phabricator',
+            repoUrl: 'https://forge.softwareheritage.org', repo: '{{name}}'
+          ],
+          {%- endif %}
           doGenerateSubmoduleConfigurations: false,
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
           gitTool: 'Default',
           submoduleCfg: [],
-          userRemoteConfigs: [
-            [url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
-             refspec: '+refs/heads/master:refs/remotes/origin/master'],
-          ],
-          browser: [$class: 'Phabricator', repoUrl: 'https://forge.softwareheritage.org', repo: '{{name}}']
         ])
       }
     }
 
-    {%- if phabricator_diff %}
+    {%- if not gitlab_project and phabricator_diff %}
     stage('Apply phabricator diff') {
       steps {
         {% filter indent(width=8) %}
@@ -132,6 +159,17 @@ pipeline {
   } // stages
 
   post {
+    {%- if gitlab_project %}
+    failure {
+      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+    }
+    success {
+      updateGitlabCommitStatus name: 'jenkins', state: 'success'
+    }
+    aborted {
+      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+    }
+    {%- else %}
     always {
       step([$class: 'PhabricatorNotifier',
             commentOnSuccess: true,
@@ -144,6 +182,7 @@ pipeline {
             lintFileSize: '1000000',
       ])
     } // always
+    {%- endif %}
 
     cleanup {
       cleanWs()
