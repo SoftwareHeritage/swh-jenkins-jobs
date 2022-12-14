@@ -1,0 +1,56 @@
+pipeline {
+  agent any
+
+  stages {
+
+    stage('Checkout Repository') {
+      steps {
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: env.gitlabSourceBranch ?: "master"]],
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*'
+          ]],
+        ])
+      }
+    }
+
+    stage('Test Jenkins jobs can be generated') {
+      steps {
+        sh('tox')
+      }
+    }
+
+    stage('Update Jenkins jobs and setup gitlab webhooks') {
+      when {
+        // really update jenkins jobs configuration when pushing commits to master
+        // or when manually triggering the job from Jenkins UI
+        expression { !env.gitlabMergeRequestIid }
+        anyOf {
+          expression { !env.gitlabSourceBranch }
+          expression { "${env.gitlabSourceBranch}" == "master" }
+        }
+      }
+      steps {
+        script {
+          sh('tox -- update --delete-old')
+        }
+      }
+    }
+  }
+
+  post {
+    failure {
+      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+    }
+    success {
+      updateGitlabCommitStatus name: 'jenkins', state: 'success'
+    }
+    aborted {
+      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+    }
+  }
+}

@@ -1,0 +1,31 @@
+- job-template:
+    name: jenkins-tools/{project_name}
+    project-type: pipeline
+    description: Update jenkins jobs and setup GitLab webhooks
+    node: built-in
+    gitlab_url: https://gitlab-staging.swh.network
+    gitlab_connection_name: gitlab-staging
+    gitlab_project_name: swh/infra/ci-cd/swh-jenkins-jobs
+    properties:
+      - build-discarder:
+          days-to-keep: 7
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jobs/templates/jenkins-token
+
+    dsl: !include-jinja2: jenkins-jobs-builder.groovy.j2
+
+# we use a project and a job template here as we need jinja2 processing
+- project:
+    name: swh-jenkins-jobs-builder
+    project_name: swh-jenkins-jobs-builder
+    jobs:
+      - "jenkins-tools/{project_name}"
