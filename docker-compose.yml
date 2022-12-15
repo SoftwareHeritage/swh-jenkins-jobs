@@ -7,14 +7,13 @@ volumes:
 services:
   jenkins:
     image: swh-jenkins:latest
-    build:
-      context: docker
-      args:
-        DOCKER_GROUP: 998
+    build: ./docker
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/opt/swh-jenkins-jobs
+      - ./docker:/docker
+      - ./docker/jenkins_jobs.ini:/etc/jenkins_jobs/jenkins_jobs.ini
     environment:
       - PLUGINS_FORCE_UPGRADE=true
       - JAVA_OPTS=-Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true

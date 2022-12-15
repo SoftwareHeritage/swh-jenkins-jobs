@@ -6,7 +6,7 @@ RUN apt-get update && apt-get -y install python3-pip && \
     pip install tox
 
 # Adapt this group if the docker gid is not 999 on your local environment
-ARG DOCKER_GROUP 998
+ARG DOCKER_GROUP=998
 
 # Install docker tools
 RUN addgroup --gid ${DOCKER_GROUP} docker && \
@@ -17,12 +17,6 @@ RUN addgroup --gid ${DOCKER_GROUP} docker && \
     apt-get update && \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
-COPY --chown=jenkins:jenkins . /docker/
-COPY jenkins_jobs.ini /etc/jenkins_jobs/jenkins_jobs.ini
-
-RUN adduser jenkins docker && \
-    chmod a+x /docker/entrypoint.sh
+RUN adduser jenkins docker
 
 USER jenkins
-
-ENTRYPOINT /docker/entrypoint.sh
