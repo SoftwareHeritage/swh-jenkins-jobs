@@ -1,15 +1,16 @@
-- job-template:
+- job-template: &pypi_upload
     name: "{name}/pypi-upload"
     display-name: "Upload to PyPI"
     docker_image: tox
     include_bdist: true
     project-type: pipeline
     sandbox: true
+    gitlab_project: false
     properties:
       - build-discarder:
           artifact-num-to-keep: 10
       - copyartifact:
-          projects: '*'
+          projects: "*"
     parameters:
       - git-parameter:
           name: GIT_TAG
@@ -45,8 +46,13 @@
             Proceed even if the tests are failing on the repository.
       - bool:
           name: INCLUDE_BDIST
-          default: '{include_bdist}'
+          default: "{include_bdist}"
           description: |
             Include a binary distribution in the PyPI upload.
-    dsl:
-      !include-jinja2: swh-pypi.groovy.j2
+    dsl: !include-jinja2: swh-pypi.groovy.j2
+
+- job-template:
+    name: "{name}/gitlab-pypi-upload"
+    display-name: "Upload to PyPI (GitLab)"
+    gitlab_project: true
+    <<: *pypi_upload

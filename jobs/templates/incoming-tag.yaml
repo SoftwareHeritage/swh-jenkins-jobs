@@ -2,9 +2,10 @@
     name: "{name}/incoming-tag"
     display-name: Incoming tag
     project-type: pipeline
-    auth-token: 'ph4br1cat0r'
+    auth-token: "ph4br1cat0r"
     incoming_tag_auto_pypi_host: pypi.org
     sandbox: true
+    gitlab_project: false
     properties:
       - build-discarder:
           num-to-keep: 20
@@ -15,11 +16,23 @@
           type: PT_TAG
           sortMode: DESCENDING_SMART
           selectedValue: TOP
-    dsl:
-      !include-jinja2: incoming-tag.groovy.j2
+    dsl: !include-jinja2: incoming-tag.groovy.j2
 
 - job-template:
     name: "debian/deps/{name}/incoming-tag"
-    dsl:
-      !include-jinja2: dependency-incoming-tag.groovy.j2
+    dsl: !include-jinja2: dependency-incoming-tag.groovy.j2
+    <<: *incoming_tag
+
+- job-template:
+    name: "{name}/gitlab-incoming-tag"
+    display-name: Incoming tag (GitLab)
+    gitlab_project: true
+    parameters:
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: false
+          add-ci-message: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jenkins-token
     <<: *incoming_tag

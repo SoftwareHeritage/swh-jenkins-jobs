@@ -10,6 +10,8 @@
       - "{name}/tests"
       - "{name}/tests-on-diff"
       - "{name}/gitlab-tests"
+      - "{name}/gitlab-incoming-tag"
+      - "{name}/gitlab-pypi-upload"
       - "debian/packages/{name}"
       - "debian/packages/{name}/update-for-release"
       - "debian/packages/{name}/automatic-backport"

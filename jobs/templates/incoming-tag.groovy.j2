@@ -6,6 +6,20 @@ pipeline {
       steps {
         checkout([
           $class: 'GitSCM',
+          {%- if gitlab_project %}
+          userRemoteConfigs: [[
+            name:'origin', url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/tags/*:refs/remotes/origin/tags*'
+          ]],
+          branches: [[
+            name: "${env.gitlabSourceBranch}"
+          ]],
+          browser: [
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ],
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          {%- else %}
           userRemoteConfigs: [[
             url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
           ]],
@@ -17,24 +31,40 @@ pipeline {
             repo: '{{repo_name}}',
             repoUrl: 'https://forge.softwareheritage.org/',
           ],
+          {%- endif %}
         ])
       }
     }
     stage('Build and upload PyPI package') {
       when {
+        {%- if gitlab_project %}
+        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
+        expression { jobExists('/{{name}}/gitlab-pypi-upload') }
+        {%- else %}
         expression { params.GIT_TAG ==~ /v\d+(.\d+)+/ }
         expression { jobExists('/{{name}}/pypi-upload') }
+        {%- endif %}
+
       }
       steps {
         build(
+          {%- if gitlab_project %}
+          job: '/{{name}}/gitlab-pypi-upload',
+          {%- else %}
           job: '/{{name}}/pypi-upload',
+          {%- endif %}
           parameters: [
+            {%- if gitlab_project %}
+            string(name: 'GIT_TAG', value: "${env.gitlabSourceBranch}"),
+            {%- else %}
             string(name: 'GIT_TAG', value: params.GIT_TAG),
+            {%- endif %}
             string(name: 'PYPI_HOST', value: '{{incoming_tag_auto_pypi_host}}'),
           ],
         )
       }
     }
+    {%- if not gitlab_project %}
     stage('Update Debian packaging for new release') {
       when {
         expression { params.GIT_TAG ==~ /v\d+(.\d+)+/ }
@@ -67,5 +97,6 @@ pipeline {
         )
       }
     }
+    {%- endif %}
   }
 }
