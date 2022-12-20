@@ -33,6 +33,8 @@ pipeline {
               def repoName= project.get('project').get('repo_name')
               def gitlabProjectName = "swh/devel/${repoName}"
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-tests")
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-incoming-tag",
+                                 false, false, true)
             }
           }
         }
