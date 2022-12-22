@@ -5,7 +5,6 @@
     include_bdist: true
     project-type: pipeline
     sandbox: true
-    gitlab_project: false
     properties:
       - build-discarder:
           artifact-num-to-keep: 10

@@ -3,25 +3,35 @@ pipeline {
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
   {% endfilter %}
 
+  {%- if not gitlab_project %}
   environment {
     PHAB_CONDUIT_URL = 'https://forge.softwareheritage.org/api/'
   }
+  {%- endif %}
 
   stages {
     stage('Checkout swh environment') {
       steps {
+        {%- if not gitlab_project %}
         {% filter indent(width=8) %}
           {%- include 'templates/includes/create-phabricator-artifacts.groovy.j2' -%}
         {% endfilter %}
+        {%- else %}
+          updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        {%- endif %}
         checkout([
           $class: 'GitSCM',
           doGenerateSubmoduleConfigurations: false,
           extensions: [[$class: 'CloneOption', depth: 1, shallow: true]],
           gitTool: 'Default',
           submoduleCfg: [],
-          userRemoteConfigs: [
-            [url: 'https://forge.softwareheritage.org/source/swh-environment.git'],
-          ],
+          userRemoteConfigs: [[
+            {%- if not gitlab_project %}
+            url: 'https://forge.softwareheritage.org/source/swh-environment.git'
+            {%- else %}
+            url: '{{gitlab_url}}/swh/devel/swh-environment.git'
+            {%- endif %}
+          ]],
         ])
       }
     }
@@ -40,6 +50,7 @@ pipeline {
       }
     }
 
+    {%- if not gitlab_project %}
     stage('Apply phabricator diff') {
       steps {
         dir('swh-docs') {
@@ -49,11 +60,20 @@ pipeline {
         }
       }
     }
+    {%- endif %}
 
     stage('Build Software Heritage documentation') {
       steps {
         dir('swh-docs') {
           script {
+            {%- if gitlab_project %}
+            if ("${env.gitlabMergeRequestIid}" != "") {
+              sh "git fetch origin merge-requests/${env.gitlabMergeRequestIid}/head:merge_request && \
+                  git checkout merge_request"
+            } else {
+              sh "git checkout ${env.gitlabSourceBranch}"
+            }
+            {%- endif %}
             sh '''#!/bin/bash
             SPHINXOPTS='-W -q --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev
             '''
@@ -64,7 +84,19 @@ pipeline {
   }
 
   post {
+    {%- if gitlab_project %}
+    failure {
+      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+    }
+    success {
+      updateGitlabCommitStatus name: 'jenkins', state: 'success'
+    }
+    aborted {
+      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+    }
+    {%- endif %}
     always {
+      {%- if not gitlab_project %}
       step([$class: 'PhabricatorNotifier',
             commentOnSuccess: true,
             commentWithConsoleLinkOnFailure: true,
@@ -75,6 +107,7 @@ pipeline {
             lintFile: '.phabricator-lint',
             lintFileSize: '1000000',
       ])
+      {%- endif %}
 
       archiveArtifacts(
         allowEmptyArchive: true,

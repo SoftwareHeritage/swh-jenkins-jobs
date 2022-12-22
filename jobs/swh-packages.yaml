@@ -1,7 +1,5 @@
 - job-group:
     name: "swh-jobs-{name}"
-    gitlab_url: https://gitlab-staging.swh.network
-    gitlab_connection_name: gitlab-staging
     gitlab_project_name: "swh/devel/{repo_name}"
     jobs:
       - "{name}"
