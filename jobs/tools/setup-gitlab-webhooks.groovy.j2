@@ -25,6 +25,8 @@ pipeline {
           setupGitlabWebhook("swh/infra/ci-cd/swh-jenkins-jobs",
                              "jenkins-tools/swh-jenkins-jobs-builder",
                              true, true, false)
+          setupGitlabWebhook("swh/devel/swh-docs", "DDOC/gitlab-builds",
+                             true, true, false)
 
           projects = readYaml(file: 'jobs/swh-packages.yaml')
           for (project in projects) {

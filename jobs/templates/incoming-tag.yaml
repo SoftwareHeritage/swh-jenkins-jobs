@@ -5,7 +5,6 @@
     auth-token: "ph4br1cat0r"
     incoming_tag_auto_pypi_host: pypi.org
     sandbox: true
-    gitlab_project: false
     properties:
       - build-discarder:
           num-to-keep: 20

@@ -3,8 +3,6 @@
     project-type: pipeline
     description: Update jenkins jobs and setup GitLab webhooks
     node: built-in
-    gitlab_url: https://gitlab-staging.swh.network
-    gitlab_connection_name: gitlab-staging
     gitlab_project_name: swh/infra/ci-cd/swh-jenkins-jobs
     properties:
       - build-discarder:

@@ -9,7 +9,7 @@
       - string:
           name: gitlab_url
           description: URL of GitLab instance
-          default: https://gitlab-staging.swh.network
+          default: "{gitlab_url}"
       - string:
           name: jenkins_url
           description: URL of Jenkins instance
