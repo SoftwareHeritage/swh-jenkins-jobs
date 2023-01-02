@@ -79,6 +79,14 @@
       - 'dependency-jobs-{name}'
 
 - project:
+    name: PRMD
+    display-name: python3-repomd
+    repo_name: python3-repomd
+    pkg: repomd
+    jobs:
+      - 'dependency-jobs-{name}'
+
+- project:
     name: PKCL
     display-name: python3-keycloak
     repo_name: python3-keycloak
