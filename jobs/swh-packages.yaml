@@ -14,6 +14,9 @@
       - "debian/packages/{name}/update-for-release"
       - "debian/packages/{name}/automatic-backport"
       - "debian/packages/{name}/gbp-buildpackage"
+      - "debian/packages/{name}/gitlab-update-for-release"
+      - "debian/packages/{name}/gitlab-automatic-backport"
+      - "debian/packages/{name}/gitlab-gbp-buildpackage"
 
 - project:
     name: DAUTH

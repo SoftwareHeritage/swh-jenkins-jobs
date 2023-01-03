@@ -27,6 +27,9 @@
     display-name: Incoming tag (GitLab)
     gitlab_project: true
     parameters:
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
     triggers:
       - gitlab:
           trigger-push: true

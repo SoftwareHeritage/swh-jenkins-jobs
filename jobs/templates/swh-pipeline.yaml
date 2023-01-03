@@ -50,6 +50,8 @@
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jenkins-token
+          branch-filter-type: RegexBasedFilter
+          target-branch-regex: ^(?!(debian|pristine-tar)).*
     gitlab_project: true
     parameters:
       - string:

@@ -28,7 +28,6 @@ pipeline {
       when {
         // really update jenkins jobs configuration when pushing commits to master
         // or when manually triggering the job from Jenkins UI
-        expression { !env.gitlabMergeRequestIid }
         anyOf {
           expression { !env.gitlabSourceBranch }
           expression { "${env.gitlabSourceBranch}" == "master" }

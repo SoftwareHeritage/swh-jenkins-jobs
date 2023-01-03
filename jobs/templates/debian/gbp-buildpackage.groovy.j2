@@ -9,14 +9,21 @@ def repo_path = '/srv/softwareheritage/repository'
 def upload_target = "${repo_path}/incoming"
 def repo_command = "umask 002; reprepro -vb ${repo_path} processincoming incoming"
 
+{%- if not gitlab_project %}
 def backport_job = '/' + (currentBuild.fullProjectName.split('/')[0..-2] + ['automatic-backport']).join('/')
+{%- else %}
+def backport_job = '/' + (currentBuild.fullProjectName.split('/')[0..-2] + ['gitlab-automatic-backport']).join('/')
+{%- endif %}
 
 pipeline {
   agent { label 'debian' }
+  {%- if not gitlab_project %}
   environment {
     PHAB_CONDUIT_URL = 'https://forge.softwareheritage.org/api/'
   }
+  {%- endif %}
   stages {
+    {%- if not gitlab_project %}
     stage('Notify Phabricator start') {
       when {
         beforeAgent true
@@ -33,6 +40,7 @@ pipeline {
         }
       }
     }
+    {%- endif %}
     stage('Checkout') {
       steps {
         cleanWs()
@@ -40,7 +48,11 @@ pipeline {
           $class: 'GitSCM',
           branches: [[name: params.GIT_REVISION]],
           userRemoteConfigs: [[
+            {%- if not gitlab_project %}
             url: "https://forge.softwareheritage.org/source/${repo_name}.git",
+            {%- else %}
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            {%- endif %}
           ]],
           extensions: [
             [$class: 'RelativeTargetDirectory', relativeTargetDir: repo_name],
@@ -249,6 +261,7 @@ pipeline {
       }
     }
   }
+  {%- if not gitlab_project %}
   post {
     always {
       node('swh-tox') {
@@ -272,4 +285,5 @@ pipeline {
       }
     }
   }
+  {%- endif %}
 }
