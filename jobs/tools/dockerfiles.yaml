@@ -1,4 +1,4 @@
-- job:
+- job: &swh_jenkins_dockerfiles
     name: jenkins-tools/swh-jenkins-dockerfiles
     node: built-in
     scm:
@@ -8,8 +8,8 @@
     triggers:
       - pollscm:
           cron: "H/30 * * * *"
-      - timed: '@daily'
-    auth-token: 'ph4br1cat0r'
+      - timed: "@daily"
+    auth-token: "ph4br1cat0r"
     properties:
       - build-discarder:
           days-to-keep: 7
@@ -18,3 +18,32 @@
       - ansicolor
     builders:
       - shell: make checkrebuild all
+
+# we need a job-template to substitute gitlab_* variables
+- job-template:
+    name: jenkins-tools/{dockerfiles_job_name}
+    scm:
+      - git:
+          url: "{gitlab_url}/swh/infra/ci-cd/swh-jenkins-dockerfiles.git"
+          wipe-workspace: false
+    auth-token:
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jobs/templates/jenkins-token
+    publishers:
+      - gitlab-notifier
+    <<: *swh_jenkins_dockerfiles
+
+- project:
+    name: gitlab-swh-jenkins-dockerfiles
+    dockerfiles_job_name: "{name}"
+    jobs:
+      - "jenkins-tools/{dockerfiles_job_name}"

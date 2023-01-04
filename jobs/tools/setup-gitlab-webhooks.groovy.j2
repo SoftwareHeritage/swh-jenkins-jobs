@@ -25,6 +25,9 @@ pipeline {
           setupGitlabWebhook("swh/infra/ci-cd/swh-jenkins-jobs",
                              "jenkins-tools/swh-jenkins-jobs-builder",
                              true, true, false)
+          setupGitlabWebhook("swh/infra/ci-cd/swh-jenkins-dockerfiles",
+                             "jenkins-tools/gitlab-swh-jenkins-dockerfiles",
+                             true, true, false)
           setupGitlabWebhook("swh/devel/swh-docs", "DDOC/gitlab-builds",
                              true, true, false)
 
