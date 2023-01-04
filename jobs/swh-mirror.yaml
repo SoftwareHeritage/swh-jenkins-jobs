@@ -4,8 +4,9 @@
     jobs:
       - "{name}"
       - "{name}/run-tests"
+      - "{name}/gitlab-run-tests"
 
-- job-template:
+- job-template: &swh_mirror_run_tests
     name: "{name}/run-tests"
     project-type: pipeline
     docker_image: tox
@@ -15,3 +16,19 @@
       - timed: "0 4 * * *"
 
     dsl: !include-jinja2: templates/swh-mirror-run-tests.groovy.j2
+
+- job-template:
+    name: "{name}/gitlab-run-tests"
+    gitlab_project: true
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jobs/templates/jenkins-token
+    <<: *swh_mirror_run_tests

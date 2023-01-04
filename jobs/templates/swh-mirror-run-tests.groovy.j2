@@ -21,7 +21,14 @@ pipeline {
       }
 
       steps {
+        {%- if gitlab_project %}
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        {%- endif %}
+        {%- if not gitlab_project %}
         git url: "https://forge.softwareheritage.org/source/swh-mirror.git"
+        {%- else %}
+        git url: "{{gitlab_url}}/swh/infra/swh-mirror.git"
+        {%- endif %}
       }
     }
 
@@ -83,5 +90,16 @@ pipeline {
         '''
       }
     }
+    {%- if gitlab_project %}
+    failure {
+      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+    }
+    success {
+      updateGitlabCommitStatus name: 'jenkins', state: 'success'
+    }
+    aborted {
+      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+    }
+    {%- endif %}
   }
 }
