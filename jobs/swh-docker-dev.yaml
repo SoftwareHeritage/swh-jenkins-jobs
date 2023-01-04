@@ -3,19 +3,12 @@
     jobs:
       - swh-docker-dev
 
-
 - job-template:
     name: swh-docker-dev
     description: "Build the swh/stack:latest image"
     project-type: pipeline
     docker_image: tox
     node: built-in
-
-    scm:
-      - git:
-          url: https://forge.softwareheritage.org/source/swh-environment.git
-          branches:
-            - "*/master"
 
     triggers:
       - timed: "@midnight"
