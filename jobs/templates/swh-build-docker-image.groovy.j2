@@ -2,7 +2,13 @@ def repo_name = "{{repo_name}}"
 
 // Normalize to "latest" if we build from head commit (main or master)
 // Otherwise, keep the transmitted tag
+{%- if gitlab_project %}
+// remove refs/tags/ prefix from source branch
+def tag = env.gitlabSourceBranch.substring(10)
+{%- else %}
 def tag = params.TAG
+{%- endif %}
+
 def tag_name = ( tag == "origin/main" || tag == "origin/master" ) ? "latest" : tag
 
 // The following is configured in jenkins manually:
@@ -27,35 +33,67 @@ def image_label = env.BUILD_TAG
 // - push: publish to the registry
 // TAG, REGISTRY_URL must be provided
 
-node('built-in') {
-  stage ('Pre-cleanup') {
-    cleanWs()
-  }
-  stage('Checkout Repository') {
-    checkout([
-      $class: 'GitSCM',
-      branches: [[name: tag]],
-      userRemoteConfigs: [[
-        url: "https://forge.softwareheritage.org/source/${repo_name}/",
-      ]],
-    ])
-  }
-  def dockerImage
-  stage ('Build image') {
-    sh "make build TAG=${tag} IMAGE_LABEL=${image_label}"
-  }
-  stage ('Push image') {
-    // first make sure the image is ok
-    sh "make test TAG=${tag}"
-    // then publish it
-    docker.withRegistry("https://${registry_url}", dockerCredentialsKeyID) {
-      sh "make push TAG=${tag} REGISTRY_URL=${registry_url}"
+pipeline {
+  agent any
+  stages {
+    stage ('Pre-cleanup') {
+      steps {
+        cleanWs()
+      }
     }
+    stage('Checkout Repository') {
+      steps {
+        {%- if gitlab_project %}
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        {%- endif %}
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: tag]],
+          userRemoteConfigs: [[
+            {%- if not gitlab_project %}
+            url: "https://forge.softwareheritage.org/source/${repo_name}/",
+            {%- else %}
+            url: "{{gitlab_url}}/{{gitlab_project_name}}"
+            {%- endif %}
+          ]],
+        ])
+      }
+    }
+    stage ('Build image') {
+      steps {
+        sh "make build TAG=${tag} IMAGE_LABEL=${image_label}"
+      }
+    }
+    stage ('Push image') {
+      steps {
+        script {
+          // first make sure the image is ok
+          sh "make test TAG=${tag}"
+          // then publish it
+          docker.withRegistry("https://${registry_url}", dockerCredentialsKeyID) {
+            sh "make push TAG=${tag} REGISTRY_URL=${registry_url}"
+          }
+        }
+      }
+    }
+  }
+  post {
     always {
-      // finally clean workspace
-      cleanWs()
       // and locally built image (resulting from the current jenkins build)
       sh "make clean IMAGE_LABEL=${image_label}"
+      // finally clean workspace
+      cleanWs()
     }
+    {%- if gitlab_project %}
+    failure {
+      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+    }
+    success {
+      updateGitlabCommitStatus name: 'jenkins', state: 'success'
+    }
+    aborted {
+      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+    }
+    {%- endif %}
   }
 }

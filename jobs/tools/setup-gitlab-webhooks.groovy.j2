@@ -32,6 +32,8 @@ pipeline {
                              true, true, false)
           setupGitlabWebhook("swh/infra/swh-mirror", "DFP/gitlab-run-tests",
                              true, true, false)
+          setupGitlabWebhook("swh/devel/fixtures/maven-index-exporter", "DLSMAVEXP/gitlab-build-and-push",
+                             false, false, true)
 
           projects = readYaml(file: 'jobs/swh-packages.yaml')
           for (project in projects) {
