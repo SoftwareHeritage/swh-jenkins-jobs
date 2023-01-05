@@ -66,11 +66,16 @@
     dsl: !include-jinja2: gbp-buildpackage.groovy.j2
 
 - job-template:
+    name: "debian/packages/{name}/gitlab-gbp-buildpackage"
+    description: Build Debian package (GitLab)
+    gitlab_project: true
+    <<: *gbp_buildpackage
+
+- job-template:
     name: "debian/deps/{name}/gbp-buildpackage"
     <<: *gbp_buildpackage
 
 - job-template:
-    name: "debian/packages/{name}/gitlab-gbp-buildpackage"
-    description: Build Debian package (GitLab)
+    name: "debian/deps/{name}/gitlab-gbp-buildpackage"
     gitlab_project: true
     <<: *gbp_buildpackage

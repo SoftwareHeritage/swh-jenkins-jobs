@@ -44,6 +44,17 @@ pipeline {
                                  false, false, true)
             }
           }
+
+          projects = readYaml(file: 'jobs/dependency-packages.yaml')
+          for (project in projects) {
+            if (project.containsKey("project")) {
+              def jenkinsFolder = project.get('project').get('name')
+              jenkinsFolder = "debian/deps/${jenkinsFolder}/gitlab-incoming-tag"
+              def repoName= project.get('project').get('repo_name')
+              def gitlabProjectName = "swh/infra/ci-cd/debs/${repoName}"
+              setupGitlabWebhook(gitlabProjectName, jenkinsFolder, false, false, true)
+            }
+          }
         }
       }
     }

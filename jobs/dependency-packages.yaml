@@ -1,10 +1,14 @@
 - job-group:
-    name: 'dependency-jobs-{name}'
+    name: "dependency-jobs-{name}"
+    gitlab_project_name: "swh/infra/ci-cd/debs/{repo_name}"
     jobs:
       - "debian/deps/{name}"
       - "debian/deps/{name}/incoming-tag"
       - "debian/deps/{name}/gbp-buildpackage"
       - "debian/deps/{name}/automatic-backport"
+      - "debian/deps/{name}/gitlab-incoming-tag"
+      - "debian/deps/{name}/gitlab-gbp-buildpackage"
+      - "debian/deps/{name}/gitlab-automatic-backport"
 
 - project:
     name: PPDW
@@ -12,7 +16,7 @@
     repo_name: python3-dulwich
     pkg: dulwich
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PTDTM
@@ -20,7 +24,7 @@
     repo_name: python3-django-test-migrations
     pkg: django-test-migrations
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PMK
@@ -28,7 +32,7 @@
     repo_name: python3-mirakuru
     pkg: mirakuru
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PPL
@@ -36,7 +40,7 @@
     repo_name: python3-plotille
     pkg: plotille
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PTPP
@@ -44,7 +48,7 @@
     repo_name: python3-pytest-postgresql
     pkg: pytest-postgresql
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PPF
@@ -52,7 +56,7 @@
     repo_name: python3-port-for
     pkg: port-for
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PSD
@@ -60,7 +64,7 @@
     repo_name: python3-sqlitedict
     pkg: sqlitedict
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PDJR
@@ -68,7 +72,7 @@
     repo_name: python3-django-js-reverse
     pkg: django-js-reverse
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PJOS
@@ -76,7 +80,7 @@
     repo_name: python3-jose
     pkg: python3-jose
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PRMD
@@ -84,7 +88,7 @@
     repo_name: python3-repomd
     pkg: repomd
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PKCL
@@ -92,7 +96,7 @@
     repo_name: python3-keycloak
     pkg: python3-keycloak
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PATS
@@ -100,7 +104,7 @@
     repo_name: python3-attr-strict
     pkg: python3-attr-strict
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PPTRE
@@ -108,7 +112,7 @@
     repo_name: python3-pytest-redis
     pkg: pytest_redis
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PCASS
@@ -116,7 +120,7 @@
     repo_name: python-cassandra-driver
     pkg: python-cassandra-driver
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PPSASL
@@ -124,7 +128,7 @@
     repo_name: python-pure-sasl
     pkg: python-pure-sasl
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PDWL
@@ -140,7 +144,7 @@
     repo_name: python3-prometheus-pve-exporter
     pkg: prometheus-pve-exporter
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"
 
 - project:
     name: PSTATIO
@@ -156,4 +160,4 @@
     repo_name: python3-tree-sitter
     pkg: tree-sitter
     jobs:
-      - 'dependency-jobs-{name}'
+      - "dependency-jobs-{name}"

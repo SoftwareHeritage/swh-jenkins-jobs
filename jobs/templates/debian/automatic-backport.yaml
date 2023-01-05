@@ -32,12 +32,17 @@
     dsl: !include-jinja2: automatic-backport.groovy.j2
 
 - job-template:
+    name: "debian/packages/{name}/gitlab-automatic-backport"
+    description: |
+      Backport Debian package to the given release (GitLab)
+    gitlab_project: true
+    <<: *automatic_backport
+
+- job-template:
     name: "debian/deps/{name}/automatic-backport"
     <<: *automatic_backport
 
 - job-template:
-    name: "debian/packages/{name}/gitlab-automatic-backport"
-    description: |
-      Backport Debian package to the given release (GitLab)
+    name: "debian/deps/{name}/gitlab-automatic-backport"
     gitlab_project: true
     <<: *automatic_backport

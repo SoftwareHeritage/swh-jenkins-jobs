@@ -18,11 +18,6 @@
     dsl: !include-jinja2: incoming-tag.groovy.j2
 
 - job-template:
-    name: "debian/deps/{name}/incoming-tag"
-    dsl: !include-jinja2: dependency-incoming-tag.groovy.j2
-    <<: *incoming_tag
-
-- job-template:
     name: "{name}/gitlab-incoming-tag"
     display-name: Incoming tag (GitLab)
     gitlab_project: true
@@ -38,3 +33,25 @@
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jenkins-token
     <<: *incoming_tag
+
+- job-template: &dep_incoming_tag
+    name: "debian/deps/{name}/incoming-tag"
+    dsl: !include-jinja2: dependency-incoming-tag.groovy.j2
+    <<: *incoming_tag
+
+- job-template:
+    name: "debian/deps/{name}/gitlab-incoming-tag"
+    display-name: Incoming tag (GitLab)
+    gitlab_project: true
+    parameters:
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: false
+          add-ci-message: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jenkins-token
+    <<: *dep_incoming_tag
