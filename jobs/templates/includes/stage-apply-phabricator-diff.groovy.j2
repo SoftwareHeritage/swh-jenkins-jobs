@@ -48,7 +48,7 @@ stage('Apply phabricator diff') {
             echo "===== Changes applied before test ====="
             echo
             echo '```'
-            git log ${ORIGINAL_TAG}..
+            git log --format=oneline ${ORIGINAL_TAG}..
             echo '```'
         else
             echo '**Attempts to apply the diff failed!**'
