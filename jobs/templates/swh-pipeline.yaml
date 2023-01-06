@@ -1,4 +1,4 @@
-- job-template:
+- job-template: &gitlab_builds
     name: "{name}/gitlab-builds"
     display-name: "GitLab builds"
     project-type: pipeline
@@ -19,7 +19,6 @@
       - gitlab:
           connection: "{gitlab_connection_name}"
     triggers:
-      - timed: "@daily"
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
@@ -39,3 +38,19 @@
           default: "{default-tox-environment}"
 
     dsl: !include-jinja2: swh-pipeline.groovy.j2
+
+- job-template:
+    name: "{name}/master"
+    display-name: "master branch"
+    triggers:
+      - timed: "@daily"
+    parameters:
+      - string:
+          name: REVISION
+          description: Git revision to build.
+          default: master
+      - string:
+          name: TOX_ENVIRONMENT
+          description: tox environment to use for the main tox run
+          default: "{default-tox-environment}"
+    <<: *gitlab_builds
