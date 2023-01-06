@@ -1,0 +1,9 @@
+failure {
+  updateGitlabCommitStatus name: 'jenkins', state: 'failed'
+}
+success {
+  updateGitlabCommitStatus name: 'jenkins', state: 'success'
+}
+aborted {
+  updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+}
