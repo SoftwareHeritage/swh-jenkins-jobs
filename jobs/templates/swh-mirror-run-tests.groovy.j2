@@ -91,15 +91,9 @@ pipeline {
       }
     }
     {%- if gitlab_project %}
-    failure {
-      updateGitlabCommitStatus name: 'jenkins', state: 'failed'
-    }
-    success {
-      updateGitlabCommitStatus name: 'jenkins', state: 'success'
-    }
-    aborted {
-      updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
-    }
+      {% filter indent(width=4) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
+      {% endfilter %}
     {%- endif %}
   }
 }
