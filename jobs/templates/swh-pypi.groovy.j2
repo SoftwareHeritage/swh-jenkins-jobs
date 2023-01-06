@@ -31,11 +31,7 @@ pipeline {
       agent none
       steps {
         build(
-          {%- if gitlab_project %}
-          job: '/{{name}}/gitlab-tests',
-          {%- else %}
-          job: '/{{name}}/tests',
-          {%- endif %}
+          job: '/{{name}}/gitlab-builds',
           parameters: [
             string(name: 'REVISION', value: params.GIT_TAG),
           ],
@@ -48,7 +44,6 @@ pipeline {
       steps {
         checkout([
           $class: 'GitSCM',
-          {%- if gitlab_project %}
           userRemoteConfigs: [[
             name:'origin', url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
             refspec: '+refs/tags/*:refs/remotes/origin/tags*'
@@ -57,10 +52,6 @@ pipeline {
             name: "${params.GIT_TAG}"
           ]],
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
-          {%- else %}
-          userRemoteConfigs: [[url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git']],
-          branches: [[name: params.GIT_TAG]],
-          {%- endif %}
           doGenerateSubmoduleConfigurations: false,
           extensions: [],
           gitTool: 'Default',
@@ -98,7 +89,6 @@ pipeline {
       }
     }
 
-    {%- if not gitlab_project %}
     stage('Publish') {
       when {
         anyOf {
@@ -119,7 +109,6 @@ pipeline {
         }
       }
     }
-    {%- endif %}
   }
   post {
     cleanup {

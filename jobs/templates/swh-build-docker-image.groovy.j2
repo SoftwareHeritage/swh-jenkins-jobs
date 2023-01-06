@@ -2,12 +2,8 @@ def repo_name = "{{repo_name}}"
 
 // Normalize to "latest" if we build from head commit (main or master)
 // Otherwise, keep the transmitted tag
-{%- if gitlab_project %}
 // remove refs/tags/ prefix from source branch
 def tag = env.gitlabSourceBranch.substring(10)
-{%- else %}
-def tag = params.TAG
-{%- endif %}
 
 def tag_name = ( tag == "origin/main" || tag == "origin/master" ) ? "latest" : tag
 
@@ -43,18 +39,12 @@ pipeline {
     }
     stage('Checkout Repository') {
       steps {
-        {%- if gitlab_project %}
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
         checkout([
           $class: 'GitSCM',
           branches: [[name: tag]],
           userRemoteConfigs: [[
-            {%- if not gitlab_project %}
-            url: "https://forge.softwareheritage.org/source/${repo_name}/",
-            {%- else %}
             url: "{{gitlab_url}}/{{gitlab_project_name}}"
-            {%- endif %}
           ]],
         ])
       }
@@ -84,10 +74,8 @@ pipeline {
       // finally clean workspace
       cleanWs()
     }
-    {%- if gitlab_project %}
-      {% filter indent(width=4) %}
-        {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
-      {% endfilter %}
-    {%- endif %}
+    {% filter indent(width=4) %}
+      {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
   }
 }

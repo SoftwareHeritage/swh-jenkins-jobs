@@ -1,23 +1,9 @@
 - job-template: &build_and_push
     name: "{name}/build-and-push"
+    gitlab_project_name: swh/devel/fixtures/maven-index-exporter
     description: Build the docker image and publish it to a registry
     node: built-in
     project-type: pipeline
-    auth-token: "ph4br1cat0r"
-    dsl: !include-jinja2: templates/swh-build-docker-image.groovy.j2
-
-    parameters:
-      - string:
-          name: TAG
-          description: Tag to build the image and then use as name
-
-- job-template:
-    name: "{name}/gitlab-build-and-push"
-    description: Build the docker image and publish it to a registry (GitLab)
-    auth-token:
-    parameters:
-    gitlab_project: true
-    gitlab_project_name: swh/devel/fixtures/maven-index-exporter
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
@@ -28,7 +14,7 @@
           add-ci-message: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jobs/templates/jenkins-token
-    <<: *build_and_push
+    dsl: !include-jinja2: templates/swh-build-docker-image.groovy.j2
 
 - project:
     name: DLSMAVEXP
@@ -37,4 +23,3 @@
     jobs:
       - "{name}"
       - "{name}/build-and-push"
-      - "{name}/gitlab-build-and-push"

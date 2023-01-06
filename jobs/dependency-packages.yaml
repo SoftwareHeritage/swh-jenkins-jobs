@@ -6,9 +6,6 @@
       - "debian/deps/{name}/incoming-tag"
       - "debian/deps/{name}/gbp-buildpackage"
       - "debian/deps/{name}/automatic-backport"
-      - "debian/deps/{name}/gitlab-incoming-tag"
-      - "debian/deps/{name}/gitlab-gbp-buildpackage"
-      - "debian/deps/{name}/gitlab-automatic-backport"
 
 - project:
     name: PPDW

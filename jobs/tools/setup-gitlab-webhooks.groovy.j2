@@ -26,13 +26,13 @@ pipeline {
                              "jenkins-tools/swh-jenkins-jobs-builder",
                              true, true, false)
           setupGitlabWebhook("swh/infra/ci-cd/swh-jenkins-dockerfiles",
-                             "jenkins-tools/gitlab-swh-jenkins-dockerfiles",
+                             "jenkins-tools/swh-jenkins-dockerfiles",
                              true, true, false)
-          setupGitlabWebhook("swh/devel/swh-docs", "DDOC/gitlab-builds",
+          setupGitlabWebhook("swh/devel/swh-docs", "DDOC/builds",
                              true, true, false)
-          setupGitlabWebhook("swh/infra/swh-mirror", "DFP/gitlab-run-tests",
+          setupGitlabWebhook("swh/infra/swh-mirror", "DFP/run-tests",
                              true, true, false)
-          setupGitlabWebhook("swh/devel/fixtures/maven-index-exporter", "DLSMAVEXP/gitlab-build-and-push",
+          setupGitlabWebhook("swh/devel/fixtures/maven-index-exporter", "DLSMAVEXP/build-and-push",
                              false, false, true)
 
           projects = readYaml(file: 'jobs/swh-packages.yaml')
@@ -41,8 +41,8 @@ pipeline {
               def jenkinsFolder = project.get('project').get('name')
               def repoName= project.get('project').get('repo_name')
               def gitlabProjectName = "swh/devel/${repoName}"
-              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-tests")
-              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-incoming-tag",
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-builds")
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/incoming-tag",
                                  false, false, true)
             }
           }
@@ -51,7 +51,7 @@ pipeline {
           for (project in projects) {
             if (project.containsKey("project")) {
               def jenkinsFolder = project.get('project').get('name')
-              jenkinsFolder = "debian/deps/${jenkinsFolder}/gitlab-incoming-tag"
+              jenkinsFolder = "debian/deps/${jenkinsFolder}/incoming-tag"
               def repoName= project.get('project').get('repo_name')
               def gitlabProjectName = "swh/infra/ci-cd/debs/${repoName}"
               setupGitlabWebhook(gitlabProjectName, jenkinsFolder, false, false, true)

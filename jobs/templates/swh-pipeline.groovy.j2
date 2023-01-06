@@ -23,25 +23,12 @@ pipeline {
     )
   }
 
-  {%- if not gitlab_project %}
-  environment {
-    PHAB_CONDUIT_URL = 'https://forge.softwareheritage.org/api/'
-  }
-  {%- endif %}
-
   stages {
     stage('Checkout') {
       steps {
-        {%- if not gitlab_project %}
-        {% filter indent(width=8) %}
-          {%- include 'includes/create-phabricator-artifacts.groovy.j2' -%}
-        {% endfilter %}
-        {%- else %}
-          updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
         checkout([
           $class: 'GitSCM',
-          {%- if gitlab_project %}
           userRemoteConfigs: [[
             url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
             refspec: '+refs/heads/*:refs/remotes/origin/* \
@@ -55,19 +42,6 @@ pipeline {
             $class: 'GitLab',
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
-          {%- else %}
-          userRemoteConfigs: [[
-            url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
-            refspec: '+refs/heads/master:refs/remotes/origin/master',
-          ]],
-          branches: [[
-            name: "${params.REVISION}"
-          ]],
-          browser: [
-            $class: 'Phabricator',
-            repoUrl: 'https://forge.softwareheritage.org', repo: '{{name}}'
-          ],
-          {%- endif %}
           doGenerateSubmoduleConfigurations: false,
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
           gitTool: 'Default',
@@ -75,16 +49,6 @@ pipeline {
         ])
       }
     }
-
-    {%- if not gitlab_project and phabricator_diff %}
-    stage('Apply phabricator diff') {
-      steps {
-        {% filter indent(width=8) %}
-          {%- include 'includes/script-apply-phabricator-diff.groovy.j2' -%}
-        {% endfilter %}
-      }
-    }
-    {%- endif %}
 
     stage ('flake8') {
       steps {
@@ -166,25 +130,9 @@ pipeline {
   } // stages
 
   post {
-    {%- if gitlab_project %}
-      {% filter indent(width=4) %}
-        {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
-      {% endfilter %}
-    {%- else %}
-    always {
-      step([$class: 'PhabricatorNotifier',
-            commentOnSuccess: true,
-            commentWithConsoleLinkOnFailure: true,
-            commentFile: '.phabricator-comment',
-            commentSize: '1000000',
-            preserveFormatting: true,
-            processLint: true,
-            lintFile: '.phabricator-lint',
-            lintFileSize: '1000000',
-      ])
-    } // always
-    {%- endif %}
-
+    {% filter indent(width=4) %}
+      {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
     cleanup {
       cleanWs()
     }

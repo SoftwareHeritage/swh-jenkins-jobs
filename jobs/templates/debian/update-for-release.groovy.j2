@@ -17,12 +17,8 @@ pipeline {
           $class: 'GitSCM',
           branches: [[name: 'debian/unstable-swh'], [name: 'debian/*'], [name: 'pristine-tar']],
           userRemoteConfigs: [[
-            {%- if not gitlab_project %}
-            url: "https://forge.softwareheritage.org/source/${repo_name}.git",
-            {%- else %}
             credentialsId: 'gitlab-public-ci-ssh',
             url: '{{gitlab_ssh_url}}:{{gitlab_project_name}}.git',
-            {%- endif %}
           ]],
           extensions: [
             [$class: 'RelativeTargetDirectory', relativeTargetDir: repo_name],
@@ -105,11 +101,7 @@ pipeline {
       }
       steps {
         copyArtifacts(
-          {%- if not gitlab_project %}
           projectName: '/{{name}}/pypi-upload',
-          {%- else %}
-          projectName: '/{{name}}/gitlab-pypi-upload',
-          {%- endif %}
           parameters: 'GIT_TAG=' + params.GIT_TAG,
         )
         withEnv(full_environ) {
@@ -150,11 +142,7 @@ pipeline {
       }
       steps {
         dir (repo_name) {
-          {%- if gitlab_project %}
           sshagent (credentials: ['gitlab-public-ci-ssh']) {
-          {%- else %}
-          sshagent (credentials: ['jenkins-public-ci-ssh']) {
-          {%- endif %}
             script {
               def git_push = 'git push --follow-tags --all'
               if (params.DRY_RUN) {

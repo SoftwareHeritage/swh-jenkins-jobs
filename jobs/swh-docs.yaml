@@ -5,8 +5,7 @@
       - "{name}"
       - "{name}/publish"
       - "{name}/dev"
-      - "{name}/build-on-diff"
-      - "{name}/gitlab-builds"
+      - "{name}/builds"
 
 - job-template:
     name: "{name}/publish"
@@ -123,46 +122,17 @@
           keep-all: false
           includes: "**/*"
 
-- job-template: &doc_build_on_diff
-    name: "{name}/build-on-diff"
-    display_name: Phab. diff
+- job-template:
+    name: "{name}/builds"
+    display_name: GitLab builds
     project-type: pipeline
     docker_image: sphinx
     concurrent: true
     sandbox: true
-    auth-token: "ph4br1cat0r"
     properties:
       - build-discarder:
           artifact-num-to-keep: 20
           days-to-keep: 90
-    parameters:
-      - git-parameter:
-          name: REVISION
-          type: PT_REVISION
-          defaultValue: master
-          description: Git revision to build.
-      - string:
-          name: PHID
-          description: PHID of the Phabricator target object on which results will be reported.
-      - string:
-          name: DIFF_ID
-          description: ID of the Diff patch to apply, if any
-      - string:
-          name: REV_ID
-          description: ID of the Phabricator revision, if any
-      - string:
-          name: STAGING_URI
-          description: URI of the staging repository
-
-    dsl: !include-jinja2: templates/swh-docs-pipeline-diff.groovy.j2
-
-- job-template:
-    name: "{name}/gitlab-builds"
-    display_name: GitLab builds
-    gitlab_project: true
-    auth-token:
-    parameters:
-    properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
     triggers:
@@ -173,4 +143,4 @@
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jobs/templates/jenkins-token
-    <<: *doc_build_on_diff
+    dsl: !include-jinja2: templates/swh-docs-pipeline.groovy.j2

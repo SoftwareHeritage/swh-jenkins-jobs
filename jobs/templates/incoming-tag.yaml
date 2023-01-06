@@ -2,56 +2,23 @@
     name: "{name}/incoming-tag"
     display-name: Incoming tag
     project-type: pipeline
-    auth-token: "ph4br1cat0r"
     incoming_tag_auto_pypi_host: pypi.org
     sandbox: true
     properties:
       - build-discarder:
           num-to-keep: 20
-    parameters:
-      - git-parameter:
-          name: GIT_TAG
-          description: git tag to process
-          type: PT_TAG
-          sortMode: DESCENDING_SMART
-          selectedValue: TOP
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: false
+          add-ci-message: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jenkins-token
     dsl: !include-jinja2: incoming-tag.groovy.j2
 
 - job-template:
-    name: "{name}/gitlab-incoming-tag"
-    display-name: Incoming tag (GitLab)
-    gitlab_project: true
-    parameters:
-    properties:
-      - gitlab:
-          connection: "{gitlab_connection_name}"
-    triggers:
-      - gitlab:
-          trigger-push: true
-          trigger-merge-request: false
-          add-ci-message: true
-          # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jenkins-token
-    <<: *incoming_tag
-
-- job-template: &dep_incoming_tag
     name: "debian/deps/{name}/incoming-tag"
     dsl: !include-jinja2: dependency-incoming-tag.groovy.j2
     <<: *incoming_tag
-
-- job-template:
-    name: "debian/deps/{name}/gitlab-incoming-tag"
-    display-name: Incoming tag (GitLab)
-    gitlab_project: true
-    parameters:
-    properties:
-      - gitlab:
-          connection: "{gitlab_connection_name}"
-    triggers:
-      - gitlab:
-          trigger-push: true
-          trigger-merge-request: false
-          add-ci-message: true
-          # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jenkins-token
-    <<: *dep_incoming_tag

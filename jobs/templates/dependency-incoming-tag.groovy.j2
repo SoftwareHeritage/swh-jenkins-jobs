@@ -3,25 +3,10 @@ pipeline {
   stages {
     stage('Refresh tag list') {
       agent any
-      steps {
-        {%- if gitlab_project %}
+      steps
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
         checkout([
           $class: 'GitSCM',
-          {% if not gitlab_project %}
-          userRemoteConfigs: [[
-            url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
-          ]],
-          branches: [[
-            name: params.GIT_TAG,
-          ]],
-          browser: [
-            $class: 'Phabricator',
-            repo: '{{repo_name}}',
-            repoUrl: 'https://forge.softwareheritage.org/',
-          ],
-          {%- else %}
           userRemoteConfigs: [[
             name:'origin', url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
             refspec: '+refs/tags/*:refs/remotes/origin/tags*'
@@ -34,48 +19,31 @@ pipeline {
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
-          {%- endif %}
         ])
       }
     }
     stage('Build Debian package') {
       when {
-        {%- if not gitlab_project %}
-        expression { params.GIT_TAG ==~ /debian\/.*/ }
-        expression { !(params.GIT_TAG ==~ /debian\/upstream\/.*/) }
-        expression { jobExists('/debian/deps/{{name}}/gbp-buildpackage') }
-        {%- else %}
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/.*/ }
         expression { !("${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/upstream\/.*/) }
-        expression { jobExists('/debian/deps/{{name}}/gitlab-gbp-buildpackage') }
-        {%- endif %}
+        expression { jobExists('/debian/deps/{{name}}/gbp-buildpackage') }
       }
       steps {
         build(
-          {%- if not gitlab_project %}
           job: '/debian/deps/{{name}}/gbp-buildpackage',
-          parameters: [
-            string(name: 'GIT_REVISION', value: params.GIT_TAG),
-            booleanParam(name: 'DO_UPLOAD', value: true),
-          ],
-          {%- else %}
-          job: '/debian/deps/{{name}}/gitlab-gbp-buildpackage',
           parameters: [
             // remove refs/tags/ prefix from source branch
             string(name: 'GIT_REVISION', value: env.gitlabSourceBranch.substring(10)),
             booleanParam(name: 'DO_UPLOAD', value: false),
           ],
-          {%- endif %}
           wait: true,
         )
       }
     }
   }
-  {%- if gitlab_project %}
   post {
     {% filter indent(width=4) %}
       {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
     {% endfilter %}
   }
-  {%- endif %}
 }

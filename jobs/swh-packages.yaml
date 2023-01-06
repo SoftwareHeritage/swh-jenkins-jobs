@@ -5,18 +5,11 @@
       - "{name}"
       - "{name}/incoming-tag"
       - "{name}/pypi-upload"
-      - "{name}/tests"
-      - "{name}/tests-on-diff"
-      - "{name}/gitlab-tests"
-      - "{name}/gitlab-incoming-tag"
-      - "{name}/gitlab-pypi-upload"
+      - "{name}/gitlab-builds"
       - "debian/packages/{name}"
       - "debian/packages/{name}/update-for-release"
       - "debian/packages/{name}/automatic-backport"
       - "debian/packages/{name}/gbp-buildpackage"
-      - "debian/packages/{name}/gitlab-update-for-release"
-      - "debian/packages/{name}/gitlab-automatic-backport"
-      - "debian/packages/{name}/gitlab-gbp-buildpackage"
 
 - project:
     name: DAUTH
@@ -253,6 +246,7 @@
     name: TSBX
     display-name: swh-sandbox
     repo_name: swh-sandbox
+    gitlab_project_name: swh/devel/swh-sandbox
     pkg: sandbox
     incoming_tag_auto_pypi_host: test.pypi.org
     python_module: swh.sandbox
@@ -260,8 +254,7 @@
       - "{name}"
       - "{name}/incoming-tag"
       - "{name}/pypi-upload"
-      - "{name}/tests"
-      - "{name}/tests-on-diff"
+      - "{name}/gitlab-builds"
 
 - project:
     name: DTSCN

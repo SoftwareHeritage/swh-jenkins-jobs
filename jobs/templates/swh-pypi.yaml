@@ -49,9 +49,3 @@
           description: |
             Include a binary distribution in the PyPI upload.
     dsl: !include-jinja2: swh-pypi.groovy.j2
-
-- job-template:
-    name: "{name}/gitlab-pypi-upload"
-    display-name: "Upload to PyPI (GitLab)"
-    gitlab_project: true
-    <<: *pypi_upload

@@ -1,48 +1,25 @@
-- job-template: &master_tests
-    name: "{name}/tests"
-    display-name: "master branch"
+- job-template:
+    name: "{name}/gitlab-builds"
+    display-name: "GitLab builds"
     project-type: pipeline
     docker_image: tox
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     default-tox-environment: py3
     concurrent: true
-    triggers:
-      - timed: "@daily"
     sandbox: true
-    auth-token: "ph4br1cat0r"
     properties:
       - build-discarder:
           days-to-keep: 90
           artifact-num-to-keep: 20
-    phabricator_diff: false
     do_cypress: false
     timeout: 10
     max_concurrent: 0
-    parameters:
-      - git-parameter:
-          name: REVISION
-          type: PT_REVISION
-          defaultValue: master
-          description: Git revision to build.
-      - string:
-          name: PHID
-          description: PHID of the Phabricator target object on which results will be reported.
-      - string:
-          name: TOX_ENVIRONMENT
-          description: tox environment to use for the main tox run
-          default: "{default-tox-environment}"
-
-    dsl: !include-jinja2: swh-pipeline.groovy.j2
-
-- job-template:
-    name: "{name}/gitlab-tests"
-    display-name: "GitLab builds"
-    auth-token:
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
     triggers:
+      - timed: "@daily"
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
@@ -52,7 +29,6 @@
           secret-token: !include-raw: jenkins-token
           branch-filter-type: RegexBasedFilter
           target-branch-regex: ^(?!(debian|pristine-tar)).*
-    gitlab_project: true
     parameters:
       - string:
           name: REVISION
@@ -61,4 +37,5 @@
           name: TOX_ENVIRONMENT
           description: tox environment to use for the main tox run
           default: "{default-tox-environment}"
-    <<: *master_tests
+
+    dsl: !include-jinja2: swh-pipeline.groovy.j2

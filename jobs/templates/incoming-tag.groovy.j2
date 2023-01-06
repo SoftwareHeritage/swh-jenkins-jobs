@@ -4,12 +4,9 @@ pipeline {
     stage('Refresh tag list') {
       agent any
       steps {
-        {%- if gitlab_project %}
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
         checkout([
           $class: 'GitSCM',
-          {%- if gitlab_project %}
           userRemoteConfigs: [[
             name:'origin', url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
             refspec: '+refs/tags/*:refs/remotes/origin/tags*'
@@ -22,46 +19,20 @@ pipeline {
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
-          {%- else %}
-          userRemoteConfigs: [[
-            url: 'https://forge.softwareheritage.org/source/{{repo_name}}.git',
-          ]],
-          branches: [[
-            name: params.GIT_TAG,
-          ]],
-          browser: [
-            $class: 'Phabricator',
-            repo: '{{repo_name}}',
-            repoUrl: 'https://forge.softwareheritage.org/',
-          ],
-          {%- endif %}
         ])
       }
     }
     stage('Build and upload PyPI package') {
       when {
-        {%- if gitlab_project %}
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
-        expression { jobExists('/{{name}}/gitlab-pypi-upload') }
-        {%- else %}
-        expression { params.GIT_TAG ==~ /v\d+(.\d+)+/ }
         expression { jobExists('/{{name}}/pypi-upload') }
-        {%- endif %}
       }
       steps {
         build(
-          {%- if gitlab_project %}
-          job: '/{{name}}/gitlab-pypi-upload',
-          {%- else %}
           job: '/{{name}}/pypi-upload',
-          {%- endif %}
           parameters: [
-            {%- if gitlab_project %}
             // remove refs/tags/ prefix from source branch
             string(name: 'GIT_TAG', value: env.gitlabSourceBranch.substring(10)),
-            {%- else %}
-            string(name: 'GIT_TAG', value: params.GIT_TAG),
-            {%- endif %}
             string(name: 'PYPI_HOST', value: '{{incoming_tag_auto_pypi_host}}'),
           ],
           wait: true,
@@ -72,29 +43,16 @@ pipeline {
     stage('Update Debian packaging for new release') {
 
       when {
-        {%- if not gitlab_project %}
-        expression { params.GIT_TAG ==~ /v\d+(.\d+)+/ }
-        expression { jobExists('/debian/packages/{{name}}/update-for-release') }
-        {%- else %}
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
-        expression { jobExists('/debian/packages/{{name}}/gitlab-update-for-release') }
-        {%- endif %}
+        expression { jobExists('/debian/packages/{{name}}/update-for-release') }
       }
 
       steps {
         build(
-          {%- if not gitlab_project %}
           job: '/debian/packages/{{name}}/update-for-release',
-          {%- else %}
-          job: '/debian/packages/{{name}}/gitlab-update-for-release',
-          {%- endif %}
           parameters: [
-            {%- if not gitlab_project %}
-            string(name: 'GIT_TAG', value: params.GIT_TAG),
-            {%- else %}
             // remove refs/tags/ prefix from source branch
             string(name: 'GIT_TAG', value: env.gitlabSourceBranch.substring(10)),
-            {%- endif %}
           ],
           wait: true,
         )
@@ -103,42 +61,26 @@ pipeline {
 
     stage('Build Debian package') {
       when {
-        {%- if not gitlab_project %}
-        expression { params.GIT_TAG ==~ /debian\/.*/ }
-        expression { !(params.GIT_TAG ==~ /debian\/upstream\/.*/) }
-        expression { jobExists('/debian/packages/{{name}}/gbp-buildpackage') }
-        {%- else %}
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/.*/ }
         expression { !("${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/upstream\/.*/) }
-        expression { jobExists('/debian/packages/{{name}}/gitlab-gbp-buildpackage') }
-        {%- endif %}
+        expression { jobExists('/debian/packages/{{name}}/gbp-buildpackage') }
       }
       steps {
         build(
-          {%- if not gitlab_project %}
           job: '/debian/packages/{{name}}/gbp-buildpackage',
-          parameters: [
-            string(name: 'GIT_REVISION', value: params.GIT_TAG),
-            booleanParam(name: 'DO_UPLOAD', value: true),
-          ],
-          {%- else %}
-          job: '/debian/packages/{{name}}/gitlab-gbp-buildpackage',
           parameters: [
             // remove refs/tags/ prefix from source branch
             string(name: 'GIT_REVISION', value: env.gitlabSourceBranch.substring(10)),
             booleanParam(name: 'DO_UPLOAD', value: true),
           ],
-          {%- endif %}
           wait: true,
         )
       }
     }
   }
-  {%- if gitlab_project %}
   post {
     {% filter indent(width=4) %}
       {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
     {% endfilter %}
   }
-  {%- endif %}
 }

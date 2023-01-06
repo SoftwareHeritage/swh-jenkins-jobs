@@ -21,14 +21,8 @@ pipeline {
       }
 
       steps {
-        {%- if gitlab_project %}
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
-        {%- if not gitlab_project %}
-        git url: "https://forge.softwareheritage.org/source/swh-mirror.git"
-        {%- else %}
-        git url: "{{gitlab_url}}/swh/infra/swh-mirror.git"
-        {%- endif %}
+        git url: "{{gitlab_url}}/{{gitlab_project_name}}.git"
       }
     }
 
@@ -90,10 +84,8 @@ pipeline {
         '''
       }
     }
-    {%- if gitlab_project %}
-      {% filter indent(width=4) %}
-        {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
-      {% endfilter %}
-    {%- endif %}
+    {% filter indent(width=4) %}
+      {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
   }
 }
