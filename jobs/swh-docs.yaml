@@ -12,7 +12,7 @@
     name: "{name}/publish"
     description: Build the documentation and publish it
     node: swh-sphinx
-    auth-token: ph4br1cat0r
+    gitlab_project_name: swh/devel/swh-environment
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -22,7 +22,7 @@
 
     scm:
       - git:
-          url: https://forge.softwareheritage.org/source/swh-environment.git
+          url: "{gitlab_url}/{gitlab_project_name}.git"
 
     builders:
       - shell: |
@@ -72,7 +72,7 @@
     name: "{name}/dev"
     description: Build the documentation from git repos
     node: swh-sphinx
-    auth-token: ph4br1cat0r
+    gitlab_project_name: swh/devel/swh-environment
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -82,7 +82,7 @@
 
     scm:
       - git:
-          url: https://forge.softwareheritage.org/source/swh-environment.git
+          url: "{gitlab_url}/{gitlab_project_name}.git"
 
     builders:
       - shell: |

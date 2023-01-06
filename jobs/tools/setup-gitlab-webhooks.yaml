@@ -1,5 +1,6 @@
 - job-template:
     name: jenkins-tools/{name}
+    gitlab_project_name: swh/infra/ci-cd/swh-jenkins-jobs
     project-type: pipeline
     description: Setup Jenkins integration for a GitLab repository
     node: built-in

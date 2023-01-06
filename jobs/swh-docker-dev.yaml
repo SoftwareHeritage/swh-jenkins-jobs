@@ -5,6 +5,7 @@
 
 - job-template:
     name: swh-docker-dev
+    gitlab_project_name: swh/devel/swh-environment
     description: "Build the swh/stack:latest image"
     project-type: pipeline
     docker_image: tox

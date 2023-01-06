@@ -1,7 +1,7 @@
 - defaults:
     name: global
-    gitlab_host: gitlab-staging.swh.network
+    gitlab_host: gitlab.softwareheritage.org
     gitlab_url: https://{gitlab_host}
     gitlab_ssh_url: git@{gitlab_host}
-    gitlab_connection_name: gitlab-staging
+    gitlab_connection_name: gitlab-swh
     gitlab_project: false

@@ -13,7 +13,7 @@ pipeline {
       }
 
       steps {
-        git url: "https://forge.softwareheritage.org/source/swh-environment.git"
+        git url: "{{gitlab_url}}/{{gitlab_project_name}}.git"
       }
     }
 

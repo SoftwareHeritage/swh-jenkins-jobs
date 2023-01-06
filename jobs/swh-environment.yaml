@@ -1,11 +1,13 @@
-- project:
-    name: DENV
-    display-name: swh-environment
+- job-group:
+    name: swh-environment-jobs-{name}
+    gitlab_project_name: swh/devel/swh-environment
     jobs:
       - "{name}"
+      - "{name}/run-all-tests"
 
-- job:
-    name: DENV/tests
+- job-template:
+    name: "{name}/run-all-tests"
+    display-name: tests
     description: Run tests for each swh module in development version
     node: swh-sphinx
 
@@ -14,7 +16,7 @@
 
     scm:
       - git:
-          url: https://forge.softwareheritage.org/source/swh-environment.git
+          url: "{gitlab_url}/{gitlab_project_name}.git"
           branches:
             - "*/master"
     wrappers:
@@ -53,9 +55,9 @@
               then
                 # pipe checks and tests output to stdout and log file
                 make check 2>&1 | tee ../$module.log
-                tests_status=${PIPESTATUS[0]}
+                tests_status=${{PIPESTATUS[0]}}
                 make test 2>&1 | tee -a ../$module.log
-                tests_status=$(($tests_status + ${PIPESTATUS[0]}))
+                tests_status=$(($tests_status + ${{PIPESTATUS[0]}}))
                 # remove log file if tests succeeded
                 if [[ "$tests_status" == "0" ]]
                 then
@@ -73,3 +75,9 @@
       - archive:
           artifacts: "*.log"
           allow-empty: true
+
+- project:
+    name: DENV
+    display-name: swh-environment
+    jobs:
+      - "swh-environment-jobs-{name}"
