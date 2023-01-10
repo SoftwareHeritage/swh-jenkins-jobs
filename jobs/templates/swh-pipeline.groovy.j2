@@ -1,3 +1,10 @@
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
@@ -42,7 +49,7 @@ pipeline {
                       +refs/tags/*:refs/remotes/origin/tags*',
           ]],
           branches: [[
-            name: params.REVISION ?: "${env.gitlabSourceBranch}"
+            name: params.REVISION ?: branch
           ]],
           browser: [
             $class: 'GitLab',

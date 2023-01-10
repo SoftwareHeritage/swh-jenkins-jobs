@@ -1,3 +1,10 @@
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
 pipeline {
   agent any
 
@@ -8,7 +15,7 @@ pipeline {
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
         checkout([
           $class: 'GitSCM',
-          branches: [[name: env.gitlabSourceBranch ?: "master"]],
+          branches: [[name: branch]],
           userRemoteConfigs: [[
             url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
             refspec: '+refs/heads/*:refs/remotes/origin/* \
