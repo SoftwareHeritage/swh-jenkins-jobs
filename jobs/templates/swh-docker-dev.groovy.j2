@@ -1,5 +1,7 @@
 pipeline {
-  agent none
+  agent {
+    label "built-in"
+  }
 
   options {
     timeout(time: 30, unit: 'MINUTES')
@@ -8,20 +10,12 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      agent {
-        label "built-in"
-      }
-
       steps {
         git url: "{{gitlab_url}}/{{gitlab_project_name}}.git"
       }
     }
 
     stage('Build Docker images') {
-      agent {
-        label "built-in"
-      }
-
       steps {
         dir('docker') {
           sh 'docker build --pull --no-cache -t swh/stack .'
@@ -30,10 +24,6 @@ pipeline {
     }
 
     stage('Run tests') {
-      {% filter indent(width=6) %}
-        {%- include 'templates/includes/agent-docker.groovy.j2' -%}
-      {% endfilter %}
-
       steps {
         lock('docker-agent-host-port-5080') {
           dir('docker') {
@@ -46,12 +36,10 @@ pipeline {
 
   post {
     always {
-      node('built-in') {
-        archiveArtifacts(
-          allowEmptyArchive: true,
-          artifacts: 'docker/**/*.logs',
-        )
-      }
+      archiveArtifacts(
+        allowEmptyArchive: true,
+        artifacts: 'docker/**/*.logs',
+      )
     }
   }
 }
