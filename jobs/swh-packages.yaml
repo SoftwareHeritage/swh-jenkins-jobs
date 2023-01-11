@@ -63,6 +63,7 @@
     repo_name: swh-graph
     pkg: graph
     python_module: swh.graph
+    default-tox-environment: py3,java
     jobs:
       - "swh-jobs-{name}"
 
