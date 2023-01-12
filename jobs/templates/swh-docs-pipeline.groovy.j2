@@ -38,7 +38,7 @@ pipeline {
       steps {
         dir('swh-docs') {
           script {
-            if ("${env.gitlabMergeRequestIid}" != "") {
+            if ("${env.gitlabMergeRequestIid}" != "null") {
               sh "git fetch origin merge-requests/${env.gitlabMergeRequestIid}/head:merge_request && \
                   git checkout merge_request"
             } else {
