@@ -43,27 +43,11 @@
 
     publishers:
       - ssh:
-          target: "devel"
+          target: "sphinx"
           site: "pergamon"
           clean-remote: true
           source: "swh-docs/docs/_build/html/**"
           remove-prefix: "swh-docs/docs/_build/html"
-          fail-on-error: true
-          verbose: true
-      - ssh:
-          target: "user"
-          site: "pergamon"
-          clean-remote: true
-          source: "swh-docs/user/_build/html/**"
-          remove-prefix: "swh-docs/user/_build/html"
-          fail-on-error: true
-          verbose: true
-      - ssh:
-          target: "sysadm"
-          site: "pergamon"
-          clean-remote: true
-          source: "swh-docs/sysadm/_build/html/**"
-          remove-prefix: "swh-docs/sysadm/_build/html"
           fail-on-error: true
           verbose: true
 
@@ -106,18 +90,6 @@
       - html-publisher:
           name: "SWH Documentation (HEAD)"
           dir: "swh-docs/docs/_build/html"
-          files: "index.html"
-          keep-all: false
-          includes: "**/*"
-      - html-publisher:
-          name: "SWH User Documentation (HEAD)"
-          dir: "swh-docs/user/_build/html"
-          files: "index.html"
-          keep-all: false
-          includes: "**/*"
-      - html-publisher:
-          name: "SWH sysadmin Documentation (HEAD)"
-          dir: "swh-docs/sysadm/_build/html"
           files: "index.html"
           keep-all: false
           includes: "**/*"
