@@ -57,7 +57,6 @@ dtkit-api
 durable-task
 echarts-api
 email-ext
-extended-choice-parameter
 extended-read-permission
 external-monitor-job
 favorite

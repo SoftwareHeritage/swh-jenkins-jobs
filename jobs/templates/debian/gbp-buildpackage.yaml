@@ -2,7 +2,7 @@
     name: "debian/packages/{name}/gbp-buildpackage"
     description: |
       Build Debian package
-    deb-extra-repositories:
+    deb-extra-repositories: ""
     deb-backport-on-success: unstable-swh>buster-swh
     project-type: pipeline
     properties:
@@ -13,29 +13,18 @@
           name: GIT_REVISION
           default: debian/unstable-swh
           description: Git revision to build
-      - extended-choice:
+      - string:
           name: EXTRA_REPOSITORIES
-          description: extra repositories needed to build this package
-          type: checkbox
-          value: !join:
-            - ","
-            - - incoming
-              - backports
-              - swh
-              - ceph
-              - pgdg
-              - elasticsearch
-              - cassandra
-          value-description: !join:
-            - ","
-            - - The buildd incoming repository (default for builds from unstable)
-              - The debian backports repository (default for builds for stable-swh)
-              - The Software Heritage debian repository (default for builds for swh branches)
-              - The ceph repository
-              - PostgreSQL Global Dvt Group repository (for stable-swh builds requiring latest postgresql)
-              - Elasticsearch 7.x repository (for builds requiring elasticsearch installed)
-              - Cassandra 4.x repository (for builds requiring cassandra installed)
-          default-value: "{deb-extra-repositories}"
+          description: |
+            comma-separated extra repositories needed to build this package:
+              - incoming: The buildd incoming repository (default for builds from unstable)
+              - backports: The debian backports repository (default for builds for stable-swh)
+              - swh: The Software Heritage debian repository (default for builds for swh branches)
+              - ceph: The ceph repository
+              - pgdg: PostgreSQL Global Dvt Group repository (for stable-swh builds requiring latest postgresql)
+              - elasticsearch: Elasticsearch 7.x repository (for builds requiring elasticsearch installed)
+              - cassandra: Cassandra 4.x repository (for builds requiring cassandra installed)
+          default: "{deb-extra-repositories}"
       - choice:
           name: BUILD_DEP_RESOLVER
           description: |
@@ -48,17 +37,15 @@
           name: DO_UPLOAD
           description: upload the built package
           default: false
-      - extended-choice:
+      - string:
           name: BACKPORT_ON_SUCCESS
-          description: If the build is successful, which backports should we perform?
-          type: checkbox
-          value: !join:
-            - ","
-            - - unstable-swh>stretch-swh
-              - unstable-swh>buster-swh
-              - unstable-swh>bullseye-swh
-              - buster-swh>stretch-swh
-          default-value: "{deb-backport-on-success}"
+          description: |
+            comma-separated: If the build is successful, which backports should we perform?
+            - unstable-swh>stretch-swh
+            - unstable-swh>buster-swh
+            - unstable-swh>bullseye-swh
+            - buster-swh>stretch-swh
+          default: "{deb-backport-on-success}"
     dsl: !include-jinja2: gbp-buildpackage.groovy.j2
 
 - job-template:
