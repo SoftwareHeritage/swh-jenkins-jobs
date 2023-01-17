@@ -36,8 +36,8 @@ pipeline {
         // really update jenkins jobs configuration when pushing commits to master
         // or when manually triggering the job from Jenkins UI
         anyOf {
-          expression { !env.gitlabSourceBranch }
-          expression { "${env.gitlabSourceBranch}" == "master" }
+          expression { "${env.gitlabActionType}" == "PUSH" && "${env.gitlabBranch}" == "master" }
+          expression { !env.gitlabActionType }
         }
       }
       steps {
