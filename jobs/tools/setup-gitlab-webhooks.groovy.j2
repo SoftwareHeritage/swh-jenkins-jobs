@@ -73,6 +73,7 @@ void setupGitlabWebhook(gitlabProjectName, jenkinsProjectName, pushEvents = true
       "id": "${gitlabProjectEncoded}",
       "url": "${webhookUrl}",
       "push_events": "${pushEvents}",
+      "note_events": "${mergeRequestEvents}",
       "merge_requests_events": "${mergeRequestEvents}",
       "tag_push_events": "${tagPushEvents}",
       "token": "{{jenkins_token}}"

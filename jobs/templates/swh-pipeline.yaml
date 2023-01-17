@@ -22,6 +22,8 @@
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
