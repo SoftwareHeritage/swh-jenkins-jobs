@@ -1,0 +1,166 @@
+def application = params.APPLICATION
+
+// The following is configured in jenkins manually:
+// > Manage Jenkins > Configure System > Declarative pipeline (Docker)
+// Input the information in the form
+// Docker label: gitlab-registry
+// Registry credentials: select the pat token created for the occasion for the gitlab's
+// jenkins user in gitlab.s.o (permissions: Read+Write access to registry)
+// then click the 'Add' button
+
+def registry_domain = "container-registry.softwareheritage.org/swh/infra/swh-apps"
+def dockerCredentialsKeyID = 'gitlab-registry'
+
+// swh-loader-git: loader_git
+// swh-storage-replayer: storage_replayer
+// ...
+def image_name = application.replaceAll('-', '_').replaceAll('swh_', '')
+echo "image name to build: ${image_name}"
+
+// Determine the following during the job execution
+def application_tag
+def image_version
+def full_image_version
+
+pipeline {
+  agent any
+
+  stages {
+    stage('Checkout swh-apps repository') {
+      steps {
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        checkout([
+          $class: 'GitSCM',
+          userRemoteConfigs: [[
+            name:'origin',
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+          ]],
+          extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
+                       [$class: 'LocalBranch', localBranch: "**"]],
+          doGenerateSubmoduleConfigurations: false,
+          gitTool: 'Default',
+          submoduleCfg: [],
+          branches: [[
+            name: "master"
+          ]],
+        ])
+        // FIXME: Determine the proper way to declare this directly with gitscm above
+        sh "git branch --set-upstream-to=origin/master"
+      }
+    }
+
+    // FIXME: Build and push directly this image in the registry (built daily) and use
+    // it directly here
+    stage('Build/Reuse "app-manager" image') {
+      steps {
+        sh 'docker build --pull -t app-manager scripts/'
+      }
+    }
+
+    stage('Build frozen requirements sets') {
+      steps {
+        script {
+          sh """
+            echo "Before build frozen requirements set"
+            git status
+            git diff
+          """
+          frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
+
+          sh "docker run -v `pwd`:/src --user 1000 app-manager generate-frozen-requirements ${application}"
+
+          sh """
+            echo "Before stash instruction"
+            git status
+            git diff
+          """
+          stash name: "${application}-requirements-frozen", includes: frozen_set_filepath
+          sh """
+            echo "After stash instruction"
+            git status
+            git diff
+          """
+        }
+      }
+    }
+
+    stage('Commit and declare swh-apps tag') {
+      steps {
+        script {
+          sh """
+            git log
+            echo `pwd`
+          """
+          application_tag = sh (
+            script: "docker run -v `pwd`:/src --user 1000 app-manager tag next '${application}'",
+            returnStdout: true
+          ).trim()
+          echo """
+            application tag: ${application_tag}
+            next tag for ${application}: ${application_tag}
+            image name: ${image_name}
+          """
+          image_version = application_tag.replaceAll("${application}-", "")
+          echo """
+            image version: ${image_version}
+            frozen set filepath: ${frozen_set_filepath}
+          """
+          sh """
+            git status
+            git diff
+            git checkout master
+          """
+          unstash "${application}-requirements-frozen"
+          sh """
+            git add ${frozen_set_filepath}
+            git commit --no-verify -m '${application}-${image_version}: Build image with frozen set requirements'
+            git log
+          """
+        }
+      }
+    }
+
+    stage('Docker image build') {
+      steps {
+        script {
+          // Determine docker image name and version
+          full_image_version = "${registry_domain}/${image_name}:${image_version}"
+          echo "full image version: ${full_image_version}"
+          sh "docker build --tag ${full_image_version} apps/${application}"
+        }
+      }
+    }
+
+    stage('Git tag & push') {
+      steps {
+        sh """
+          git pull --rebase
+          # FIXME: Improve tag message with the impacted module python version actually
+          # released (grep <app> requirements-frozen.txt, cat requirements-frozen.txt...)
+          git tag -a ${application_tag} -m "${application_tag}: Bump new release"
+          git push origin master ${application_tag}
+        """
+      }
+    }
+
+    // TODO: Determine how to and trigger tests on built image
+    // stage('Test docker image') {}
+
+    stage('Push image in registry') {
+      steps {
+        script {
+          docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
+            docker push ${full_image_version}
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    cleanup {
+      sh "docker image rm ${full_image_version}"
+      cleanWs()
+    }
+  }
+}
