@@ -21,4 +21,18 @@ services:
           -Djenkins.install.runSetupWizard=false
     ports:
       - 8080:8080
+      # For making a docker agent runnable, it needs the 50000 port to be
+      # available. And then, click on the local jenkins interface
+      # > manage jenkins > manage nodes and clouds > New nodes
+      # name: docker agent
+      # remote root dir: /var/tmp/jenkins
+      # labels: docker
+      # launch method: launch agent by connecting it to the controller
+      # custom workdir path: /var/tmp/jenkins
+      # save and then follow the proposed instructions:
+      # 1. curl -sO http://localhost:8080/jnlpJars/agent.jar
+      # 2. mkdir -p /var/tmp/jenkins
+      # 3. java -jar agent.jar -jnlpUrl http://localhost:8080/manage/computer/docker%20agent/jenkins-agent.jnlp \
+      #   -workDir "/var/tmp/jenkins"
+      - 50000:50000
     entrypoint: /docker/entrypoint.sh
