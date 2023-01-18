@@ -34,7 +34,8 @@ Connect to localhost:8080, then within the jenkins ui:
 - Create a jenkins folder `jenkins-tools`
 - Create a new `free-style` job named `job-builder` inside the `jenkins-tools` targeting
   this git repository `file:///opt/swh-jenkins-jobs`
-  - Configure the branch (e.g. `*/master`)
+  - Configure the branch your are developing on (e.g. `*/master`,
+    `*/awesome-feature`)
   - Add a `build` step `Execute shell` with this content
 ```
 tox -- update --delete-old
