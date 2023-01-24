@@ -25,7 +25,7 @@ pipeline {
     stage('Build and upload PyPI package') {
       when {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
-        expression { jobExists('/{{name}}/pypi-upload') }
+        expression { jenkinsJobExists('/{{name}}/pypi-upload') }
       }
       steps {
         build(
@@ -44,7 +44,7 @@ pipeline {
 
       when {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
-        expression { jobExists('/debian/packages/{{name}}/update-for-release') }
+        expression { jenkinsJobExists('/debian/packages/{{name}}/update-for-release') }
       }
 
       steps {
@@ -63,7 +63,7 @@ pipeline {
       when {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/.*/ }
         expression { !("${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/upstream\/.*/) }
-        expression { jobExists('/debian/packages/{{name}}/gbp-buildpackage') }
+        expression { jenkinsJobExists('/debian/packages/{{name}}/gbp-buildpackage') }
       }
       steps {
         build(
@@ -84,3 +84,5 @@ pipeline {
     {% endfilter %}
   }
 }
+
+{%- include 'includes/jenkins-job-exists.groovy.j2' -%}

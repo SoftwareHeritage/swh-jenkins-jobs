@@ -207,7 +207,7 @@ pipeline {
         beforeAgent true
         expression { changelog_distribution != 'UNRELEASED' }
         expression { params.BACKPORT_ON_SUCCESS }
-        expression { jobExists(backport_job) }
+        expression { jenkinsJobExists(backport_job) }
       }
       steps {
         script {
@@ -231,3 +231,5 @@ pipeline {
     }
   }
 }
+
+{%- include 'jobs/templates/includes/jenkins-job-exists.groovy.j2' -%}
