@@ -44,6 +44,8 @@ pipeline {
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-builds")
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/incoming-tag",
                                  false, false, true)
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/master",
+                                 true, false, false)
             }
           }
 
