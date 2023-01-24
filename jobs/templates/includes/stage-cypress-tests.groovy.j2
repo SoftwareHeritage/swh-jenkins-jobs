@@ -137,13 +137,6 @@ stage('Cypress tests') {
         reportFiles: 'index.html',
         reportName: "Istanbul Code Coverage"
       ])
-
-      publishCoverage(
-        adapters: [
-          coberturaAdapter(path: 'cypress/coverage/cobertura-coverage.xml'),
-        ],
-        tag: 'cypress',
-      )
     }
   }
 }

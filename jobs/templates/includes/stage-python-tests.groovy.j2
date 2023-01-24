@@ -15,14 +15,6 @@ stage('Python tests') {
         fingerprint: true,
       )
 
-      publishCoverage(
-        adapters: [
-          coberturaAdapter(path: 'coverage.xml'),
-        ],
-        tag: 'pytest',
-        sourceFileResolver: sourceFiles('STORE_LAST_BUILD'),
-      )
-
       // JUnit report
       junit(
         allowEmptyResults: true,

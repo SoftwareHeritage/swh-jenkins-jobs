@@ -133,6 +133,23 @@ pipeline {
     {% filter indent(width=4) %}
       {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
     {% endfilter %}
+    script {
+      if (env.gitlabMergeRequestIid) {
+        // when building a merge request, discover base commit in master branch
+        // and its associated Jenkins build in order to display code coverage report
+        // in Jenkins UI focused on the merge request changes
+        discoverGitReferenceBuild(referenceJob: "{{name}}/master")
+      }
+    }
+    // publish code coverage report to browse it from Jenkins UI
+    publishCoverage(
+      adapters: [
+        coberturaAdapter(mergeToOneReport: true, path: '**/*coverage*.xml'),
+      ],
+      sourceDirectories: [[path: '{{python_module}}'.replace('.', '/')]],
+      sourceFileResolver: sourceFiles('STORE_ALL_BUILD'),
+      calculateDiffForChangeRequests: "${env.gitlabMergeRequestIid}" != "null",
+    )
     cleanup {
       cleanWs()
     }

@@ -64,6 +64,7 @@ font-awesome-api
 forensics-api
 git
 git-client
+git-forensics
 git-parameter
 github
 github-api
