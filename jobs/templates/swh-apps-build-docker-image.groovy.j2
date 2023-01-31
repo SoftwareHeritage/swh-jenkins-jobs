@@ -2,7 +2,11 @@ def application = params.APPLICATION
 def dry_run = params.DRY_RUN
 def cleanup_image = params.CLEANUP_IMAGE
 // For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
-def label_node = params.NODE
+{% if production_jenkins %}
+def label_node = 'built-in'
+{% else %}
+def label_node = 'docker'
+{% endif %}
 
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
 def dockerfile_filepath = "apps/${application}/Dockerfile"
@@ -82,7 +86,7 @@ pipeline {
             git status
             git diff
           """
-          sh "docker run -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
+          sh "docker run --rm -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
 
           sh """
             echo "Before stash instruction"
@@ -107,7 +111,7 @@ pipeline {
             echo `pwd`
           """
           application_tag = sh (
-            script: "docker run -v `pwd`:/src app-manager tag next '${application}'",
+            script: "docker run --rm -v `pwd`:/src app-manager tag next '${application}'",
             returnStdout: true
           ).trim()
           echo """

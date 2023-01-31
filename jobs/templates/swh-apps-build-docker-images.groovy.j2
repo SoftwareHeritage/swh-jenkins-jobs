@@ -1,0 +1,205 @@
+def target_branch = params.TARGET_BRANCH
+def module = params.MODULE
+def module_version = params.VERSION
+def dry_run = params.DRY_RUN
+def cleanup_image = params.CLEANUP_IMAGE
+def trigger_in_parallel = params.PARALLEL
+// For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
+{% if production_jenkins %}
+def label_node = 'built-in'
+{% else %}
+def label_node = 'docker'
+{% endif %}
+
+def repository_prefix_url
+
+// List of impacted images
+def impacted_images
+// Map of job (build-docker-image) to recreate
+def images = [:]
+
+// Targetting branch with a static name so future build can continue to push new version
+// on it if already opened.
+def source_branch = "swh-next-version"
+
+pipeline {
+  agent { label label_node }
+
+  stages {
+    stage('Checkout swh-apps repository') {
+      steps {
+        script {
+          repository_prefix_url = dry_run ? "{{gitlab_url}}/" : "{{gitlab_ssh_url}}:"
+        }
+        dir ('swh-apps') {
+          checkout([
+            $class: 'GitSCM',
+            userRemoteConfigs: [[
+              credentialsId: 'gitlab-public-ci-ssh',
+              name: 'origin',
+              url: "${repository_prefix_url}{{gitlab_project_name}}.git",
+            ]],
+            extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
+                         [$class: 'LocalBranch', localBranch: "**"]],
+            doGenerateSubmoduleConfigurations: false,
+            gitTool: 'Default',
+            submoduleCfg: [],
+            branches: [[
+              name: "master"
+            ]],
+          ])
+          // FIXME: Determine the proper way to declare this directly with gitscm above
+          sh "git branch --set-upstream-to=origin/master"
+        }
+      }
+    }
+
+    // FIXME: Build and push directly this image in the registry (built daily) and us it
+    // directly here
+    stage('Build/Reuse "app-manager" image') {
+      steps {
+        sh """#!/bin/bash
+        set -x
+        docker build --pull --build-arg userid=`id -u` \
+                            --build-arg groupid=`id -g` \
+                            -t app-manager scripts/
+        """
+      }
+    }
+
+    stage('Search impacted application images to rebuild') {
+      steps {
+        dir('.') {
+          sh """#!/bin/bash
+          set -x
+          docker run --rm -v `pwd`:/src app-manager list-dependent-apps \
+            --application ${module} \
+            --version ${module_version} &> $WORKSPACE_TMP/impacted-images
+          """
+        }
+      }
+    }
+
+    stage('Trigger docker image rebuilds') {
+      steps {
+        script {
+          impacted_images = readFile("$WORKSPACE_TMP/impacted-images").readLines()
+          impacted_images.each { image, closure ->
+            images["build-image-${image}"] = {
+              build job: 'build-docker-image',
+              parameters: [
+                // run(name: "build-docker-image-${image}"),
+                string(name: 'APPLICATION', value: image),
+                booleanParam(name: 'DRY_RUN', value: dry_run),
+                booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
+              ],
+              // period before building
+              quietPeriod: 1,
+              // result of this step will be the result of the downstream job
+              propagate: true,
+              // make pipeline wait for result of the job
+              wait: true
+            }
+          }
+
+          if (trigger_in_parallel) {
+            // execute jobs in parallel
+            parallel(images)
+          } else {
+            // execute jobs in sequentially
+            images.each { name, closure ->
+              echo "Execute build-docker-image for ${name}"
+              closure.call()
+            }
+          }
+        }
+      }
+    }
+
+    stage('Refresh swh-apps repository with latest build commits') {
+      steps {
+        dir ('.') {
+          sh """#!/bin/bash
+            set -x
+
+            git pull
+            git log --oneline | head -${impacted_images.size() + 1} \
+              > $WORKSPACE_TMP/git-log-summary
+          """
+        }
+      }
+    }
+
+    stage('Checkout swh-charts repository') {
+      steps {
+        dir('../swh-charts') {
+          checkout([
+            $class: 'GitSCM',
+            userRemoteConfigs: [[
+              credentialsId: 'gitlab-public-ci-ssh',
+              name: 'origin',
+              url: "${repository_prefix_url}/swh/infra/ci-cd/swh-charts.git"
+            ]],
+            branches: [[
+              name: target_branch,
+            ]],
+            extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
+                         [$class: 'LocalBranch', localBranch: "**"]],
+            doGenerateSubmoduleConfigurations: false,
+            gitTool: 'Default',
+            submoduleCfg: [],
+            branches: [[
+              name: target_branch
+            ]],
+          ])
+          sh """#!/bin/bash
+          set -x
+          git branch --set-upstream-to=origin/${target_branch}
+          git checkout -b ${source_branch} || git checkout ${source_branch}
+          """
+        }
+      }
+    }
+
+    // - step to trigger the update of the values.yaml to adapt
+    stage('Update swh-charts with new images version') {
+      steps {
+        sh """#!/bin/bash
+
+          # Get back to workspace
+          cd $WORKSPACE
+
+          set -x
+          # Trigger swh-charts:/values-swh-application-versions.yaml version updates
+          docker run --rm \
+            --volume `pwd`/swh-apps:/src \
+            --volume `pwd`/swh-charts:/tmp/swh-charts \
+              app-manager update-versions \
+                --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
+                --chart-filepath /tmp/swh-charts/swh/Chart.yaml
+          set +x
+
+          # Commit the changes
+          cd swh-charts
+          git add .
+          git commit -m "v`grep appVersion swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}"
+          git log --oneline | head -2
+
+          # Not working with multi-line output.
+          # failure: "fatal: push options must not have new line characters"
+          # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
+
+          [ "${dry_run}" = "false" ] && \
+            # open MR
+            git push \
+              -o merge_request.create \
+              -o merge_request.target=${target_branch} \
+              -o merge_request.title="v`grep appVersion swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
+              -o merge_request.remove_source_branch=true \
+              origin ${source_branch} || \
+            echo "DRY-RUN: stop"
+        """
+      }
+    }
+  }
+}
