@@ -1,4 +1,5 @@
 def application = params.APPLICATION
+def dry_run = params.DRY_RUN
 
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
@@ -133,13 +134,21 @@ pipeline {
 
     stage('Git tag & push') {
       steps {
-        sh """
-          git pull --rebase
-          # FIXME: Improve tag message with the impacted module python version actually
-          # released (grep <app> requirements-frozen.txt, cat requirements-frozen.txt...)
-          git tag -a ${application_tag} -m "${application_tag}: Bump new release"
-          git push origin master ${application_tag}
-        """
+        script {
+          if ( ! dry_run ) {
+            sshagent (credentials: ['gitlab-public-ci-ssh']) {
+              sh """
+                git pull --rebase
+                # FIXME: Improve tag message with the impacted module python version actually
+                # released (grep <app> requirements-frozen.txt, cat requirements-frozen.txt...)
+                git tag -a ${application_tag} -m "${application_tag}: Bump new release"
+                git push origin master ${application_tag}
+              """
+            }
+          } else {
+            echo "Skipping `git push`."
+          }
+        }
       }
     }
 
@@ -149,8 +158,12 @@ pipeline {
     stage('Push image in registry') {
       steps {
         script {
-          docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
-            docker push ${full_image_version}
+          if ( ! dry_run ) {
+            docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
+              docker push ${full_image_version}
+            }
+          } else {
+            echo "Skipping `docker image push`."
           }
         }
       }

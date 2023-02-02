@@ -1,10 +1,15 @@
 - job-template:
     name: "{name}/build-docker-image"
-    description: "Trigger build of a docker image swh application"
+    description: "Trigger build of a docker image for an swh application"
     concurrent: true
     parameters:
-      - string:
-          name: "APPLICATION"
+    - string:
+        name: "APPLICATION"
+        description: SWH application name (e.g. swh-loader-git, swh-graphql, ...)
+    - bool:
+        name: "DRY_RUN"
+        description: Read-only job (no git repository nor gitlab registry are updated)
+        default: false
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
     dsl: !include-jinja2: templates/swh-apps-build-docker-image.groovy.j2
