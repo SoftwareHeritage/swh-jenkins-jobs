@@ -114,10 +114,13 @@ pipeline {
             git checkout master
           """
           unstash "${application}-requirements-frozen"
+          commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
           sh """
             git add ${frozen_set_filepath}
             git commit --no-verify -m '${application}-${image_version}: Build image with frozen set requirements'
             git log
+            # Skipping empty commit to ease reproducibility even without changes
+            git commit --no-verify -m ${commit_msg} || echo "Skip empty commit"
           """
         }
       }
