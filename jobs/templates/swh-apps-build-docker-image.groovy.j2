@@ -24,6 +24,8 @@ def application_tag
 def image_version
 def full_image_version
 
+def git_log = 'git log | head -10'
+
 pipeline {
   agent any
 
@@ -91,7 +93,7 @@ pipeline {
       steps {
         script {
           sh """
-            git log
+            ${git_log}
             echo `pwd`
           """
           application_tag = sh (
@@ -117,10 +119,9 @@ pipeline {
           commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
           sh """
             git add ${frozen_set_filepath}
-            git commit --no-verify -m '${application}-${image_version}: Build image with frozen set requirements'
-            git log
             # Skipping empty commit to ease reproducibility even without changes
             git commit --no-verify -m ${commit_msg} || echo "Skip empty commit"
+            ${git_log}
           """
         }
       }
