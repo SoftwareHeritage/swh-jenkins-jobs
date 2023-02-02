@@ -1,5 +1,6 @@
 def application = params.APPLICATION
 def dry_run = params.DRY_RUN
+def cleanup_image = params.CLEANUP_IMAGE
 
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
@@ -173,7 +174,13 @@ pipeline {
   post {
     cleanup {
       cleanWs()
-      sh "docker image rm ${full_image_version}"
+    }
+    always {
+      script {
+        if (cleanup_image) {
+          sh "docker image rm ${full_image_version}"
+        }
+      }
     }
   }
 }
