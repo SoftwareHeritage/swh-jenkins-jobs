@@ -162,7 +162,7 @@ pipeline {
         script {
           if ( ! dry_run ) {
             docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
-              docker push ${full_image_version}
+              sh "docker push ${full_image_version}"
             }
           } else {
             echo "Skipping `docker image push`."
