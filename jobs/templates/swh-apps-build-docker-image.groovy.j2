@@ -34,8 +34,9 @@ pipeline {
         checkout([
           $class: 'GitSCM',
           userRemoteConfigs: [[
-            name:'origin',
-            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            credentialsId: 'gitlab-public-ci-ssh',
+            name: 'origin',
+            url: '{{gitlab_ssh_url}}:{{gitlab_project_name}}.git',
           ]],
           extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
                        [$class: 'LocalBranch', localBranch: "**"]],
