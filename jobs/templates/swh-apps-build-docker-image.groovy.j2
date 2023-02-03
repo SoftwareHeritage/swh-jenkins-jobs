@@ -9,8 +9,11 @@ def dockerfile_exists = new File(dockerfile_filepath).exists()
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
 // Input the information in the form
-// Docker label: gitlab-registry
+// container-registry: container-registry.softwareheritage.org
 // Registry credentials: select the pat token created for the occasion for the gitlab's
+// (username/password credentials created for the occasion, username: jenkins, password
+// the pat token)
+// Docker label: gitlab-registry
 // jenkins user in gitlab.s.o (permissions: Read+Write access to registry)
 // then click the 'Add' button
 
