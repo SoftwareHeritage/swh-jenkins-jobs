@@ -4,7 +4,6 @@ def cleanup_image = params.CLEANUP_IMAGE
 
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
 def dockerfile_filepath = "apps/${application}/Dockerfile"
-def dockerfile_exists = new File(dockerfile_filepath).exists()
 
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
@@ -121,6 +120,7 @@ pipeline {
             git checkout master
           """
           unstash "${application}-requirements-frozen"
+          dockerfile_exists = fileExists(dockerfile_filepath)
           if ( dockerfile_exists ) {
             commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
           } else {
