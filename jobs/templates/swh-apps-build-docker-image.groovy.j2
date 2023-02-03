@@ -2,6 +2,10 @@ def application = params.APPLICATION
 def dry_run = params.DRY_RUN
 def cleanup_image = params.CLEANUP_IMAGE
 
+def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
+def dockerfile_filepath = "apps/${application}/Dockerfile"
+def dockerfile_exists = new File(dockerfile_filepath).exists()
+
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
 // Input the information in the form
@@ -70,8 +74,6 @@ pipeline {
             git status
             git diff
           """
-          frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
-
           sh "docker run -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
 
           sh """
@@ -116,7 +118,11 @@ pipeline {
             git checkout master
           """
           unstash "${application}-requirements-frozen"
-          commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
+          if ( dockerfile_exists ) {
+            commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
+          } else {
+            commit_msg = "'${application}-${image_version}: Update frozen set requirements'"
+          }
           sh """
             git add ${frozen_set_filepath}
             # Skipping empty commit to ease reproducibility even without changes
@@ -130,10 +136,12 @@ pipeline {
     stage('Docker image build') {
       steps {
         script {
-          // Determine docker image name and version
-          full_image_version = "${registry_domain}/${image_name}:${image_version}"
-          echo "full image version: ${full_image_version}"
-          sh "docker build --tag ${full_image_version} apps/${application}"
+          if ( dockerfile_exists ) {
+            // Determine docker image name and version
+            full_image_version = "${registry_domain}/${image_name}:${image_version}"
+            echo "full image version: ${full_image_version}"
+            sh "docker build --tag ${full_image_version} apps/${application}"
+          }
         }
       }
     }
@@ -164,7 +172,7 @@ pipeline {
     stage('Push image in registry') {
       steps {
         script {
-          if ( ! dry_run ) {
+          if ( ! dry_run && dockerfile_exists ) {
             docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
               sh "docker push ${full_image_version}"
             }
@@ -182,7 +190,7 @@ pipeline {
     }
     always {
       script {
-        if (cleanup_image) {
+        if ( dockerfile_exists && cleanup_image ) {
           sh "docker image rm ${full_image_version}"
         }
       }
