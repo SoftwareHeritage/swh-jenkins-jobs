@@ -64,6 +64,7 @@
     pkg: graph
     python_module: swh.graph
     default-tox-environment: py3,java
+    timeout: 20
     jobs:
       - "swh-jobs-{name}"
 
