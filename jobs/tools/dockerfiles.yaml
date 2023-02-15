@@ -27,7 +27,15 @@
       - timestamps
       - ansicolor
     builders:
-      - shell: make checkrebuild all
+      - shell: |
+          #!/bin/bash
+          export REGISTRY=swh-jenkins-test
+          if [[ "$gitlabActionType" == "" ]] || \
+            [[ "$gitlabActionType" == "PUSH" && "$gitlabBranch" == "master" ]]
+          then
+            export REGISTRY=swh-jenkins
+          fi
+          make checkrebuild all
     publishers:
       - gitlab-notifier
 
