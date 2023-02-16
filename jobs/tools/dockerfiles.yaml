@@ -7,7 +7,10 @@
       - git:
           url: "{gitlab_url}/{gitlab_project_name}.git"
           refspec: +refs/heads/*:refs/remotes/origin/*
-            +refs/merge-requests/*:refs/remotes/merge-requests/*
+            +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*
+          branches:
+            - origin/master
+            - origin/merge-requests/${{gitlabMergeRequestIid}}
           wipe-workspace: false
     properties:
       - build-discarder:
