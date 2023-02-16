@@ -1,0 +1,48 @@
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
+pipeline {
+  agent any
+
+  stages {
+
+    stage('Checkout Repository') {
+      steps {
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: branch]],
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*'
+          ]],
+        ])
+      }
+    }
+
+    stage('Build docker images') {
+      steps {
+        sh '''#!/bin/bash
+          export REGISTRY=swh-jenkins-test
+          if [[ "$gitlabActionType" == "" ]] || \
+            [[ "$gitlabActionType" == "PUSH" && "$gitlabBranch" == "master" ]]
+          then
+            export REGISTRY=swh-jenkins
+          fi
+          make checkrebuild all
+        '''
+      }
+    }
+
+  }
+  post {
+    {% filter indent(width=4) %}
+      {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
+  }
+}

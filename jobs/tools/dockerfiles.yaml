@@ -1,6 +1,7 @@
 # we need a job-template to substitute gitlab_* variables
 - job-template:
     name: jenkins-tools/{dockerfiles_job_name}
+    project-type: pipeline
     gitlab_project_name: swh/infra/ci-cd/swh-jenkins-dockerfiles
     node: built-in
     scm:
@@ -24,6 +25,9 @@
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
+          wip-skip: false
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
@@ -31,18 +35,7 @@
     wrappers:
       - timestamps
       - ansicolor
-    builders:
-      - shell: |
-          #!/bin/bash
-          export REGISTRY=swh-jenkins-test
-          if [[ "$gitlabActionType" == "" ]] || \
-            [[ "$gitlabActionType" == "PUSH" && "$gitlabBranch" == "master" ]]
-          then
-            export REGISTRY=swh-jenkins
-          fi
-          make checkrebuild all
-    publishers:
-      - gitlab-notifier
+    dsl: !include-jinja2: dockerfiles.groovy.j2
 
 - project:
     name: swh-jenkins-dockerfiles
