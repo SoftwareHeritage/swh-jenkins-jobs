@@ -25,7 +25,7 @@ stage('Cypress tests') {
             wait-for-it sorry-cypress:1234
 
             # install swh-web python requirements
-            python3 -m pip install --no-use-pep517 --user -e .[testing]
+            python3 -m pip install --user -e .[testing]
 
             # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
             rm -f swh-web-test*.sqlite3*
