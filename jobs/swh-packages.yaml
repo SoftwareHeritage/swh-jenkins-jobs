@@ -13,6 +13,15 @@
       - "debian/packages/{name}/gbp-buildpackage"
 
 - project:
+    name: DALTER
+    display-name: swh-alter
+    repo_name: swh-alter
+    pkg: alter
+    python_module: swh.alter
+    jobs:
+      - "swh-jobs-{name}"
+
+- project:
     name: DAUTH
     display-name: swh-auth
     repo_name: swh-auth
