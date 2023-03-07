@@ -16,6 +16,14 @@
       - "dependency-jobs-{name}"
 
 - project:
+    name: python3-aiohttp-utils
+    display-name: python3-aiohttp-utils
+    repo_name: python3-aiohttp-utils
+    pkg: aiohttp-utils
+    jobs:
+      - "dependency-jobs-{name}"
+
+- project:
     name: PTDTM
     display-name: python3-django-test-migrations
     repo_name: python3-django-test-migrations
