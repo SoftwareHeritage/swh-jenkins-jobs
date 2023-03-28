@@ -11,12 +11,9 @@
       - copyartifact:
           projects: "*"
     parameters:
-      - git-parameter:
+      - string:
           name: GIT_TAG
           description: git tag to process
-          type: PT_TAG
-          sortMode: DESCENDING_SMART
-          selectedValue: TOP
       - choice:
           name: PYPI_HOST
           description: |
