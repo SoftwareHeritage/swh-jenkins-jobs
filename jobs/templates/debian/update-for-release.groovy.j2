@@ -15,7 +15,6 @@ pipeline {
         cleanWs()
         checkout([
           $class: 'GitSCM',
-          branches: [[name: 'debian/unstable-swh'], [name: 'debian/*'], [name: 'pristine-tar']],
           userRemoteConfigs: [[
             credentialsId: 'gitlab-public-ci-ssh',
             url: '{{gitlab_ssh_url}}:{{gitlab_project_name}}.git',
@@ -27,7 +26,6 @@ pipeline {
         ])
         dir (repo_name) {
           sh '''
-            git checkout -B pristine-tar origin/pristine-tar
             git checkout -B debian/upstream origin/debian/upstream
             git checkout -B debian/unstable-swh origin/debian/unstable-swh
           '''
@@ -107,6 +105,7 @@ pipeline {
         withEnv(full_environ) {
           dir (repo_name) {
             sh '''
+              if grep -q pristine-tar=True debian/gbp.conf; then git branch pristine-tar origin/pristine-tar; fi
               gbp import-orig --merge-mode=replace --no-symlink-orig -u ${UPSTREAM_VERSION} ../dist/${PYTHON_MODULE}-${UPSTREAM_VERSION}.tar.gz
             '''
           }
