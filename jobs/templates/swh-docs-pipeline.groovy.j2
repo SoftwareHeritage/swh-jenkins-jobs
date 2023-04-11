@@ -72,24 +72,6 @@ pipeline {
         reportFiles: 'index.html',
         reportName: 'SWH Documentation'
       ])
-
-      publishHTML (target: [
-        allowMissing: true,
-        alwaysLinkToLastBuild: false,
-        keepAll: true,
-        reportDir: 'swh-docs/user/_build/html',
-        reportFiles: 'index.html',
-        reportName: 'SWH User Documentation'
-      ])
-
-      publishHTML (target: [
-        allowMissing: true,
-        alwaysLinkToLastBuild: false,
-        keepAll: true,
-        reportDir: 'swh-docs/sysadm/_build/html',
-        reportFiles: 'index.html',
-        reportName: 'SWH sysadmin Documentation'
-      ])
     }
     cleanup {
       cleanWs()
