@@ -103,8 +103,7 @@
     sandbox: true
     properties:
       - build-discarder:
-          artifact-num-to-keep: 20
-          days-to-keep: 90
+          days-to-keep: 20
       - gitlab:
           connection: "{gitlab_connection_name}"
     triggers:
