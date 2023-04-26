@@ -338,6 +338,15 @@
       - "swh-jobs-{name}"
 
 - project:
+    name: swh-webhooks
+    display-name: swh-webhooks
+    repo_name: swh-webhooks
+    pkg: webhooks
+    python_module: swh.webhooks
+    jobs:
+      - "swh-jobs-{name}"
+
+- project:
     name: DFUSE
     display-name: swh-fuse
     repo_name: swh-fuse
