@@ -296,6 +296,15 @@
       - "swh-jobs-{name}"
 
 - project:
+    name: swh-spdx
+    display-name: swh-spdx
+    repo_name: swh-spdx
+    pkg: spdx
+    python_module: swh.spdx
+    jobs:
+      - "swh-jobs-{name}"
+
+- project:
     name: DSTO
     display-name: swh-storage
     repo_name: swh-storage
