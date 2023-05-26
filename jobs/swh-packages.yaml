@@ -184,6 +184,7 @@
     repo_name: swh-loader-svn
     pkg: loader.svn
     python_module: swh.loader.svn
+    include_bdist: false
     jobs:
       - "swh-jobs-{name}"
 
