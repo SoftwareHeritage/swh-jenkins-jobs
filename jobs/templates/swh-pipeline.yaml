@@ -22,7 +22,7 @@
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
-          trigger-open-merge-request-push: both
+          trigger-open-merge-request-push: source
           trigger-note: true
           note-regex: "@jenkins.*retry.*build"
           wip-skip: false

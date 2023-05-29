@@ -19,7 +19,7 @@
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
-          trigger-open-merge-request-push: both
+          trigger-open-merge-request-push: source
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
