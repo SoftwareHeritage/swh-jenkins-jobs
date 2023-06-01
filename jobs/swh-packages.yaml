@@ -1,4 +1,14 @@
 - job-group:
+    name: "swh-jobs-no-deb-{name}"
+    gitlab_project_name: "swh/devel/{repo_name}"
+    jobs:
+      - "{name}"
+      - "{name}/incoming-tag"
+      - "{name}/pypi-upload"
+      - "{name}/gitlab-builds"
+      - "{name}/master"
+
+- job-group:
     name: "swh-jobs-{name}"
     gitlab_project_name: "swh/devel/{repo_name}"
     jobs:
@@ -19,7 +29,7 @@
     pkg: alter
     python_module: swh.alter
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DAUTH
@@ -303,7 +313,7 @@
     pkg: spdx
     python_module: swh.spdx
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DSTO
@@ -355,7 +365,7 @@
     python_module: swh.webhooks
     max_concurrent: 1
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DFUSE
