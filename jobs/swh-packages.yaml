@@ -320,7 +320,7 @@
     display-name: swh-storage
     repo_name: swh-storage
     pkg: storage
-    deb-extra-repositories: cassandra
+    deb-extra-repositories: cassandra,pgdg
     python_module: swh.storage
     timeout: 25
     jobs:
