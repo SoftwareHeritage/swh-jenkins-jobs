@@ -2,7 +2,7 @@
     name: "{name}/gitlab-builds"
     display-name: "GitLab builds"
     project-type: pipeline
-    docker_image: tox
+    docker_image: tox-bookworm
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     default-tox-environment: py3
