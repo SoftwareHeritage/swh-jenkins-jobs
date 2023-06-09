@@ -61,6 +61,8 @@ stage('Cypress tests') {
                   # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
                   export CYPRESS_PARALLEL_BUILD_ID={{ n }}
                   export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
+                  export CURRENTS_API_URL=http://sorry-cypress:1234
+                  export CURRENTS_PROJECT_ID=swh-web
 
                   # force use of manually created X11 server
                   export DISPLAY=:99
@@ -79,8 +81,7 @@ stage('Cypress tests') {
                   wait-for-it -t 90 localhost:500{{ n }}
 
                   # execute cypress tests
-                  export CYPRESS_API_URL=http://sorry-cypress:1234
-                  yarn run cy2 run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
+                  yarn run cypress-cloud run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
 
                   # copy nyc coverage outputs to dedicated merge folders for later processing
                   cp cypress/coverage{{ n }}/coverage-final.json ../cypress/coverage_output/coverage-final{{ n }}.json
