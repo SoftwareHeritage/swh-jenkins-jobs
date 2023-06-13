@@ -70,7 +70,7 @@ Connect to localhost:8080, then within the jenkins ui with the user `admin`:
   - Configure the branch (e.g. `*/master`)
   - Add a `build` step `Execute shell` with this content
 ```
-tox update -- --delete-old
+tox -- update --delete-old
 ```
 - Save your build configuration
 - Trigger a build \o/
