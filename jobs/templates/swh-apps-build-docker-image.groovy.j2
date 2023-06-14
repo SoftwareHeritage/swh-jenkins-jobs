@@ -1,6 +1,8 @@
 def application = params.APPLICATION
 def dry_run = params.DRY_RUN
 def cleanup_image = params.CLEANUP_IMAGE
+// For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
+def label_node = params.NODE
 
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
 def dockerfile_filepath = "apps/${application}/Dockerfile"
@@ -31,20 +33,24 @@ def image_version
 def full_image_version
 
 def git_log = 'git log | head -10'
+def repository_prefix_url
 
 pipeline {
-  agent any
+  // Where to make the job run
+  agent { label label_node }
 
   stages {
     stage('Checkout swh-apps repository') {
       steps {
-        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        script {
+          repository_prefix_url = dry_run ? "{{gitlab_url}}/" : "{{gitlab_ssh_url}}:"
+        }
         checkout([
           $class: 'GitSCM',
           userRemoteConfigs: [[
             credentialsId: 'gitlab-public-ci-ssh',
             name: 'origin',
-            url: '{{gitlab_ssh_url}}:{{gitlab_project_name}}.git',
+            url: "${repository_prefix_url}{{gitlab_project_name}}.git",
           ]],
           extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
                        [$class: 'LocalBranch', localBranch: "**"]],

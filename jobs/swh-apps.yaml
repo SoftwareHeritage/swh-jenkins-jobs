@@ -14,6 +14,12 @@
         name: "CLEANUP_IMAGE"
         description: Clean up docker image at the end of the build
         default: true
+    - choice:
+        name: "NODE"
+        description: Run job in 'docker' agent (e.g. for local use) or 'built-in' (prod)
+        choices:
+          - 'built-in'
+          - 'docker'
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
     dsl: !include-jinja2: templates/swh-apps-build-docker-image.groovy.j2
