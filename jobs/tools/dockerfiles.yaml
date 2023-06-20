@@ -18,10 +18,13 @@
           days-to-keep: 7
       - gitlab:
           connection: "{gitlab_connection_name}"
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - pollscm:
           cron: "H/30 * * * *"
       - timed: "@daily"
+      {% endif %}
+
       - gitlab:
           trigger-push: true
           trigger-merge-request: true

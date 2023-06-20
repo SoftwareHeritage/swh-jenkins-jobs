@@ -11,7 +11,11 @@
     docker_image: tox
     node: built-in
 
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "@midnight"
+      {% else %}
+      []
+      {% endif %}
 
     dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2

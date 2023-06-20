@@ -46,8 +46,12 @@
 - job-template:
     name: "{name}/master"
     display-name: "master branch"
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "@daily"
+      {% else %}
+      []
+      {% endif %}
     parameters:
       - string:
           name: REVISION

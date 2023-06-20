@@ -1,5 +1,5 @@
-- job:
-    name: jenkins-tools/clean-docker
+- job-template:
+    name: jenkins-tools/{clean_project_name}
     description: Clean old Docker objects
     node: built-in
 
@@ -7,8 +7,18 @@
       - build-discarder:
           days-to-keep: 7
 
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "@midnight"
+      {% else %}
+      []
+      {% endif %}
 
     builders:
       - shell: /usr/local/bin/clean-docker-images.sh
+
+- project:
+    name: clean-docker
+    clean_project_name: clean-docker
+    jobs:
+      - jenkins-tools/{clean_project_name}

@@ -12,8 +12,12 @@
           branches:
             - master
           wipe-workspace: false
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "H * * * *"
+      {% else %}
+      []
+      {% endif %}
     properties:
       - build-discarder:
           days-to-keep: 7

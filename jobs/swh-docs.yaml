@@ -16,8 +16,12 @@
       - build-discarder:
           days-to-keep: 90
 
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "@midnight"
+      {% else %}
+      []
+      {% endif %}
 
     scm:
       - git:
@@ -60,8 +64,12 @@
       - build-discarder:
           days-to-keep: 90
 
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "H 9-22/2 * * *"
+      {% else %}
+      []
+      {% endif %}
 
     scm:
       - git:

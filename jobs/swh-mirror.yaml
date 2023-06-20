@@ -14,8 +14,10 @@
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "0 4 * * *"
+      {% endif %}
       - gitlab:
           trigger-push: true
           trigger-merge-request: true

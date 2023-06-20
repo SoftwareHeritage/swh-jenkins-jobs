@@ -11,8 +11,12 @@
     description: Run tests for each swh module in development version
     node: swh-sphinx
 
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
       - timed: "H */6 * * *"
+      {% else %}
+      []
+      {% endif %}
 
     scm:
       - git:
