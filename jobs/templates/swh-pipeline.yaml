@@ -6,6 +6,7 @@
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     default-tox-environment: py37
+    default-branch-name: master
     concurrent: true
     sandbox: true
     properties:
@@ -56,7 +57,7 @@
       - string:
           name: REVISION
           description: Git revision to build.
-          default: master
+          default: "{default-branch-name}"
       - string:
           name: TOX_ENVIRONMENT
           description: tox environment to use for the main tox run

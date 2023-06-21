@@ -28,6 +28,7 @@
     repo_name: swh-alter
     pkg: alter
     python_module: swh.alter
+    default-branch-name: main
     jobs:
       - "swh-jobs-no-deb-{name}"
 
