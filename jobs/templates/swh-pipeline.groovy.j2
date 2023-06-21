@@ -87,7 +87,7 @@ pipeline {
             sh '''
             if tox -a | grep -x sphinx >/dev/null
             then
-              tox -e sphinx
+              tox -e sphinx -x testenv.basepython={{ sphinx_basepython }}
             else
               echo WARNING: no sphinx environment in tox.ini
             fi

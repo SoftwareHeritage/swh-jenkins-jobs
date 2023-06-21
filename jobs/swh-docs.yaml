@@ -12,6 +12,7 @@
     description: Build the documentation and publish it
     node: swh-sphinx
     gitlab_project_name: swh/devel/swh-environment
+    sphinx_basepython: py37
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -28,7 +29,7 @@
           url: "{gitlab_url}/{gitlab_project_name}.git"
 
     builders:
-      - shell: |
+      - shell: !j2: |
           #!/bin/bash
           set -ex
 
@@ -43,7 +44,7 @@
           cd swh-docs
           git checkout master
           git clean -dfx
-          SPHINXOPTCOLOR='--no-color' tox -e sphinx
+          SPHINXOPTCOLOR='--no-color' tox -e sphinx -x testenv.basepython={{sphinx_basepython}}
 
     publishers:
       - ssh:
@@ -60,6 +61,7 @@
     description: Build the documentation from git repos
     node: swh-sphinx
     gitlab_project_name: swh/devel/swh-environment
+    sphinx_basepython: py37
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -76,7 +78,7 @@
           url: "{gitlab_url}/{gitlab_project_name}.git"
 
     builders:
-      - shell: |
+      - shell: !j2: |
           #!/bin/bash
           set -ex
 
@@ -90,7 +92,7 @@
           mr -t run sh -c 'echo -n "`basename $PWD` " && git describe' | grep -v 'mr run' > revisions.txt
           cd swh-docs
           git clean -dfx
-          SPHINXOPTS='-W -q --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev
+          SPHINXOPTS='-W -q --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev -x testenv.basepython={{sphinx_basepython}}
 
     publishers:
       - archive:
@@ -107,6 +109,7 @@
     display_name: GitLab builds
     project-type: pipeline
     docker_image: sphinx
+    sphinx_basepython: py37
     concurrent: true
     sandbox: true
     properties:

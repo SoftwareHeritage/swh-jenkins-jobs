@@ -6,6 +6,7 @@
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     default-tox-environment: py37
+    sphinx_basepython: py37
     default-branch-name: master
     concurrent: true
     sandbox: true
