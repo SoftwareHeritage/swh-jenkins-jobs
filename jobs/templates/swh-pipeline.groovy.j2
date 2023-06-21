@@ -52,13 +52,13 @@ pipeline {
 
     stage ('flake8') {
       steps {
-        sh '''python3 -m tox -e flake8'''
+        sh '''tox -e flake8'''
       }
     }
 
     stage ('mypy') {
       steps {
-        sh '''python3 -m tox -e mypy'''
+        sh '''tox -e mypy'''
       }
     }
 
