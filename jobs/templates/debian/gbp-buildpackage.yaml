@@ -41,10 +41,8 @@
           name: BACKPORT_ON_SUCCESS
           description: |
             comma-separated: If the build is successful, which backports should we perform?
-            - unstable-swh>stretch-swh
             - unstable-swh>buster-swh
             - unstable-swh>bullseye-swh
-            - buster-swh>stretch-swh
           default: "{deb-backport-on-success}"
     dsl: !include-jinja2: gbp-buildpackage.groovy.j2
 

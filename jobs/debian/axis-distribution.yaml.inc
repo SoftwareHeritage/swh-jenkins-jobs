@@ -5,4 +5,3 @@ axis:
     - unstable
     - bullseye
     - buster
-    - stretch

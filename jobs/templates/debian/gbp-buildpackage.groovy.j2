@@ -106,13 +106,8 @@ pipeline {
             }
 
             if ('ceph' in wanted_extra_repositories && !(base_distribution in ['unstable', 'experimental'])) {
-              if (base_distribution != 'stretch') {
-                extra_repositories.add("deb http://download.proxmox.com/debian/ceph-octopus/ ${base_distribution} main")
-                extra_repository_keys.add('proxmox.asc')
-              } else {
-                extra_repositories.add("deb http://download.proxmox.com/debian/ceph-luminous/ ${base_distribution} main")
-                extra_repository_keys.add('proxmox.asc')
-              }
+              extra_repositories.add("deb http://download.proxmox.com/debian/ceph-octopus/ ${base_distribution} main")
+              extra_repository_keys.add('proxmox.asc')
             }
 
             if ('pgdg' in wanted_extra_repositories && !(base_distribution in ['unstable', 'experimental'])) {

@@ -4,9 +4,6 @@ def environment
 
 def release
 switch (params.DESTINATION) {
-  case ~/^stretch(-.*|)$/:
-    release = 9
-    break
   case ~/^buster(-.*|)$/:
     release = 10
     break
@@ -18,6 +15,9 @@ switch (params.DESTINATION) {
     break
   case ~/^trixie(-.*|)$/:
     release = 13
+    break
+  case ~/^forky(-.*|)$/:
+    release = 14
     break
   default:
     release = 'UNKNOWN'
