@@ -2,7 +2,6 @@
     name: "{name}/pypi-upload"
     display-name: "Upload to PyPI"
     docker_image: tox
-    python_version: 3.11
     include_bdist: true
     project-type: pipeline
     sandbox: true

@@ -11,12 +11,6 @@ switch (params.PYPI_HOST) {
     break
 }
 
-def BDIST_WHEEL = 'bdist_wheel'
-
-if (!params.INCLUDE_BDIST) {
-    BDIST_WHEEL = ''
-}
-
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
@@ -61,7 +55,7 @@ pipeline {
       }
     }
 
-    stage('Build') {
+    stage('Build assets') {
       steps {
         withCredentials([
           string(credentialsId: 'sentry-auth-token',
@@ -78,14 +72,32 @@ pipeline {
               for pom in \$( find java/ -name pom.xml ) ; do
                 mvn -f \$pom compile assembly:single
               done
-            fi
-
-            python{{python_version}} setup.py sdist ${BDIST_WHEEL}
-          """
-          archiveArtifacts allowEmptyArchive: true,
-            artifacts: 'dist/*',
-            fingerprint: true
+            fi"""
         }
+      }
+    }
+
+    stage('Build sdist') {
+      steps {
+        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist'
+      }
+    }
+
+    stage('Build wheel') {
+      when {
+          expression { return params.INCLUDE_BDIST }
+      }
+
+      steps {
+        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel'
+      }
+    }
+
+    stage('Archive artifacts') {
+      steps {
+        archiveArtifacts allowEmptyArchive: true,
+          artifacts: 'dist/*',
+          fingerprint: true
       }
     }
 
@@ -105,7 +117,7 @@ pipeline {
           usernamePassword(credentialsId: PYPI_UPLOAD_HOST,
                            usernameVariable: 'TWINE_USERNAME',
                            passwordVariable: 'TWINE_PASSWORD')]) {
-          sh "python{{python_version}} -m twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
+          sh "twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
         }
       }
     }
