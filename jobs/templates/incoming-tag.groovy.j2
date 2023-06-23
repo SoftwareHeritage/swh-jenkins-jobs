@@ -24,7 +24,7 @@ pipeline {
     }
     stage('Build and upload PyPI package') {
       when {
-        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
+        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
         expression { jenkinsJobExists('/{{name}}/pypi-upload') }
       }
       steps {
