@@ -80,7 +80,7 @@ pipeline {
               done
             fi
 
-            python3 setup.py sdist ${BDIST_WHEEL}
+            python{{python_version}} setup.py sdist ${BDIST_WHEEL}
           """
           archiveArtifacts allowEmptyArchive: true,
             artifacts: 'dist/*',
@@ -105,7 +105,7 @@ pipeline {
           usernamePassword(credentialsId: PYPI_UPLOAD_HOST,
                            usernameVariable: 'TWINE_USERNAME',
                            passwordVariable: 'TWINE_PASSWORD')]) {
-          sh "python3 -m twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
+          sh "python{{python_version}} -m twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
         }
       }
     }
