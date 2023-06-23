@@ -242,7 +242,7 @@
     repo_name: swh-perfecthash
     pkg: perfecthash
     python_module: swh.perfecthash
-    include_bdist: false
+    use_cibuildwheel: true
     jobs:
       - "swh-jobs-{name}"
 

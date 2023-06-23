@@ -89,7 +89,13 @@ pipeline {
       }
 
       steps {
-        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel'
+        sh '''
+          if [ $USE_CIBUILDWHEEL != "true" ]; then
+            $SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel
+          else
+            $SWH_PYTHON_FOR_GLOBAL_TOOLS -m cibuildwheel --platform linux --output-dir dist/
+          fi
+        '''
       }
     }
 

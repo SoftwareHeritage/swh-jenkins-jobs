@@ -3,6 +3,7 @@
     display-name: "Upload to PyPI"
     docker_image: tox
     include_bdist: true
+    use_cibuildwheel: false
     project-type: pipeline
     sandbox: true
     properties:
@@ -45,4 +46,9 @@
           default: "{include_bdist}"
           description: |
             Include a binary distribution in the PyPI upload.
+      - bool:
+          name: USE_CIBUILDWHEEL
+          default: "{use_cibuildwheel}"
+          description: |
+            Use `cibuildwheel` to build distro-independent wheels instead of just `build`
     dsl: !include-jinja2: swh-pypi.groovy.j2
