@@ -190,15 +190,18 @@ pipeline {
           if (! dry_run) {
             // When in writing mode, open the MR in gitlab
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh """
-              # open MR
-              git push \
-                -o merge_request.create \
-                -o merge_request.target=${target_branch} \
-                -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
-                -o merge_request.remove_source_branch=true \
-                 origin ${source_branch}
-              """
+              dir("$WORKSPACE/swh-charts") {
+                sh """
+
+                # open MR
+                git push \
+                  -o merge_request.create \
+                  -o merge_request.target=${target_branch} \
+                  -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
+                  -o merge_request.remove_source_branch=true \
+                   origin ${source_branch}
+                """
+              }
             }
           } else {
             echo "DRY-RUN: stop"
