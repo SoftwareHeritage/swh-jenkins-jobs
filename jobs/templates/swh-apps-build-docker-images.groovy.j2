@@ -163,44 +163,54 @@ pipeline {
     stage('Update swh-charts with new images version') {
       steps {
         dir ("$WORKSPACE") {
-          sshagent (credentials: ['gitlab-public-ci-ssh']) {
-            sh """#!/bin/bash
+          // First, let's create commits with changes
+          sh """#!/bin/bash
+          set -x
+          # Trigger swh-charts:/values-swh-application-versions.yaml version updates
+          docker run --rm \
+            --volume $WORKSPACE/swh-apps:/src \
+            --volume $WORKSPACE/swh-charts:/tmp/swh-charts \
+              app-manager update-versions \
+                --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
+                --chart-filepath /tmp/swh-charts/swh/Chart.yaml
+          set +x
+          # Commit the changes
+          cd swh-charts
+          git add .
+          git commit -m "v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}"
+          git log --oneline | head -2
 
-            set -x
-            # Trigger swh-charts:/values-swh-application-versions.yaml version updates
-            docker run --rm \
-              --volume $WORKSPACE/swh-apps:/src \
-              --volume $WORKSPACE/swh-charts:/tmp/swh-charts \
-                app-manager update-versions \
-                  --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
-                  --chart-filepath /tmp/swh-charts/swh/Chart.yaml
-            set +x
+          # Not working with multi-line output.
+          # failure: "fatal: push options must not have new line characters"
+          # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
+          """
+        }
 
-            # Commit the changes
-            cd swh-charts
-            git add .
-            git commit -m "v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}"
-            git log --oneline | head -2
-
-            # Not working with multi-line output.
-            # failure: "fatal: push options must not have new line characters"
-            # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
-
-            if [ "${dry_run}" = "false" ]; then
+        script {
+          if (! dry_run) {
+            // When in writing mode, open the MR in gitlab
+            sshagent (credentials: ['gitlab-public-ci-ssh']) {
+              sh """
               # open MR
               git push \
                 -o merge_request.create \
                 -o merge_request.target=${target_branch} \
                 -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
                 -o merge_request.remove_source_branch=true \
-                origin ${source_branch}
-            else
-              echo "DRY-RUN: stop"
-            fi
-          """
+                 origin ${source_branch}
+              """
+            }
+          } else {
+            echo "DRY-RUN: stop"
           }
         }
       }
+    }
+  }
+
+  post {
+    cleanup {
+      cleanWs()
     }
   }
 }
