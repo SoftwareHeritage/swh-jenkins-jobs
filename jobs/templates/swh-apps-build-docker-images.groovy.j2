@@ -31,7 +31,7 @@ pipeline {
         script {
           repository_prefix_url = dry_run ? "{{gitlab_url}}/" : "{{gitlab_ssh_url}}:"
         }
-        dir ('swh-apps') {
+        dir ("$WORKSPACE/swh-apps") {
           checkout([
             $class: 'GitSCM',
             userRemoteConfigs: [[
@@ -62,21 +62,19 @@ pipeline {
         set -x
         docker build --pull --build-arg userid=`id -u` \
                             --build-arg groupid=`id -g` \
-                            -t app-manager scripts/
+                            -t app-manager $WORKSPACE/swh-apps/scripts/
         """
       }
     }
 
     stage('Search impacted application images to rebuild') {
       steps {
-        dir('.') {
-          sh """#!/bin/bash
-          set -x
-          docker run --rm -v `pwd`:/src app-manager list-dependent-apps \
-            --application ${module} \
-            --version ${module_version} &> $WORKSPACE_TMP/impacted-images
-          """
-        }
+        sh """#!/bin/bash
+        set -x
+        docker run --rm -v $WORKSPACE/swh-apps:/src app-manager list-dependent-apps \
+          --application ${module} \
+          --version ${module_version} &> $WORKSPACE_TMP/impacted-images
+        """
       }
     }
 
@@ -118,7 +116,7 @@ pipeline {
 
     stage('Refresh swh-apps repository with latest build commits') {
       steps {
-        dir ('.') {
+        dir ("$WORKSPACE/swh-apps") {
           sh """#!/bin/bash
             set -x
 
@@ -132,7 +130,7 @@ pipeline {
 
     stage('Checkout swh-charts repository') {
       steps {
-        dir('../swh-charts') {
+        dir ("$WORKSPACE/swh-charts") {
           checkout([
             $class: 'GitSCM',
             userRemoteConfigs: [[
@@ -164,41 +162,40 @@ pipeline {
     // - step to trigger the update of the values.yaml to adapt
     stage('Update swh-charts with new images version') {
       steps {
-        sh """#!/bin/bash
+        dir ("$WORKSPACE") {
+            sh """#!/bin/bash
 
-          # Get back to workspace
-          cd $WORKSPACE
+            set -x
+            # Trigger swh-charts:/values-swh-application-versions.yaml version updates
+            docker run --rm \
+              --volume $WORKSPACE/swh-apps:/src \
+              --volume $WORKSPACE/swh-charts:/tmp/swh-charts \
+                app-manager update-versions \
+                  --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
+                  --chart-filepath /tmp/swh-charts/swh/Chart.yaml
+            set +x
 
-          set -x
-          # Trigger swh-charts:/values-swh-application-versions.yaml version updates
-          docker run --rm \
-            --volume `pwd`/swh-apps:/src \
-            --volume `pwd`/swh-charts:/tmp/swh-charts \
-              app-manager update-versions \
-                --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
-                --chart-filepath /tmp/swh-charts/swh/Chart.yaml
-          set +x
+            # Commit the changes
+            cd swh-charts
+            git add .
+            git commit -m "v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}"
+            git log --oneline | head -2
 
-          # Commit the changes
-          cd swh-charts
-          git add .
-          git commit -m "v`grep appVersion swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}"
-          git log --oneline | head -2
+            # Not working with multi-line output.
+            # failure: "fatal: push options must not have new line characters"
+            # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
 
-          # Not working with multi-line output.
-          # failure: "fatal: push options must not have new line characters"
-          # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
-
-          [ "${dry_run}" = "false" ] && \
-            # open MR
-            git push \
-              -o merge_request.create \
-              -o merge_request.target=${target_branch} \
-              -o merge_request.title="v`grep appVersion swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
-              -o merge_request.remove_source_branch=true \
-              origin ${source_branch} || \
-            echo "DRY-RUN: stop"
-        """
+            [ "${dry_run}" = "false" ] && \
+              # open MR
+              git push \
+                -o merge_request.create \
+                -o merge_request.target=${target_branch} \
+                -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
+                -o merge_request.remove_source_branch=true \
+                origin ${source_branch} || \
+              echo "DRY-RUN: stop"
+          """
+        }
       }
     }
   }
