@@ -136,7 +136,7 @@ pipeline {
             userRemoteConfigs: [[
               credentialsId: 'gitlab-public-ci-ssh',
               name: 'origin',
-              url: "${repository_prefix_url}/swh/infra/ci-cd/swh-charts.git"
+              url: "${repository_prefix_url}swh/infra/ci-cd/swh-charts.git"
             ]],
             branches: [[
               name: target_branch,
@@ -163,6 +163,7 @@ pipeline {
     stage('Update swh-charts with new images version') {
       steps {
         dir ("$WORKSPACE") {
+          sshagent (credentials: ['gitlab-public-ci-ssh']) {
             sh """#!/bin/bash
 
             set -x
@@ -185,16 +186,19 @@ pipeline {
             # failure: "fatal: push options must not have new line characters"
             # -o merge_request.description="`cat $WORKSPACE_TMP/git-log-summary`"
 
-            [ "${dry_run}" = "false" ] && \
+            if [ "${dry_run}" = "false" ]; then
               # open MR
               git push \
                 -o merge_request.create \
                 -o merge_request.target=${target_branch} \
                 -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
                 -o merge_request.remove_source_branch=true \
-                origin ${source_branch} || \
+                origin ${source_branch}
+            else
               echo "DRY-RUN: stop"
+            fi
           """
+          }
         }
       }
     }
