@@ -1,6 +1,7 @@
 pipeline {
   agent none
   stages {
+
     stage('Refresh tag list') {
       agent any
       steps {
@@ -22,6 +23,7 @@ pipeline {
         ])
       }
     }
+
     stage('Build and upload PyPI package') {
       when {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
@@ -36,6 +38,31 @@ pipeline {
             string(name: 'PYPI_HOST', value: '{{incoming_tag_auto_pypi_host}}'),
           ],
           wait: true,
+        )
+      }
+    }
+
+    stage('Build Docker Image(s) depending on new release') {
+      when {
+        // The tag is in the right format
+        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
+        // Job to build images exist
+        expression { jenkinsJobExists('/swh-apps/build-docker-images') }
+      }
+      steps {
+        build(
+          job: '/swh-apps/build-docker-images',
+          parameters: [
+            string(name: 'MODULE', value: '{{python_module}}'),
+            // VERSION is the actual tag without 'refs/tags/' prefix
+            string(name: 'VERSION', value: env.gitlabSourceBranch.substring(10))
+          ],
+          // Wait 10 seconds prior to build (so pypi can refresh index)
+          quietPeriod: 10,
+          // Ignore result the remaining parts of the pipeline
+          propagate: false,
+          // Do not wait for result for the remaining parts of the pipeline
+          wait: false
         )
       }
     }
@@ -78,6 +105,7 @@ pipeline {
       }
     }
   }
+
   post {
     {% filter indent(width=4) %}
       {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
