@@ -94,6 +94,7 @@
     repo_name: swh-graphql
     pkg: graphql
     python_module: swh.graphql
+    default-tox-environment: py310
     jobs:
       - "swh-jobs-{name}"
 
