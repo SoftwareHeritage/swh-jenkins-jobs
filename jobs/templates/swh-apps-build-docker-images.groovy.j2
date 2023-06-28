@@ -155,7 +155,11 @@ pipeline {
           sh """#!/bin/bash
           set -x
           git branch --set-upstream-to=origin/${target_branch}
-          git checkout -b ${source_branch} || git checkout ${source_branch}
+          # either it's a new branch or we retrieve the existing one at its
+          # latest commit
+          git checkout -b ${source_branch} || \
+            ( git checkout ${source_branch} && \
+              git reset --hard origin/${source_branch} )
           """
         }
       }
