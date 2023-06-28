@@ -139,12 +139,12 @@ pipeline {
               credentialsId: 'gitlab-public-ci-ssh',
               name: 'origin',
               url: "${repository_prefix_url}swh/infra/ci-cd/swh-charts.git"
+              refspec: '+refs/heads/*:refs/remotes/origin/*',
             ]],
             branches: [[
               name: target_branch,
             ]],
-            extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
-                         [$class: 'LocalBranch', localBranch: "**"]],
+            extensions: [[$class: 'CloneOption', honorRefspec: true]],
             doGenerateSubmoduleConfigurations: false,
             gitTool: 'Default',
             submoduleCfg: [],
@@ -154,12 +154,12 @@ pipeline {
           ])
           sh """#!/bin/bash
           set -x
+          git checkout ${target_branch}
           git branch --set-upstream-to=origin/${target_branch}
-          # either it's a new branch or we retrieve the existing one at its
-          # latest commit
-          git checkout -b ${source_branch} || \
-            ( git checkout ${source_branch} && \
-              git reset --hard origin/${source_branch} )
+          # either branch already exists and we start from it or we create a new one
+          # starting from ${target_branch}
+          git checkout ${source_branch} || git checkout -b ${source_branch}
+          git branch --set-upstream-to=origin/${source_branch}
           """
         }
       }
