@@ -138,7 +138,7 @@ pipeline {
             userRemoteConfigs: [[
               credentialsId: 'gitlab-public-ci-ssh',
               name: 'origin',
-              url: "${repository_prefix_url}swh/infra/ci-cd/swh-charts.git"
+              url: "${repository_prefix_url}swh/infra/ci-cd/swh-charts.git",
               refspec: '+refs/heads/*:refs/remotes/origin/*',
             ]],
             branches: [[
