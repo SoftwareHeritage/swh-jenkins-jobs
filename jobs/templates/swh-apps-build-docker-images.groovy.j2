@@ -195,13 +195,17 @@ pipeline {
               dir("$WORKSPACE/swh-charts") {
                 sh """
 
-                # open MR
+                # Try to open a MR. If an MR already exists, just rebase the
+                # current commits on top of it and push the new commits to the
+                # source_branch
+
                 git push \
                   -o merge_request.create \
                   -o merge_request.target=${target_branch} \
                   -o merge_request.title="v`grep appVersion $WORKSPACE/swh-charts/swh/Chart.yaml | awk '{print \$2}'`: Release ${module} ${module_version}" \
                   -o merge_request.remove_source_branch=true \
-                   origin ${source_branch}
+                   origin ${source_branch} || \
+                ( git fetch && git rebase origin/${source_branch} && git push origin ${source_branch} )
                 """
               }
             }
