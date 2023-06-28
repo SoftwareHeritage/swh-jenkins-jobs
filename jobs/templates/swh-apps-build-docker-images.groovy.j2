@@ -116,14 +116,16 @@ pipeline {
 
     stage('Refresh swh-apps repository with latest build commits') {
       steps {
-        dir ("$WORKSPACE/swh-apps") {
-          sh """#!/bin/bash
+        sshagent (credentials: ['gitlab-public-ci-ssh']) {
+          dir ("$WORKSPACE/swh-apps") {
+            sh """#!/bin/bash
             set -x
 
-            git pull
+            git pull --rebase
             git log --oneline | head -${impacted_images.size() + 1} \
               > $WORKSPACE_TMP/git-log-summary
-          """
+            """
+          }
         }
       }
     }
