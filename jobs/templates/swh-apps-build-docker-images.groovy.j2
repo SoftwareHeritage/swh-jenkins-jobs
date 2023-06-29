@@ -159,7 +159,6 @@ pipeline {
           # either branch already exists and we start from it or we create a new one
           # starting from ${target_branch}
           git checkout ${source_branch} || git checkout -b ${source_branch}
-          git branch --set-upstream-to=origin/${source_branch}
           """
         }
       }
