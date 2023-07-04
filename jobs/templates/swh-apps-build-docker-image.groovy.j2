@@ -172,8 +172,8 @@ pipeline {
               git push origin master ${application_tag} || \
                 ( git tag -d ${application_tag} && \
                   git pull --rebase && \
-                  git tag -a ${application_tag} -m "${application_tag}: Bump new release" \
                   git push origin master ${application_tag} )
+                  git tag -a ${application_tag} -m "${application_tag}: Bump new release" && \
               """
             }
           } else {
