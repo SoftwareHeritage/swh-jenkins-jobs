@@ -153,7 +153,7 @@ pipeline {
             // Determine docker image name and version
             full_image_version = "${registry_domain}/${image_name}:${image_version}"
             echo "full image version: ${full_image_version}"
-            sh "docker build --tag ${full_image_version} apps/${application}"
+            sh "docker build --pull --tag ${full_image_version} apps/${application}"
           }
         }
       }
