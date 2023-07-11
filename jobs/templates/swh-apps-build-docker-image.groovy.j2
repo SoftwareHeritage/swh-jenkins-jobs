@@ -164,7 +164,7 @@ pipeline {
         script {
           if ( ! dry_run ) {
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh "$WORKSPACE/swh-apps/scripts/git_tag_and_push.sh ${application_tag}"
+              sh "./scripts/git_tag_and_push.sh ${application_tag}"
             }
           } else {
             echo "Skipping `git push`."
