@@ -4,6 +4,7 @@
     concurrent: false
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
+    max_concurrent: 1
     parameters:
     - choice:
         name: "TARGET_BRANCH"
