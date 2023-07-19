@@ -43,6 +43,19 @@ pipeline {
   // Where to make the job run
   agent { label label_node }
 
+  options {
+    // require "Throttle Concurrent Builds" Jenkins plugin
+    throttleJobProperty(
+      categories: [],
+      limitOneJobWithMatchingParams: false,
+      maxConcurrentPerNode: {{ max_concurrent }},
+      maxConcurrentTotal: {{ max_concurrent }},
+      paramsToUseForLimit: '',
+      throttleEnabled: true,
+      throttleOption: 'project',
+    )
+  }
+
   stages {
     stage('Checkout swh-apps repository') {
       steps {
