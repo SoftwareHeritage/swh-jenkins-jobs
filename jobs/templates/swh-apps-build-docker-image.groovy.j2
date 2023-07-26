@@ -124,9 +124,23 @@ pipeline {
             echo `pwd`
           """
           application_tag = sh (
+            // Retrieve the next version from the latest tag on that application starts
+            // at $(today).1, then increments to $(today).2, .3, ... if any other builds
+            // happen the same day.
             script: "docker run --rm -v `pwd`:/src app-manager tag next '${application}'",
             returnStdout: true
           ).trim()
+          if ( ! dry_run ) {
+            sshagent (credentials: ['gitlab-public-ci-ssh']) {
+              sh """
+                # Pushes an empty tag in the repository. If any concurrent build happens
+                # around the same time, they will then take the next version. Thus
+                # avoiding any writing concurrent issue down the (pipe)line.
+                git tag -a ${application_tag} -m "Empty tag to be overwritten"
+                git push origin master -f ${application_tag}
+              """
+            }
+          }
           echo """
             application tag: ${application_tag}
             next tag for ${application}: ${application_tag}
@@ -177,7 +191,14 @@ pipeline {
         script {
           if ( ! dry_run ) {
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh "./scripts/git_tag_and_push.sh ${application_tag}"
+              sh """
+                # Update and rebase the local commit to the latest master
+                git pull --rebase
+                # Tag that commit
+                git tag -f -a ${application_tag} -m "${application_tag}: Bump new release"
+                # And force push it to overwrite the existing "empty" one
+                git push origin master -f ${application_tag}
+              """
             }
           } else {
             echo "Skipping `git push`."
