@@ -137,7 +137,7 @@ pipeline {
                 # around the same time, they will then take the next version. Thus
                 # avoiding any writing concurrent issue down the (pipe)line.
                 git tag -a ${application_tag} -m "Empty tag to be overwritten"
-                git push origin master -f ${application_tag}
+                git push origin master ${application_tag}
               """
             }
           }
@@ -196,8 +196,10 @@ pipeline {
                 git pull --rebase
                 # Tag that commit
                 git tag -f -a ${application_tag} -m "${application_tag}: Bump new release"
-                # And force push it to overwrite the existing "empty" one
-                git push origin master -f ${application_tag}
+                # Drop previous tag (already set in previous step)
+                git push origin :refs/tags/${application_tag}
+                # And push the correct application tag
+                git push origin master ${application_tag}
               """
             }
           } else {
