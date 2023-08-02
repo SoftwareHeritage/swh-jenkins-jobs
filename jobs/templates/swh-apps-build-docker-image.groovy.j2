@@ -133,11 +133,12 @@ pipeline {
           if ( ! dry_run ) {
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
               sh """
+                git pull
                 # Pushes an empty tag in the repository. If any concurrent build happens
                 # around the same time, they will then take the next version. Thus
                 # avoiding any writing concurrent issue down the (pipe)line.
                 git tag -a ${application_tag} -m "Empty tag to be overwritten"
-                git push origin master ${application_tag}
+                git push origin ${application_tag} --follow-tags
               """
             }
           }
