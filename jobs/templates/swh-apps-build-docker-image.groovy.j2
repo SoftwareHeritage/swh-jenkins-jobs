@@ -191,16 +191,7 @@ pipeline {
         script {
           if ( ! dry_run ) {
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh """
-                # Update and rebase the local commit to the latest master
-                git pull --rebase
-                # Tag that commit
-                git tag -f -a ${application_tag} -m "${application_tag}: Bump new release"
-                # Drop previous tag (already set in previous step)
-                git push origin :refs/tags/${application_tag}
-                # And push the correct application tag
-                git push origin master ${application_tag}
-              """
+              sh "./scripts/git_tag_and_push.sh ${application_tag}"
             }
           } else {
             echo "Skipping `git push`."
