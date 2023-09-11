@@ -8,6 +8,7 @@ def label_node = 'built-in'
 def label_node = 'docker'
 {% endif %}
 
+def requirement_filepath = "apps/${application}/requirements.txt"
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
 def dockerfile_filepath = "apps/${application}/Dockerfile"
 
@@ -94,24 +95,27 @@ pipeline {
     stage('Build frozen requirements sets') {
       steps {
         script {
-          sh """
-            echo "Before build frozen requirements set"
-            git status
-            git diff
-          """
-          sh "docker run --rm -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
+          requirement_exists = fileExists(requirement_filepath)
+          if ( requirement_exists ) {
+            sh """
+              echo "Before build frozen requirements set"
+              git status
+              git diff
+            """
+            sh "docker run --rm -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
 
-          sh """
-            echo "Before stash instruction"
-            git status
-            git diff
-          """
-          stash name: "${application}-requirements-frozen", includes: frozen_set_filepath
-          sh """
-            echo "After stash instruction"
-            git status
-            git diff
-          """
+            sh """
+              echo "Before stash instruction"
+              git status
+              git diff
+            """
+            stash name: "${application}-requirements-frozen", includes: frozen_set_filepath
+            sh """
+              echo "After stash instruction"
+              git status
+              git diff
+            """
+          }
         }
       }
     }
@@ -157,19 +161,19 @@ pipeline {
             git diff
             git checkout master
           """
-          unstash "${application}-requirements-frozen"
           dockerfile_exists = fileExists(dockerfile_filepath)
-          if ( dockerfile_exists ) {
-            commit_msg = "'${application}-${image_version}: Build image with frozen set requirements'"
-          } else {
-            commit_msg = "'${application}-${image_version}: Update frozen set requirements'"
+          if ( requirement_exists && dockerfile_exists ) {
+            // when requirements.txt exists, the frozen set exists and is stashed
+            // so unstash it first
+            unstash "${application}-requirements-frozen"
+            commit_msg = "'${application}-${image_version}: Build image'"
+            sh """
+              git add ${frozen_set_filepath}
+              # Skipping empty commit to ease reproducibility even without changes
+              git commit --no-verify -m ${commit_msg} || echo "Skip empty commit"
+              ${git_log}
+            """
           }
-          sh """
-            git add ${frozen_set_filepath}
-            # Skipping empty commit to ease reproducibility even without changes
-            git commit --no-verify -m ${commit_msg} || echo "Skip empty commit"
-            ${git_log}
-          """
         }
       }
     }
