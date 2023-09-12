@@ -1,9 +1,9 @@
-ace-editor
 analysis-model-api
 ansicolor
 ant
 antisamy-markup-formatter
 apache-httpcomponents-client-4-api
+apache-httpcomponents-client-5-api
 authentication-tokens
 blueocean
 blueocean-autofavorite
@@ -14,10 +14,9 @@ blueocean-core-js
 blueocean-dashboard
 blueocean-display-url
 blueocean-events
-blueocean-git-pipeline
 blueocean-github-pipeline
+blueocean-git-pipeline
 blueocean-i18n
-blueocean-jira
 blueocean-jwt
 blueocean-personalization
 blueocean-pipeline-api-impl
@@ -37,6 +36,7 @@ checks-api
 cloudbees-bitbucket-branch-source
 cloudbees-disk-usage-simple
 cloudbees-folder
+cloud-stats
 cobertura
 code-coverage-api
 command-launcher
@@ -57,6 +57,7 @@ dtkit-api
 durable-task
 echarts-api
 email-ext
+embeddable-build-status
 extended-read-permission
 external-monitor-job
 favorite
@@ -65,13 +66,15 @@ forensics-api
 git
 git-client
 git-forensics
-git-parameter
 github
 github-api
 github-branch-source
+gitlab-api
+gitlab-logo
 gitlab-plugin
-handlebars
+git-parameter
 handy-uri-templates-2-api
+hidden-parameter
 htmlpublisher
 http_request
 instance-identity
@@ -86,9 +89,7 @@ jaxb
 jdk-tool
 jenkins-design-language
 jersey2-api
-jira
 jjwt-api
-jnr-posix-api
 jquery
 jquery3-api
 jsch
@@ -101,14 +102,11 @@ mapdb-api
 mashup-portlets-plugin
 matrix-auth
 matrix-project
-maven-plugin
 metrics
 mina-sshd-api-common
 mina-sshd-api-core
-momentjs
 okhttp-api
 pam-auth
-phabricator-plugin
 pipeline-build-step
 pipeline-graph-analysis
 pipeline-groovy-lib
@@ -128,7 +126,6 @@ plugin-util-api
 popper2-api
 prism-api
 project-build-times
-project-stats-plugin
 prometheus
 publish-over
 publish-over-ssh
@@ -143,8 +140,8 @@ snakeyaml-api
 sse-gateway
 ssh-agent
 ssh-credentials
-ssh-slaves
 sshd
+ssh-slaves
 structs
 subversion
 throttle-concurrents
@@ -153,7 +150,6 @@ token-macro
 trilead-api
 variant
 warnings-ng
-windows-slaves
 workflow-aggregator
 workflow-api
 workflow-basic-steps
