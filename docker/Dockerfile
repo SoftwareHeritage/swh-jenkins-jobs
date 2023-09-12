@@ -2,8 +2,7 @@ FROM jenkins/jenkins:jdk11
 
 USER root
 
-RUN apt-get update && apt-get -y install python3-pip && \
-    pip install tox
+RUN apt-get update && apt-get -y install tox
 
 # Adapt this group if the docker gid is not 999 on your local environment
 ARG DOCKER_GROUP=998
