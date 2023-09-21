@@ -161,7 +161,7 @@
     python_module: swh.loader.cvs
     include_bdist: false
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DLDG
