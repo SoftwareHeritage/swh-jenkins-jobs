@@ -22,11 +22,6 @@
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jobs/templates/jenkins-token
-    parameters:
-      - hidden:
-          name: jenkins_token
-          description: Secret webhooks token to trigger jobs
-          default: !include-raw: jobs/templates/jenkins-token
 
     dsl: !include-jinja2: jenkins-jobs-builder.groovy.j2
 
