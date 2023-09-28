@@ -142,7 +142,7 @@
     pkg: loader.bzr
     python_module: swh.loader.bzr
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DLDBASE
@@ -188,7 +188,7 @@
     pkg: loader.mercurial
     python_module: swh.loader.mercurial
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DLDSVN
@@ -198,7 +198,7 @@
     python_module: swh.loader.svn
     include_bdist: false
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DMOD
