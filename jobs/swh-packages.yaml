@@ -244,6 +244,7 @@
     pkg: perfecthash
     python_module: swh.perfecthash
     use_cibuildwheel: true
+    default-tox-environment: py37,c
     jobs:
       - "swh-jobs-{name}"
 
