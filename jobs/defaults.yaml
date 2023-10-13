@@ -4,4 +4,5 @@
     gitlab_url: https://{gitlab_host}
     gitlab_ssh_url: git@{gitlab_host}
     gitlab_connection_name: gitlab-swh
+    docker_registry: container-registry.softwareheritage.org/swh/infra/ci-cd/swh-jenkins-dockerfiles
     production_jenkins: !include: production-jenkins
