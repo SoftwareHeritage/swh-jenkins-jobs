@@ -4,6 +4,7 @@
     project-type: pipeline
     gitlab_project_name: swh/infra/ci-cd/swh-jenkins-dockerfiles
     node: built-in
+    sandbox: true
     scm:
       - git:
           url: "{gitlab_url}/{gitlab_project_name}.git"

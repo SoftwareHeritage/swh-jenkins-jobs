@@ -5,6 +5,9 @@ if (env.gitlabMergeRequestIid) {
   branch = env.gitlabSourceBranch
 }
 
+def container_registry = 'container-registry.softwareheritage.org/{{gitlab_project_name}}'
+def container_credential_id = 'gitlab-registry'
+
 pipeline {
   agent any
 
@@ -36,6 +39,28 @@ pipeline {
           fi
           make checkrebuild all
         '''
+      }
+    }
+
+    stage('Push docker images') {
+      steps {
+        script {
+          if ( env.gitlabActionType == "PUSH" && env.gitlabBranch == "master" ) {
+            docker.withRegistry("https://${container_registry}", container_credential_id) {
+              sh """#!/bin/bash
+                image_tag=\$(TZ=UTC date +%Y%m%d-%H%M%S)-g\$(git log -1 --pretty=%h)
+                for dockerfile in */Dockerfile; do
+                  image=\${dockerfile/\\/Dockerfile}
+                  docker tag swh-jenkins/\${image} ${container_registry}/\${image}:\${image_tag}
+                  docker tag ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest
+                  docker push --all-tags ${container_registry}/\$image
+                done
+              """
+            }
+          } else {
+            echo "Skipping `docker image push`."
+          }
+        }
       }
     }
 
