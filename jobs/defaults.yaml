@@ -6,3 +6,7 @@
     gitlab_connection_name: gitlab-swh
     docker_registry: container-registry.softwareheritage.org/swh/infra/ci-cd/swh-jenkins-dockerfiles
     production_jenkins: !include: production-jenkins
+    # These values need to match what's set in puppet for the jenkins-docker runners
+    jenkins_docker_uid: 15000
+    jenkins_docker_gid: 15000
+    docker_gid: 999

@@ -31,13 +31,13 @@ pipeline {
     stage('Build docker images') {
       steps {
         sh '''#!/bin/bash
-          export REGISTRY=swh-jenkins-test
+          REGISTRY=swh-jenkins-test
           if [[ "$gitlabActionType" == "" ]] || \
             [[ "$gitlabActionType" == "PUSH" && "$gitlabBranch" == "master" ]]
           then
-            export REGISTRY=swh-jenkins
+            REGISTRY=swh-jenkins
           fi
-          make checkrebuild all
+          make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_uid}} JENKINS_GID={{jenkins_gid}} DOCKER_GID={{docker_gid}}
         '''
       }
     }
