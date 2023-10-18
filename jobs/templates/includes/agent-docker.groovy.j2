@@ -1,7 +1,7 @@
 agent {
   docker {
     reuseNode true
-    image '{{docker_registry}}/{{docker_image}}'
+    image '{{docker_registry}}/{{docker_image}}:latest'
     args '--tmpfs /tmp:exec -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache {{docker_options if docker_options is defined}}'
   }
 }

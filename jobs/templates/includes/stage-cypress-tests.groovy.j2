@@ -17,7 +17,7 @@ stage('Cypress tests') {
       sorryCypressDirector.withRun("--network-alias sorry-cypress --network ${env.SORRY_CYPRESS_NETWORK}") { c ->
 
         // run cypress tests into dedicated container with mounted yarn cache
-        docker.image('{{docker_registry}}/cypress').inside("--network ${env.SORRY_CYPRESS_NETWORK} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
+        docker.image('{{docker_registry}}/cypress:latest').inside("--network ${env.SORRY_CYPRESS_NETWORK} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
           script {
             sh '''
