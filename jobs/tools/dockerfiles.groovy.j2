@@ -37,7 +37,7 @@ pipeline {
           then
             REGISTRY=swh-jenkins
           fi
-          make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_uid}} JENKINS_GID={{jenkins_gid}} DOCKER_GID={{docker_gid}}
+          make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_docker_uid}} JENKINS_GID={{jenkins_docker_gid}} DOCKER_GID={{docker_gid}}
         '''
       }
     }
