@@ -1,3 +1,10 @@
+def startedByTimer = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause')
+def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+def dockerBuildOpts = '--pull'
+if (startedByTimer || startedByUser) {
+  dockerBuildOpts += ' --no-cache'
+}
+
 pipeline {
   agent {
     label "built-in"
@@ -16,14 +23,38 @@ pipeline {
     }
 
     stage('Build Docker images') {
+      when {
+        anyOf {
+          expression {
+            return startedByTimer
+          }
+          expression {
+            return startedByUser
+          }
+          // content of docker directory modified
+          changeset "docker/*"
+        }
+      }
       steps {
         dir('docker') {
-          sh 'docker build --pull --no-cache -t swh/stack .'
+          sh "docker build $dockerBuildOpts -t swh/stack ."
         }
       }
     }
 
     stage('Run tests') {
+      when {
+        anyOf {
+          expression {
+            return startedByTimer
+          }
+          expression {
+            return startedByUser
+          }
+          // content of docker directory modified
+          changeset "docker/*"
+        }
+      }
       steps {
         lock('docker-agent-host-port-5080') {
           dir('docker') {
