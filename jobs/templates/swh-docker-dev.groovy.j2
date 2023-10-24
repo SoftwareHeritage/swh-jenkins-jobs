@@ -5,6 +5,13 @@ if (startedByTimer || startedByUser) {
   dockerBuildOpts += ' --no-cache'
 }
 
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
 pipeline {
   agent {
     label "built-in"
@@ -18,7 +25,24 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: "{{gitlab_url}}/{{gitlab_project_name}}.git"
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        checkout([
+          $class: 'GitSCM',
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
+          ]],
+          branches: [[
+            name: branch
+          ]],
+          browser: [[
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ]],
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          gitTool: 'Default',
+        ])
       }
     }
 
@@ -66,6 +90,9 @@ pipeline {
   }
 
   post {
+    {% filter indent(width=4) %}
+      {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
     always {
       archiveArtifacts(
         allowEmptyArchive: true,
