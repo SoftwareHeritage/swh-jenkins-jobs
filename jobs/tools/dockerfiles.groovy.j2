@@ -5,6 +5,16 @@ if (env.gitlabMergeRequestIid) {
   branch = env.gitlabSourceBranch
 }
 
+def startedByTimer = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause')
+def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+def startedByPushToMaster = env.gitlabActionType == "PUSH" && env.gitlabBranch == "master"
+
+if (startedByTimer || startedByUser || startedByPushToMaster) {
+  env.TAG_FOR_REAL = "true"
+} else {
+  env.TAG_FOR_REAL = "false"
+}
+
 def container_registry = 'container-registry.softwareheritage.org/{{gitlab_project_name}}'
 def container_credential_id = 'gitlab-registry'
 
@@ -31,11 +41,10 @@ pipeline {
     stage('Build docker images') {
       steps {
         sh '''#!/bin/bash
-          REGISTRY=swh-jenkins-test
-          if [[ "$gitlabActionType" == "" ]] || \
-            [[ "$gitlabActionType" == "PUSH" && "$gitlabBranch" == "master" ]]
-          then
+          if [ "$TAG_FOR_REAL" = "true" ]; then
             REGISTRY=swh-jenkins
+          else
+            REGISTRY=swh-jenkins-test
           fi
           make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_docker_uid}} JENKINS_GID={{jenkins_docker_gid}} DOCKER_GID={{docker_gid}}
         '''
@@ -45,20 +54,23 @@ pipeline {
     stage('Push docker images') {
       steps {
         script {
-          if ( env.gitlabActionType == "PUSH" && env.gitlabBranch == "master" ) {
-            docker.withRegistry("https://${container_registry}", container_credential_id) {
-              sh """#!/bin/bash
-                image_tag=\$(TZ=UTC date +%Y%m%d-%H%M%S)-g\$(git log -1 --pretty=%h)
-                for dockerfile in */Dockerfile; do
-                  image=\${dockerfile/\\/Dockerfile}
-                  docker tag swh-jenkins/\${image} ${container_registry}/\${image}:\${image_tag}
-                  docker tag ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest
-                  docker push --all-tags ${container_registry}/\$image
+          docker.withRegistry("https://${container_registry}", container_credential_id) {
+            sh """#!/bin/bash
+              image_tag=\$(TZ=UTC date +%Y%m%d-%H%M%S)-g\$(git log -1 --pretty=%h)
+              if [ "\$TAG_FOR_REAL" != "true" ]; then
+                docker () {
+                  echo would run docker "\$@"
+                }
+              fi
+              for dockerfile in */Dockerfile; do
+                image=\${dockerfile/\\/Dockerfile}
+                docker tag swh-jenkins/\${image} ${container_registry}/\${image}:\${image_tag}
+                docker tag ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest
+                for image_tag in ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest; do
+                  docker push \${image_tag}
                 done
-              """
-            }
-          } else {
-            echo "Skipping `docker image push`."
+              done
+            """
           }
         }
       }
