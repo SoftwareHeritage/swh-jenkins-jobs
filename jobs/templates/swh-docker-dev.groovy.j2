@@ -40,7 +40,9 @@ pipeline {
             $class: 'GitLab',
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
-          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          extensions: [[$class: 'CloneOption', honorRefspec: true],
+                       [$class: 'ChangelogToBranch',
+                        options: [compareRemote: 'origin', compareTarget: 'master']],
           gitTool: 'Default',
         ])
       }
@@ -56,7 +58,7 @@ pipeline {
             return startedByUser
           }
           // content of docker directory modified
-          changeset "docker/*"
+          changeset "docker/**"
         }
       }
       steps {
@@ -76,7 +78,7 @@ pipeline {
             return startedByUser
           }
           // content of docker directory modified
-          changeset "docker/*"
+          changeset "docker/**"
         }
       }
       steps {
