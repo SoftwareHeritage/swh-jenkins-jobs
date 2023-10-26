@@ -9,7 +9,7 @@
 
     triggers: !j2-yaml: |
       {% if production_jenkins %}
-      - timed: "@midnight"
+      - timed: "0 */4 * * *" # every 4 hours
       {% else %}
       []
       {% endif %}
