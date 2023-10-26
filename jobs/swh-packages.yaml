@@ -366,7 +366,6 @@
     repo_name: swh-webhooks
     pkg: webhooks
     python_module: swh.webhooks
-    max_concurrent: 1
     default-tox-environment: py311
     sphinx_basepython: py311
     jobs:
