@@ -42,7 +42,7 @@ pipeline {
           ],
           extensions: [[$class: 'CloneOption', honorRefspec: true],
                        [$class: 'ChangelogToBranch',
-                        options: [compareRemote: 'origin', compareTarget: 'master']],
+                        options: [compareRemote: 'origin', compareTarget: 'master']]],
           gitTool: 'Default',
         ])
       }
