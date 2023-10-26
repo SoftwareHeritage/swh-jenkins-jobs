@@ -4,6 +4,7 @@
     jobs:
       - "{name}"
       - "{name}/run-all-tests"
+      - "{name}/docker-tests"
 
 - job-template:
     name: "{name}/run-all-tests"
@@ -79,6 +80,34 @@
       - archive:
           artifacts: "*.log"
           allow-empty: true
+
+- job-template:
+    name: "{name}/docker-tests"
+    gitlab_project_name: swh/devel/swh-environment
+    gitlab_trigger: true
+    description: "Build the swh/stack:latest image and run tests"
+    project-type: pipeline
+    docker_image: tox
+    node: built-in
+    properties:
+      - build-discarder:
+          days-to-keep: 20
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          trigger-open-merge-request-push: source
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
+          wip-skip: false
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw: jenkins-token
+
+    dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2
 
 - project:
     name: DENV
