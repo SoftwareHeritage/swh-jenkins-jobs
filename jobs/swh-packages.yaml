@@ -65,6 +65,7 @@
     repo_name: swh-dataset
     pkg: dataset
     python_module: swh.dataset
+    default-tox-environment: py311
     jobs:
       - "swh-jobs-no-deb-{name}"
 
