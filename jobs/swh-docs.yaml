@@ -12,7 +12,7 @@
     description: Build the documentation and publish it
     node: swh-sphinx
     gitlab_project_name: swh/devel/swh-environment
-    sphinx_basepython: py37
+    sphinx_basepython: py311
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -61,7 +61,7 @@
     description: Build the documentation from git repos
     node: swh-sphinx
     gitlab_project_name: swh/devel/swh-environment
-    sphinx_basepython: py37
+    sphinx_basepython: py311
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -109,7 +109,7 @@
     display_name: GitLab builds
     project-type: pipeline
     docker_image: sphinx
-    sphinx_basepython: py37
+    sphinx_basepython: py311
     concurrent: true
     sandbox: true
     properties:
