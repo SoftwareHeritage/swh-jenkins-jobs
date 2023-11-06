@@ -1,7 +1,15 @@
 - job-template:
     name: jenkins-tools/{clean_project_name}
     description: Clean old Docker objects
-    node: built-in
+    project-type: matrix
+    axes:
+      - axis:
+          type: slave
+          name: agent
+          values:
+            - built-in
+            - jenkins-docker01.internal.softwareheritage.org
+            - jenkins-docker02.internal.softwareheritage.org
 
     properties:
       - build-discarder:
