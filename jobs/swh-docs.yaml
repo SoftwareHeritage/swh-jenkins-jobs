@@ -92,7 +92,7 @@
           mr -t run sh -c 'echo -n "`basename $PWD` " && git describe' | grep -v 'mr run' > revisions.txt
           cd swh-docs
           git clean -dfx
-          SPHINXOPTS='-W -q --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev -x testenv.basepython={{sphinx_basepython}}
+          SPHINXOPTS='-W -T --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev -x testenv.basepython={{sphinx_basepython}}
 
     publishers:
       - archive:
