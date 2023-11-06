@@ -1,0 +1,15 @@
+stage('Rust tests') {
+  agent {
+    docker {
+      reuseNode true
+      image 'rust:latest'
+      args '--tmpfs /tmp:exec -u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache {{docker_options if docker_options is defined}}'
+    }
+  }
+  steps {
+    sh '''\
+      export CARGO_HOME=/home/jenkins/.cache/cargo
+      cargo test --all-features
+    '''
+  }
+}

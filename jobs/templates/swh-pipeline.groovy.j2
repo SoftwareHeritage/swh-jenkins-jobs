@@ -78,6 +78,12 @@ pipeline {
         {% endfilter %}
         {%- endif %}
 
+        {%- if do_rust %}
+        {% filter indent(width=8) %}
+          {%- include 'includes/stage-rust-tests.groovy.j2' -%}
+        {% endfilter %}
+        {%- endif %}
+
         stage('Sphinx documentation') {
           {% filter indent(width=10) %}
             {%- include 'includes/agent-docker-sphinx.groovy.j2' -%}
