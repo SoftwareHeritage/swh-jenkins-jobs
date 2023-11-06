@@ -83,7 +83,7 @@
     repo_name: swh-graph
     pkg: graph
     python_module: swh.graph
-    default-tox-environment: py37,java
+    default-tox-environment: py311,java
     do_rust: true
     timeout: 20
     jobs:
