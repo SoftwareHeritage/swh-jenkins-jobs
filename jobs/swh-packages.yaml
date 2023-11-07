@@ -29,6 +29,7 @@
     pkg: alter
     python_module: swh.alter
     default-branch-name: main
+    default-tox-environment: py311
     jobs:
       - "swh-jobs-no-deb-{name}"
 
