@@ -1,4 +1,4 @@
-stage('Rust tests') {
+stage('Build rust artifacts') {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker-rust.groovy.j2' -%}
   {% endfilter %}
@@ -6,7 +6,7 @@ stage('Rust tests') {
   steps {
     sh '''\
       export CARGO_HOME=/home/jenkins/.cache/cargo
-      cargo test --all-features
+      cargo build --all-features
     '''
   }
 }

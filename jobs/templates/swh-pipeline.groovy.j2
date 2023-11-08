@@ -62,6 +62,12 @@ pipeline {
       }
     }
 
+    {%- if do_rust %}
+    {% filter indent(width=4) %}
+      {%- include 'includes/stage-rust-build.groovy.j2' -%}
+    {% endfilter %}
+    {%- endif %}
+
     stage('Tests') {
       options {
         timeout(time: {{ timeout }}, unit: 'MINUTES')
