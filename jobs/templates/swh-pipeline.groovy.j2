@@ -124,13 +124,11 @@ pipeline {
         }
       }
       // publish code coverage report to browse it from Jenkins UI
-      publishCoverage(
-        adapters: [
-          coberturaAdapter(mergeToOneReport: true, path: '**/*coverage*.xml'),
-        ],
+      recordCoverage(
+        tools: [[parser: 'COBERTURA', pattern: '**/*coverage*.xml']],
+        checksAnnotationScope: 'ALL_LINES',
+        sourceCodeRetention: 'EVERY_BUILD',
         sourceDirectories: [[path: '{{python_module}}'.replace('.', '/')]],
-        sourceFileResolver: sourceFiles('STORE_ALL_BUILD'),
-        calculateDiffForChangeRequests: "${env.gitlabMergeRequestIid}" != "null",
       )
     }
     cleanup {
