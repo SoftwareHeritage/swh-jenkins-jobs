@@ -1,98 +1,77 @@
 stage('Cypress tests') {
   steps {
     script {
-      // set some useful environment variables
-      env.SORRY_CYPRESS_NETWORK = "sorry-cypress-network-${env.JOB_NAME}-${env.BUILD_ID}"
-      env.SORRY_CYPRESS_BUILD_ID = "${env.JOB_NAME}-${env.BUILD_ID}"
 
-      // create a dedicated docker network to allow communication between sorry-cypress
-      // container and tests runner container
-      sh 'docker network create --driver bridge $SORRY_CYPRESS_NETWORK'
+      // run cypress tests into dedicated container with mounted yarn cache
+      docker.image('{{docker_registry}}/cypress:latest')
+            .inside("--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
-      // pull sorry-cypress docker image
-      def sorryCypressDirector = docker.image('agoldis/sorry-cypress-director')
-      sorryCypressDirector.pull()
+        script {
+          sh '''
+          # install swh-web python requirements
+          python3 -m pip install --user -e .[testing]
 
-      // execute sorry-cypress as a sidecar container
-      sorryCypressDirector.withRun("--network-alias sorry-cypress --network ${env.SORRY_CYPRESS_NETWORK}") { c ->
+          # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
+          rm -f swh-web-test*.sqlite3*
 
-        // run cypress tests into dedicated container with mounted yarn cache
-        docker.image('{{docker_registry}}/cypress:latest').inside("--network ${env.SORRY_CYPRESS_NETWORK} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
+          # apply django migrations and create users (will produce swh-web-test.sqlite3 file)
+          python3 swh/web/manage.py migrate --settings=swh.web.settings.tests
+          for create_users_script in swh/web/tests/create_test_*
+          do
+            cat $create_users_script | python3 swh/web/manage.py shell --settings=swh.web.settings.tests
+          done
 
-          script {
-            sh '''
-            # ensure sorry-cypress server is up
-            wait-for-it sorry-cypress:1234
+          # build swh-web static assets in test mode (for code coverage)
+          export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
+          yarn install --frozen-lockfile
+          yarn build-test
 
-            # install swh-web python requirements
-            python3 -m pip install --user -e .[testing]
+          # create needed folders for code coverage outputs
+          mkdir -p cypress/coverage
+          mkdir -p cypress/coverage_output
+          mkdir .nyc_output
+          mkdir .nyc_outputs
 
-            # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
-            rm -f swh-web-test*.sqlite3*
+          # create dedicated X11 server manually for cypress tests (recommended for parallel mode)
+          # https://docs.cypress.io/guides/continuous-integration/introduction#Xvfb
+          Xvfb -screen 0 1920x1080x24 :99 &
+          '''
 
-            # apply django migrations and create users (will produce swh-web-test.sqlite3 file)
-            python3 swh/web/manage.py migrate --settings=swh.web.settings.tests
-            for create_users_script in swh/web/tests/create_test_*
-            do
-              cat $create_users_script | python3 swh/web/manage.py shell --settings=swh.web.settings.tests
-            done
+          parallel([
+            // create n cypress processes that will run tests affected by sorry-cypress in parallel
+            {% for n in range(1, nb_cypress_runners + 1) %}
+            'Cypress runner {{ n }}': {
+              sh '''
+                # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
+                export CYPRESS_PARALLEL_BUILD_ID={{ n }}
+                export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
+                # because parallel steps share the workspace they might race to delete
+                # screenshots and videos folders. Tell Cypress not to delete these folders
+                export CYPRESS_trashAssetsBeforeRuns=false
 
-            # build swh-web static assets in test mode (for code coverage)
-            export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
-            yarn install --frozen-lockfile
-            yarn build-test
+                # force use of manually created X11 server
+                export DISPLAY=:99
 
-            # create needed folders for code coverage outputs
-            mkdir -p cypress/coverage
-            mkdir -p cypress/coverage_output
-            mkdir .nyc_output
-            mkdir .nyc_outputs
+                # copy database file to the one that will be used by django for that test runner
+                cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
 
-            # create dedicated X11 server manually for cypress tests (recommended for parallel mode)
-            # https://docs.cypress.io/guides/continuous-integration/introduction#Xvfb
-            Xvfb -screen 0 1920x1080x24 :99 &
-            '''
+                # run django server on a dedicated port for that test runner and wait for it to be up
+                python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
+                wait-for-it -t 90 localhost:500{{ n }}
 
-            parallel([
-              // create n cypress processes that will run tests affected by sorry-cypress in parallel
-              {% for n in range(1, nb_cypress_runners + 1) %}
-              'Cypress runner {{ n }}': {
-                sh '''
-                  # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
-                  export CYPRESS_PARALLEL_BUILD_ID={{ n }}
-                  export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
-                  export CURRENTS_API_URL=http://sorry-cypress:1234
-                  export CURRENTS_PROJECT_ID=swh-web
+                # execute cypress tests
+                yarn run cypress run --env split={{ nb_cypress_runners }},splitIndex={{ n }} --config baseUrl=http://localhost:500{{ n }}
 
-                  # force use of manually created X11 server
-                  export DISPLAY=:99
-
-                  # to avoid possible race conditions, each cypress runner will execute tests from
-                  # a copy of the swh-web repository filesystem (without root hidden folders)
-                  mkdir .swh-web{{ n }}
-                  cp -r ./* .swh-web{{ n }}
-                  cd .swh-web{{ n }}
-
-                  # copy database file to the one that will be used by django for that test runner
-                  cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
-
-                  # run django server on a dedicated port for that test runner and wait for it to be up
-                  python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
-                  wait-for-it -t 90 localhost:500{{ n }}
-
-                  # execute cypress tests
-                  yarn run cypress-cloud run --record --key swh-web --parallel --config baseUrl=http://localhost:500{{ n }} --ci-build-id $SORRY_CYPRESS_BUILD_ID
-
-                  # copy nyc coverage outputs to dedicated merge folders for later processing
-                  cp cypress/coverage{{ n }}/coverage-final.json ../cypress/coverage_output/coverage-final{{ n }}.json
-                  cp .nyc_output{{ n }}/out.json ../.nyc_outputs/out{{ n }}.json
-                '''
-              },
-              {% endfor %}
-            ])
-          }
+                # copy nyc coverage outputs to dedicated merge folders for later processing
+                cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
+                cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
+              '''
+            },
+            {% endfor %}
+          ])
         }
       }
+
     }
   }
   post {
@@ -116,9 +95,6 @@ stage('Cypress tests') {
 
         # remove node_modules folder
         rm -rf node_modules
-
-        # remove docker network created at the beginning of that stage
-        docker network rm $SORRY_CYPRESS_NETWORK || true
       '''
 
       publishHTML (target: [
