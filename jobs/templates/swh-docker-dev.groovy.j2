@@ -115,5 +115,8 @@ pipeline {
         artifacts: 'docker/**/*.logs',
       )
     }
+    cleanup {
+      cleanWs()
+    }
   }
 }
