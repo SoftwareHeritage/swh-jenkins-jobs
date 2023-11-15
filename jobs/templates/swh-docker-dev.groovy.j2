@@ -19,9 +19,9 @@ if (env.gitlabMergeRequestIid) {
 {%- endif %}
 
 pipeline {
-  agent {
-    label "built-in"
-  }
+  {% filter indent(width=2) %}
+    {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
 
   options {
     timeout(time: 30, unit: 'MINUTES')
@@ -96,7 +96,7 @@ pipeline {
       steps {
         lock('docker-agent-host-port-5080') {
           dir('docker') {
-            sh 'tox -- -v'
+            sh 'tox -- -v --basetemp=/tmp/pytest-of-swh-docker-dev/$BUILD_TAG'
           }
         }
       }

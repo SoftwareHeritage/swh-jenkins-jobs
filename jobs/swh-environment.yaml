@@ -88,7 +88,7 @@
     description: "Build the swh/stack:latest image and run tests"
     project-type: pipeline
     docker_image: tox
-    node: built-in
+    docker_options: -v /tmp:/tmp
     properties:
       - build-discarder:
           days-to-keep: 20

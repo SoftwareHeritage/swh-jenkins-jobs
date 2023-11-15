@@ -379,7 +379,7 @@
     repo_name: swh-fuse
     pkg: fuse
     python_module: swh.fuse
-    docker_options: --privileged --device /dev/fuse
+    docker_options: --tmpfs /tmp:exec --privileged --device /dev/fuse
     jobs:
       - "swh-jobs-{name}"
 

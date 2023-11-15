@@ -10,3 +10,4 @@
     jenkins_docker_uid: 115
     jenkins_docker_gid: 120
     docker_gid: 999
+    docker_options: --tmpfs /tmp:exec
