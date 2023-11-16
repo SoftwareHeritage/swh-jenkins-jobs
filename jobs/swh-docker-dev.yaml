@@ -12,6 +12,7 @@
     docker_image: tox
     docker_options: -v /tmp:/tmp
     sandbox: true
+    max_concurrent: 2
     properties:
       - build-discarder:
           days-to-keep: 20
