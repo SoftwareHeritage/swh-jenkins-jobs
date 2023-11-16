@@ -89,6 +89,7 @@
     project-type: pipeline
     docker_image: tox
     docker_options: -v /tmp:/tmp
+    sandbox: true
     properties:
       - build-discarder:
           days-to-keep: 20
