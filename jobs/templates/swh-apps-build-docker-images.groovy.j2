@@ -26,16 +26,9 @@ pipeline {
   agent { label label_node }
 
   options {
-    // require "Throttle Concurrent Builds" Jenkins plugin
-    throttleJobProperty(
-      categories: [],
-      limitOneJobWithMatchingParams: false,
-      maxConcurrentPerNode: {{ max_concurrent }},
-      maxConcurrentTotal: {{ max_concurrent }},
-      paramsToUseForLimit: '',
-      throttleEnabled: true,
-      throttleOption: 'project',
-    )
+    {% filter indent(width=4) %}
+      {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
+    {% endfilter %}
   }
 
   stages {
