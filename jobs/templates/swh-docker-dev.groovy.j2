@@ -99,7 +99,11 @@ pipeline {
       steps {
         lock('docker-agent-host-port-5080') {
           dir('docker') {
-            sh 'tox -- -v --basetemp=/tmp/pytest-of-swh-docker-dev/$BUILD_TAG'
+            sh '''
+              basetemp=/tmp/pytest-of-swh-docker-dev/$BUILD_TAG
+              mkdir -p $basetemp
+              tox -- -v --basetemp=$basetemp
+            '''
           }
         }
       }
