@@ -56,18 +56,21 @@ pipeline {
         script {
           docker.withRegistry("https://${container_registry}", container_credential_id) {
             sh """#!/bin/bash
+              set -e
+
               image_tag=\$(TZ=UTC date +%Y%m%d-%H%M%S)-g\$(git log -1 --pretty=%h)
               if [ "\$TAG_FOR_REAL" != "true" ]; then
                 docker () {
                   echo would run docker "\$@"
                 }
               fi
+
               for dockerfile in */Dockerfile; do
                 image=\${dockerfile/\\/Dockerfile}
                 docker tag swh-jenkins/\${image} ${container_registry}/\${image}:\${image_tag}
                 docker tag ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest
-                for image_tag in ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest; do
-                  docker push \${image_tag}
+                for to_push in ${container_registry}/\${image}:\${image_tag} ${container_registry}/\${image}:latest; do
+                  docker push \${to_push}
                 done
               done
             """
