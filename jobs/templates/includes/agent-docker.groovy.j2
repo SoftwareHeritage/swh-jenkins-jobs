@@ -2,8 +2,7 @@ agent {
   docker {
     reuseNode true
     image '{{docker_registry}}/{{docker_image}}:latest'
-    args '--pull ' +
-         '-v /var/run/docker.sock:/var/run/docker.sock ' +
+    args '-v /var/run/docker.sock:/var/run/docker.sock ' +
          '-v /usr/bin/docker:/usr/bin/docker ' +
          '-v /usr/libexec/docker:/usr/libexec/docker ' +
          '-u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} ' +
