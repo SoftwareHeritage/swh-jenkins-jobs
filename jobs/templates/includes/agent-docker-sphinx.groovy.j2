@@ -2,6 +2,6 @@ agent {
   docker {
     reuseNode true
     image '{{docker_registry}}/{{sphinx_docker_image}}:latest'
-    args '--pull --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache'
+    args '--pull=always --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache'
   }
 }

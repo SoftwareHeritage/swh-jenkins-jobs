@@ -2,6 +2,6 @@ agent {
   docker {
     reuseNode true
     image 'rust:latest'
-    args '--pull -u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache {{docker_options if docker_options is defined}}'
+    args '--pull=always -u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache {{docker_options if docker_options is defined}}'
   }
 }
