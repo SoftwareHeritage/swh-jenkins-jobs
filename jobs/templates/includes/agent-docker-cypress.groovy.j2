@@ -2,6 +2,6 @@ agent {
   docker {
     reuseNode true
     image '{{docker_registry}}/{{cypress_docker_image}}:latest'
-    args '--ipc=host --shm-size 1024M --tmpfs /tmp:exec --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache'
+    args '--pull --ipc=host --shm-size 1024M --tmpfs /tmp:exec --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache'
   }
 }
