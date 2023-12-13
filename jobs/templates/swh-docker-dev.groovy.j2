@@ -100,7 +100,7 @@ pipeline {
         lock('docker-agent-host-port-5080') {
           dir('docker') {
             sh '''
-              basetemp=/tmp/pytest-of-swh-docker-dev/$BUILD_TAG
+              basetemp=$WORKSPACE/tmp-pytest
               mkdir -p $basetemp
               tox -- -v --basetemp=$basetemp
             '''
@@ -119,7 +119,7 @@ pipeline {
     always {
       archiveArtifacts(
         allowEmptyArchive: true,
-        artifacts: 'docker/**/*.logs',
+        artifacts: 'tmp-pytest/**/docker/*.logs',
       )
     }
     cleanup {
