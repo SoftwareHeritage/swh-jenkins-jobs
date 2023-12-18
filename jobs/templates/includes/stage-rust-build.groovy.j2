@@ -5,6 +5,7 @@ stage('Build rust artifacts') {
 
   steps {
     sh '''\
+      set -e
       prepare-cargo-cache
       ORC_USE_SYSTEM_LIBRARIES=true cargo build --all-features
     '''

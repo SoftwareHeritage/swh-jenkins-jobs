@@ -5,8 +5,9 @@ stage('Rust tests') {
 
   steps {
     sh '''\
+      set -e
       prepare-cargo-cache
-      cargo test --all-features
+      ORC_USE_SYSTEM_LIBRARIES=true cargo test --all-features
     '''
   }
 }
