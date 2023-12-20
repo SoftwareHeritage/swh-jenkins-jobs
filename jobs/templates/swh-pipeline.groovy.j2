@@ -43,23 +43,30 @@ pipeline {
       }
     }
 
-    stage ('flake8') {
-      steps {
-        sh '''tox -e flake8'''
+    stage('Preparatory steps') {
+      parallel {
+        {%- if do_rust %}
+          {% filter indent(width=8) %}
+            {%- include 'includes/stage-rust-build.groovy.j2' -%}
+          {% endfilter %}
+        {%- endif %}
+        stage ('Python lint') {
+          stages {
+            stage ('flake8') {
+              steps {
+                sh '''tox -e flake8'''
+              }
+            }
+
+            stage ('mypy') {
+              steps {
+                sh '''tox -e mypy'''
+              }
+            }
+          } 
+        }
       }
     }
-
-    stage ('mypy') {
-      steps {
-        sh '''tox -e mypy'''
-      }
-    }
-
-    {%- if do_rust %}
-    {% filter indent(width=4) %}
-      {%- include 'includes/stage-rust-build.groovy.j2' -%}
-    {% endfilter %}
-    {%- endif %}
 
     stage('Tests') {
       options {
