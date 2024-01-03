@@ -60,7 +60,7 @@ stage('Cypress tests') {
                 wait-for-it -t 90 localhost:500{{ n }}
 
                 # execute cypress tests
-                yarn run cypress run --env split={{ nb_cypress_runners }},splitIndex={{ n }} --config baseUrl=http://localhost:500{{ n }}
+                yarn run cypress run --env split={{ nb_cypress_runners }},splitIndex1={{ n }} --config baseUrl=http://localhost:500{{ n }}
 
                 # copy nyc coverage outputs to dedicated merge folders for later processing
                 cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
