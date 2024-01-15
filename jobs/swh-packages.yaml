@@ -359,8 +359,9 @@
     nb_cypress_runners: 4
     timeout: 30
     max_concurrent: 3
+    default-tox-environment: py310
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DWCLI
