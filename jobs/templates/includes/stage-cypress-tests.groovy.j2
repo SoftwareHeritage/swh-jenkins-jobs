@@ -9,16 +9,16 @@ stage('Cypress tests') {
         script {
           sh '''
           # install swh-web python requirements
-          python3 -m pip install --user -e .[testing]
+          python{{cypress_python_version}} -m pip install --user -e .[testing]
 
           # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
           rm -f swh-web-test*.sqlite3*
 
           # apply django migrations and create users (will produce swh-web-test.sqlite3 file)
-          python3 swh/web/manage.py migrate --settings=swh.web.settings.tests
+          python{{cypress_python_version}} swh/web/manage.py migrate --settings=swh.web.settings.tests
           for create_users_script in swh/web/tests/create_test_*
           do
-            cat $create_users_script | python3 swh/web/manage.py shell --settings=swh.web.settings.tests
+            cat $create_users_script | python{{cypress_python_version}} swh/web/manage.py shell --settings=swh.web.settings.tests
           done
 
           # build swh-web static assets in test mode (for code coverage)
@@ -56,7 +56,7 @@ stage('Cypress tests') {
                 cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
 
                 # run django server on a dedicated port for that test runner and wait for it to be up
-                python3 swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
+                python{{cypress_python_version}} swh/web/manage.py runserver --nostatic --settings=swh.web.settings.tests 0.0.0.0:500{{ n }}&
                 wait-for-it -t 90 localhost:500{{ n }}
 
                 # execute cypress tests
