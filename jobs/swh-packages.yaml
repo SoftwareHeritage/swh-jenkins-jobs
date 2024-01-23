@@ -346,8 +346,9 @@
     repo_name: swh-vault
     pkg: vault
     python_module: swh.vault
+    default-tox-environment: py310
     jobs:
-      - "swh-jobs-{name}"
+      - "swh-jobs-no-deb-{name}"
 
 - project:
     name: DWAPPS
