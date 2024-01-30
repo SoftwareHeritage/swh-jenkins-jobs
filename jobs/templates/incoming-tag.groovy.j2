@@ -66,44 +66,6 @@ pipeline {
         )
       }
     }
-
-    stage('Update Debian packaging for new release') {
-
-      when {
-        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(.\d+)+/ }
-        expression { jenkinsJobExists('/debian/packages/{{name}}/update-for-release') }
-      }
-
-      steps {
-        build(
-          job: '/debian/packages/{{name}}/update-for-release',
-          parameters: [
-            // remove refs/tags/ prefix from source branch
-            string(name: 'GIT_TAG', value: env.gitlabSourceBranch.substring(10)),
-          ],
-          wait: true,
-        )
-      }
-    }
-
-    stage('Build Debian package') {
-      when {
-        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/.*/ }
-        expression { !("${env.gitlabSourceBranch}" ==~ /refs\/tags\/debian\/upstream\/.*/) }
-        expression { jenkinsJobExists('/debian/packages/{{name}}/gbp-buildpackage') }
-      }
-      steps {
-        build(
-          job: '/debian/packages/{{name}}/gbp-buildpackage',
-          parameters: [
-            // remove refs/tags/ prefix from source branch
-            string(name: 'GIT_REVISION', value: env.gitlabSourceBranch.substring(10)),
-            booleanParam(name: 'DO_UPLOAD', value: true),
-          ],
-          wait: true,
-        )
-      }
-    }
   }
 
   post {
