@@ -107,7 +107,7 @@
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jenkins-token
+          secret-token: !include-raw: templates/jenkins-token
 
     dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2
 
