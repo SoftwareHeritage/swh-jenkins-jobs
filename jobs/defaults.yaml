@@ -9,5 +9,5 @@
     # These values need to be identical for all jenkins runners with docker jobs
     jenkins_docker_uid: 115
     jenkins_docker_gid: 120
-    docker_gid: 999
+    docker_gid: !include: docker-gid
     docker_options: --tmpfs /tmp:exec

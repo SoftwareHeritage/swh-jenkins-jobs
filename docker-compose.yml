@@ -11,6 +11,8 @@ services:
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - /usr/libexec/docker:/usr/libexec/docker
       - .:/opt/swh-jenkins-jobs
       - ./docker:/docker
       - ./docker/jenkins_jobs.ini:/etc/jenkins_jobs/jenkins_jobs.ini
@@ -19,6 +21,7 @@ services:
       - >
         JAVA_OPTS=-Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
           -Djenkins.install.runSetupWizard=false
+          -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true
     ports:
       - 8080:8080
       # For docker agent

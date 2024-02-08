@@ -3,4 +3,5 @@ jenkins-token
 /docker-compose.override.yml
 production-jenkins
 *.jar
+docker-gid
 
