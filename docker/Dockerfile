@@ -12,7 +12,7 @@ RUN find / -group 1000 -exec chgrp -h jenkins '{}' \; || true
 RUN find / -user 1000 -exec chown -h jenkins '{}' \; || true
 
 # install tox required to bootstrap jenkins jobs configuration
-RUN apt-get update && apt-get -y install tox
+RUN apt-get update && apt-get -y install tox wait-for-it
 
 # adapt this group if the docker gid is not 998 on your local environment
 ARG DOCKER_GROUP=998
