@@ -1,0 +1,98 @@
+pipeline {
+  {% filter indent(width=2) %}
+    {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
+
+  options {
+    timeout(time: {{timeout}}, unit: 'MINUTES')
+    timestamps()
+    {% filter indent(width=4) %}
+      {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
+    {% endfilter %}
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout([
+          $class: 'GitSCM',
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [[$class: 'CloneOption', depth: 1, shallow: true]],
+          gitTool: 'Default',
+          submoduleCfg: [],
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git'
+          ]],
+        ])
+      }
+    }
+
+    stage('Run tests') {
+
+      steps {
+        sh '''#!/bin/bash
+          # Don't fetch potentially large branches, we only need master
+          sed -i 's/git clone/git clone --single-branch/g' .mrconfig
+          # fetch swh repositories
+          mr -j 4 -t update
+          # setup a virtualenv
+          python{{python_version}} -m venv .venv
+          source .venv/bin/activate
+          # upgrade pip as default installed version is too outdated to properly
+          # install all swh dependencies
+          pip install --upgrade pip
+          # install dependencies
+          ./bin/install
+          (cd swh-graph &&
+           make java >/dev/null &&
+           export ORC_USE_SYSTEM_LIBRARIES=true &&
+           cargo build --all-features &&
+           cargo build --release --all-features)
+          (cd swh-web && yarn install)
+          # execute tests in each swh module
+          pip install pytest-xdist
+          exit_code=0
+          swh_env_dir=$PWD
+          for module in $(./bin/ls-py-modules); do
+            cd $swh_env_dir/$module
+            echo Executing $module checks and tests
+            tests_dir=$(echo $module | sed 's/-/\\//g')/tests
+            if [ -d "$tests_dir" ]; then
+              # enable parallel tests execution except for scanner
+              if [ "$module" != "swh-scanner" ]; then
+                export TESTFLAGS="-n auto"
+              else
+                export TESTFLAGS=
+              fi
+              # pipe checks and tests output to stdout and log file
+              make check 2>&1 | tee ../$module.log
+              tests_status=${PIPESTATUS[0]}
+              make test 2>&1 | tee -a ../$module.log
+              tests_status=$(($tests_status + ${PIPESTATUS[0]}))
+              # remove log file if tests succeeded
+              if [ "$tests_status" -eq 0 ]; then
+                rm -f ../$module.log
+              fi
+              # script must be exited with error when a test suite failed
+              exit_code=$(( tests_status > exit_code ? tests_status : exit_code ))
+            fi
+          done
+
+          exit $exit_code
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts(
+        allowEmptyArchive: true,
+        artifacts: '*.log',
+      )
+    }
+    cleanup {
+      cleanWs()
+    }
+  }
+}
