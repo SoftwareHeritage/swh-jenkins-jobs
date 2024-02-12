@@ -5,7 +5,7 @@ agent {
     args '-v /var/run/docker.sock:/var/run/docker.sock ' +
          '-v /usr/bin/docker:/usr/bin/docker ' +
          '-v /usr/libexec/docker:/usr/libexec/docker ' +
-         '-u {{jenkins_docker_uid}}:{{docker_gid}} ' +
+         '-u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} ' +
          '--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache ' +
          '{{docker_options if docker_options is defined}}'
   }

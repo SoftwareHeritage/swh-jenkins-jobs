@@ -4,4 +4,5 @@ jenkins-token
 production-jenkins
 *.jar
 docker-gid
+jenkins-docker-gid
 
