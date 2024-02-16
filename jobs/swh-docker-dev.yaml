@@ -5,7 +5,7 @@
 
 - job-template:
     name: swh-docker-dev
-    gitlab_project_name: swh/devel/swh-environment
+    gitlab_project_name: swh/devel/docker
     gitlab_trigger: false
     description: "Build the swh/stack:latest image and run tests"
     project-type: pipeline
