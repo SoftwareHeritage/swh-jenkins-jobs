@@ -1,6 +1,5 @@
 - job-group:
     name: swh-environment-jobs-{name}
-    gitlab_project_name: swh/devel/swh-environment
     jobs:
       - "{name}"
       - "{name}/run-all-tests"
@@ -9,6 +8,7 @@
 - job-template:
     name: "{name}/run-all-tests"
     display-name: tests
+    gitlab_project_name: swh/devel/swh-environment
     description: Run tests for each swh module in development version
     node: swh-sphinx
 
