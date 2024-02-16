@@ -85,7 +85,14 @@
     name: "{name}/docker-tests"
     gitlab_project_name: swh/devel/docker
     gitlab_trigger: true
-    description: "Build the swh/stack:latest image and run tests"
+    description: >
+      Build the swh/stack:latest image and run tests.
+
+      Note that when triggered by gitlab, this will run the docker image build
+      step WITHOUT the '--no-cache' option. So if you need to enforce
+      rebuilding the image from scratch, trigger the job by hand from jenkins
+      (or wait for the daily build to run).
+
     project-type: pipeline
     docker_image: tox
     docker_options: -v /tmp:/tmp

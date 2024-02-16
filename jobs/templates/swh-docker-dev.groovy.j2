@@ -60,36 +60,12 @@ pipeline {
     }
 
     stage('Build Docker images') {
-      {%- if gitlab_trigger %}
-      when {
-        anyOf {
-          expression {
-            return startedByTimer
-          }
-          expression {
-            return startedByUser
-          }
-        }
-      }
-      {%- endif %}
       steps {
         sh "docker build $dockerBuildOpts -t swh/stack ."
       }
     }
 
     stage('Run tests') {
-      {%- if gitlab_trigger %}
-      when {
-        anyOf {
-          expression {
-            return startedByTimer
-          }
-          expression {
-            return startedByUser
-          }
-        }
-      }
-      {%- endif %}
       steps {
         lock('docker-agent-host-port-5080') {
           sh '''
