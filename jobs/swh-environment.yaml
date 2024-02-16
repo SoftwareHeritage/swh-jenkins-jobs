@@ -103,7 +103,10 @@
           days-to-keep: 20
       - gitlab:
           connection: "{gitlab_connection_name}"
-    triggers:
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
+      - timed: "@midnight"
+      {% endif %}
       - gitlab:
           trigger-push: true
           trigger-merge-request: true
