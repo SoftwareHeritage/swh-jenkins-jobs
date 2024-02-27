@@ -24,7 +24,7 @@ pipeline {
   {% endfilter %}
 
   options {
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 40, unit: 'MINUTES')
     timestamps()
     {% filter indent(width=4) %}
       {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
