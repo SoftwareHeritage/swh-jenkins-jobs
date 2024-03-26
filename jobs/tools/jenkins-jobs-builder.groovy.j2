@@ -6,7 +6,9 @@ if (env.gitlabMergeRequestIid) {
 }
 
 pipeline {
-  agent any
+  agent {
+    label "built-in"
+  }
 
   stages {
 

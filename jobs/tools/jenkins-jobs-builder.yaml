@@ -2,7 +2,6 @@
     name: jenkins-tools/{project_name}
     project-type: pipeline
     description: Update jenkins jobs and setup GitLab webhooks
-    node: built-in
     gitlab_project_name: swh/infra/ci-cd/swh-jenkins-jobs
     properties:
       - build-discarder:
