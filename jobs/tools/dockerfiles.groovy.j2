@@ -9,7 +9,7 @@ def startedByTimer = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$T
 def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 def startedByPushToMaster = env.gitlabActionType == "PUSH" && env.gitlabBranch == "master"
 
-if (startedByTimer || startedByUser || startedByPushToMaster) {
+if ((startedByTimer || startedByUser || startedByPushToMaster) && !env.gitlabMergeRequestIid) {
   env.TAG_FOR_REAL = "true"
 } else {
   env.TAG_FOR_REAL = "false"
