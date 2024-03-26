@@ -36,7 +36,7 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>tox -- update --delete-old</command>
+      <command>tox -- update --delete-old --jobs-only</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>

@@ -38,7 +38,7 @@ Connect to localhost:8080, then within the jenkins ui:
     ...)
   - Add a `build` step `Execute shell` with this content
 ```
-tox -- update --delete-old
+tox -- update --delete-old --jobs-only
 ```
 - Save your build configuration
 - Trigger a build \o/
