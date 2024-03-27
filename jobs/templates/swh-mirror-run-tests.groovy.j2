@@ -1,5 +1,14 @@
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
 pipeline {
-  agent none
+  {% filter indent(width=2) %}
+    {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
 
   options {
     {% filter indent(width=4) %}
@@ -9,21 +18,32 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      agent {
-        label "built-in"
-      }
-
       steps {
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        git url: "{{gitlab_url}}/{{gitlab_project_name}}.git"
+        checkout([
+          $class: 'GitSCM',
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/* \
+                      +refs/tags/*:refs/remotes/origin/tags*',
+          ]],
+          branches: [[
+            name: branch
+          ]],
+          browser: [
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          gitTool: 'Default',
+          submoduleCfg: [],
+        ])
       }
     }
 
     stage('Build Docker test images') {
-      agent {
-        label "built-in"
-      }
-
       steps {
         dir('images') {
           sh ' ./build_images.sh --write-env-file=image-tag.env'
@@ -33,13 +53,9 @@ pipeline {
     }
 
     stage('Run tests') {
-      {% filter indent(width=6) %}
-        {%- include 'templates/includes/agent-docker.groovy.j2' -%}
-      {% endfilter %}
-
       environment {
         SWH_MIRROR_TEST_API_URL = "http://172.17.0.1:5081/api/1"
-        SWH_MIRROR_TEST_KAFKA_BROKER = "broker1.journal.staging.swh.network:9093"
+        SWH_MIRROR_TEST_KAFKA_BROKER = "broker2.journal.staging.swh.network:9093"
         SWH_MIRROR_TEST_OBJSTORAGE_HOST = "objstorage.softwareheritage.org"
       }
 
@@ -65,17 +81,15 @@ pipeline {
 
   post {
     always {
-      node('built-in') {
-        echo "Clean up Docker stuff"
-        sh '''
-        docker stack rm swhtest_mirror0 || true
-        # Wait for any remaining containers
-        docker container ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker container wait || true
-        # Cleanup cruft
-        docker config ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker config rm || true
-        docker volume ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker volume rm || true
-        '''
-      }
+      echo "Clean up Docker stuff"
+      sh '''
+      docker stack rm swhtest_mirror0 || true
+      # Wait for any remaining containers
+      docker container ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker container wait || true
+      # Cleanup cruft
+      docker config ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker config rm || true
+      docker volume ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker volume rm || true
+      '''
     }
     {% filter indent(width=4) %}
       {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
