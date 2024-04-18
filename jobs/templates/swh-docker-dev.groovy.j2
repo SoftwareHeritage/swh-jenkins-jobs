@@ -67,13 +67,11 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        lock('docker-agent-host-port-5080') {
-          sh '''
-            basetemp=$WORKSPACE/tmp-pytest
-            mkdir -p $basetemp
-            tox -- -v --basetemp=$basetemp
-          '''
-        }
+        sh '''
+          basetemp=$WORKSPACE/tmp-pytest
+          mkdir -p $basetemp
+          tox -- -v --basetemp=$basetemp
+        '''
       }
     }
   }
