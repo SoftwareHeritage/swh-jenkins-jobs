@@ -61,7 +61,7 @@ pipeline {
 
       steps {
         unstash 'image-tag-env'
-        lock('docker-agent-host-port-5080') {
+        lock('docker-agent-host-port-5081') {
           withCredentials([
             usernamePassword(credentialsId: 'swh-mirror-test-kafka',
                              usernameVariable: 'SWH_MIRROR_TEST_KAFKA_USERNAME',
