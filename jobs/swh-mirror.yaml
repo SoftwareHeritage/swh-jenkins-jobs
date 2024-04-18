@@ -10,6 +10,7 @@
     gitlab_project_name: swh/infra/swh-mirror
     project-type: pipeline
     docker_image: tox
+    sandbox: true
     max_concurrent: 1
     properties:
       - gitlab:
@@ -22,9 +23,11 @@
           trigger-push: true
           trigger-merge-request: true
           trigger-open-merge-request-push: source
+          trigger-note: true
+          note-regex: ".*@jenkins.*retry.*build.*"
+          wip-skip: false
           add-ci-message: true
           cancel-pending-builds-on-update: true
-          wip-skip: false
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw: jobs/templates/jenkins-token
 
