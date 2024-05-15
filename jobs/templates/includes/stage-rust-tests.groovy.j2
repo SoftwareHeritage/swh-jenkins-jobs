@@ -7,6 +7,8 @@ stage('Rust tests') {
     sh '''\
       set -e
       prepare-cargo-cache
+      cargo clippy --all-features -- --deny warnings
+      RUSTDOCFLAGS="--deny warnings" cargo doc --all-features
       ORC_USE_SYSTEM_LIBRARIES=true cargo test --all-features
     '''
   }
