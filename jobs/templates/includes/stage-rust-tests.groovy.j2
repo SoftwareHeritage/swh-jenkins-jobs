@@ -9,7 +9,7 @@ stage('Rust tests') {
       prepare-cargo-cache
       cargo clippy --all-features -- --deny warnings
       RUSTDOCFLAGS="--deny warnings" cargo doc --all-features
-      ORC_USE_SYSTEM_LIBRARIES=true cargo test --all-features
+      cargo test --all-features
     '''
   }
 }
