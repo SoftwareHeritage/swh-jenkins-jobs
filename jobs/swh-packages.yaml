@@ -242,7 +242,7 @@
     repo_name: swh-provenance
     pkg: provenance
     python_module: swh.provenance
-    timeout: 15
+    default-branch-name: main
     jobs:
       - "swh-jobs-{name}"
 
