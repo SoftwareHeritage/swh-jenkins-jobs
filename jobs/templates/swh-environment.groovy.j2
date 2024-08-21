@@ -44,7 +44,6 @@ pipeline {
           # install dependencies
           ./bin/install
           (cd swh-graph &&
-           make java >/dev/null &&
            export ORC_USE_SYSTEM_LIBRARIES=true &&
            cargo build --all-features &&
            cargo build --release --all-features)
