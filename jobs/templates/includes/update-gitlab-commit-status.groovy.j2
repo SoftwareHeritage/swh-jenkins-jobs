@@ -4,7 +4,8 @@ failure {
     if (env.gitlabMergeRequestIid) {
       def message = "Jenkins job [${env.JOB_NAME} #${env.BUILD_ID}]"
       message += "(${env.BUILD_URL}) {- failed -}.<br/>"
-      message += "See [Console Output](${env.BUILD_URL}console) and "
+      message += "See [Console Output](${env.BUILD_URL}console), "
+      message += "[Blue Ocean](${env.RUN_DISPLAY_URL}) and "
       message += "[Coverage Report](${env.BUILD_URL}coverage) for more details."
       addGitLabMRComment comment: message
     }
@@ -16,7 +17,8 @@ success {
     if (env.gitlabMergeRequestIid) {
       def message = "Jenkins job [${env.JOB_NAME} #${env.BUILD_ID}]"
       message += "(${env.BUILD_URL}) {+ succeeded +}.<br/>"
-      message += "See [Console Output](${env.BUILD_URL}console) and "
+      message += "See [Console Output](${env.BUILD_URL}console), "
+      message += "[Blue Ocean](${env.RUN_DISPLAY_URL}) and "
       message += "[Coverage Report](${env.BUILD_URL}coverage) for more details."
       addGitLabMRComment comment: message
     }
