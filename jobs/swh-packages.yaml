@@ -74,6 +74,7 @@
     default-tox-environment: py311
     do_rust: true
     timeout: 20
+    precommit_skip_checks: mypy,cargo-check,clippy
     jobs:
       - "swh-jobs-{name}"
 
@@ -336,6 +337,7 @@
     nb_cypress_runners: 4
     timeout: 30
     max_concurrent: 3
+    precommit_skip_checks: mypy,eslint
     jobs:
       - "swh-jobs-{name}"
 

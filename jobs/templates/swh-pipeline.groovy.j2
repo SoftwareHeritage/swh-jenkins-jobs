@@ -43,37 +43,32 @@ pipeline {
       }
     }
 
+    {%- if do_rust %}
     stage('Preparatory steps') {
       parallel {
-        {%- if do_rust %}
-          {% filter indent(width=8) %}
-            {%- include 'includes/stage-rust-build.groovy.j2' -%}
-          {% endfilter %}
-        {%- endif %}
-        stage ('Python lint') {
-          stages {
-            stage ('flake8') {
-              steps {
-                sh '''tox -e flake8'''
-              }
-            }
-
-            stage ('mypy') {
-              steps {
-                sh '''tox -e mypy'''
-              }
-            }
-          } 
-        }
+        {% filter indent(width=8) %}
+          {%- include 'includes/stage-rust-build.groovy.j2' -%}
+        {% endfilter %}
       }
     }
+    {%- endif %}
 
-    stage('Tests') {
+    stage('Checks') {
       options {
         timeout(time: {{ timeout }}, unit: 'MINUTES')
       }
 
       parallel {
+        stage ('Code quality') {
+          steps {
+            sh '''SKIP={{precommit_skip_checks}} pre-commit run --all-files'''
+          }
+        }
+        stage ('mypy') {
+          steps {
+            sh '''tox -e mypy'''
+          }
+        }
         {% filter indent(width=8) %}
           {%- include 'includes/stage-python-tests.groovy.j2' -%}
         {% endfilter %}

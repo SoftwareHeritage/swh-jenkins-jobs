@@ -8,6 +8,7 @@
     default-tox-environment: py310
     sphinx_basepython: py311
     default_branch_name: master
+    precommit_skip_checks: mypy
     concurrent: true
     sandbox: true
     properties:
