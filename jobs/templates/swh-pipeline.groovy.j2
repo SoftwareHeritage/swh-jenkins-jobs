@@ -1,4 +1,4 @@
-def branch = "master"
+def branch = "{{default_branch_name}}"
 if (env.gitlabMergeRequestIid) {
   branch = "merge-requests/${env.gitlabMergeRequestIid}"
 } else if (env.gitlabSourceBranch) {
