@@ -36,7 +36,7 @@
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jobs/templates/jenkins-token
+          secret-token: !include-raw-verbatim: jobs/templates/jenkins-token
     wrappers:
       - timestamps
       - ansicolor

@@ -17,7 +17,7 @@
           name: jenkins_token
           description: Secret webhooks token to trigger jobs
           # secret jenkins token is generated when executing tox
-          default: !include-raw: jobs/templates/jenkins-token
+          default: !include-raw-verbatim: jobs/templates/jenkins-token
 
     dsl: !include-jinja2: setup-gitlab-webhooks.groovy.j2
 

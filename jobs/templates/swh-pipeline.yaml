@@ -33,7 +33,7 @@
           add-ci-message: true
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jenkins-token
+          secret-token: !include-raw-verbatim: jenkins-token
           branch-filter-type: RegexBasedFilter
           target-branch-regex: ^(?!(debian|pristine-tar)).*
     parameters:

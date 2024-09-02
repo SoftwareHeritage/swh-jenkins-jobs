@@ -14,7 +14,7 @@
           trigger-note: false
           add-ci-message: true
           # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jobs/templates/jenkins-token
+          secret-token: !include-raw-verbatim: jobs/templates/jenkins-token
     dsl: !include-jinja2: templates/swh-build-docker-image.groovy.j2
 
 - project:

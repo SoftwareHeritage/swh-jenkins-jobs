@@ -16,5 +16,5 @@
           trigger-note: false
           add-ci-message: true
           # secret jenkins token is generated when executing tox
-          secret-token: !include-raw: jenkins-token
+          secret-token: !include-raw-verbatim: jenkins-token
     dsl: !include-jinja2: incoming-tag.groovy.j2
