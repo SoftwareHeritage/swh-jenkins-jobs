@@ -15,6 +15,9 @@ if ((startedByTimer || startedByUser || startedByPushToMaster) && !env.gitlabMer
   env.TAG_FOR_REAL = "false"
 }
 
+env.SCCACHE_REDIS_ENDPOINT = credential('sccache-redis-endpoint')
+env.SCCACHE_REDIS_PASSWORD = credential('sccache-redis-password')
+
 def container_registry = 'container-registry.softwareheritage.org/{{gitlab_project_name}}'
 def container_credential_id = 'gitlab-registry'
 
