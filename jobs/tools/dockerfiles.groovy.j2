@@ -15,9 +15,6 @@ if ((startedByTimer || startedByUser || startedByPushToMaster) && !env.gitlabMer
   env.TAG_FOR_REAL = "false"
 }
 
-env.SCCACHE_REDIS_ENDPOINT = credentials('sccache-redis-endpoint')
-env.SCCACHE_REDIS_PASSWORD = credentials('sccache-redis-password')
-
 def container_registry = 'container-registry.softwareheritage.org/{{gitlab_project_name}}'
 def container_credential_id = 'gitlab-registry'
 
@@ -43,14 +40,19 @@ pipeline {
 
     stage('Build docker images') {
       steps {
-        sh '''#!/bin/bash
-          if [ "$TAG_FOR_REAL" = "true" ]; then
-            REGISTRY=swh-jenkins
-          else
-            REGISTRY=swh-jenkins-test
-          fi
-          make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_docker_uid}} JENKINS_GID={{jenkins_docker_gid}} DOCKER_GID={{docker_gid}}
-        '''
+        withCredentials([
+          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+        ]) {
+          sh '''#!/bin/bash
+            if [ "$TAG_FOR_REAL" = "true" ]; then
+              REGISTRY=swh-jenkins
+            else
+              REGISTRY=swh-jenkins-test
+            fi
+            make checkrebuild all REGISTRY=$REGISTRY JENKINS_UID={{jenkins_docker_uid}} JENKINS_GID={{jenkins_docker_gid}} DOCKER_GID={{docker_gid}}
+          '''
+        }
       }
     }
 
