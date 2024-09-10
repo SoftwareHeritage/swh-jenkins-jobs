@@ -8,7 +8,7 @@ stage('Rust tests') {
       set -e
       prepare-cargo-cache
       cargo clippy --all-features -- --deny warnings
-      RUSTDOCFLAGS="--deny warnings" cargo doc --all-features
+      RUSTDOCFLAGS="--deny warnings" cargo doc --all-features --no-deps
       cargo test --all-features
     '''
   }
