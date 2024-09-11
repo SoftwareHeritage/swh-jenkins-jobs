@@ -4,10 +4,19 @@ stage('Build rust artifacts') {
   {% endfilter %}
 
   steps {
-    sh '''\
-      set -e
-      prepare-cargo-cache
-      cargo build --all-features
-    '''
+    {% if production_jenkins %}
+    withCredentials([
+      string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+      string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+    ]) {
+    {% endif %}
+      sh '''\
+        set -e
+        prepare-cargo-cache
+        RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features
+      '''
+    {% if production_jenkins %}
+    }
+    {% endif %}
   }
 }

@@ -4,12 +4,23 @@ stage('Rust tests') {
   {% endfilter %}
 
   steps {
-    sh '''\
-      set -e
-      prepare-cargo-cache
-      cargo clippy --all-features -- --deny warnings
-      RUSTDOCFLAGS="--deny warnings" cargo doc --all-features --no-deps
-      cargo test --all-features
-    '''
+    {% if production_jenkins %}
+    withCredentials([
+      string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+      string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+    ]) {
+    {% endif %}
+      sh '''\
+        set -e
+        prepare-cargo-cache
+        export RUSTC_WRAPPER=sccache
+        export CARGO_INCREMENTAL=0
+        cargo clippy --all-features -- --deny warnings
+        RUSTDOCFLAGS="--deny warnings" cargo doc --all-features --no-deps
+        cargo test --all-features
+      '''
+    {% if production_jenkins %}
+    }
+    {% endif %}
   }
 }
