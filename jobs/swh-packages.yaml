@@ -244,6 +244,7 @@
     pkg: provenance
     python_module: swh.provenance
     do_rust: true
+    timeout: 20
     default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
