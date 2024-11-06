@@ -73,7 +73,7 @@
     python_module: swh.graph
     default-tox-environment: py311
     do_rust: true
-    timeout: 20
+    timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
     jobs:
       - "swh-jobs-{name}"
@@ -244,7 +244,7 @@
     pkg: provenance
     python_module: swh.provenance
     do_rust: true
-    timeout: 20
+    timeout: 30
     default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
