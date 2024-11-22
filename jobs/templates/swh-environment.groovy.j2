@@ -51,7 +51,10 @@ pipeline {
             ./bin/install
             (cd swh-graph &&
              prepare-cargo-cache &&
-             RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features)
+             RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked)
+            (cd swh-provenance &&
+             prepare-cargo-cache &&
+             RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked)
             (cd swh-web && yarn install)
             # execute tests in each swh module
             pip install pytest-xdist
