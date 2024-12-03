@@ -62,6 +62,7 @@
     repo_name: swh-deposit
     pkg: deposit
     python_module: swh.deposit
+    default-tox-environment: py310,deposit_checker_import
     jobs:
       - "swh-jobs-{name}"
 
