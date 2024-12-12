@@ -13,7 +13,7 @@
     project-type: pipeline
     docker_image: tox
     docker_options: --tmpfs /tmp:exec --privileged --device /dev/fuse
-    python_version: "3.10"
+    python_version: "3.11"
     sandbox: true
     timeout: 120
     max_concurrent: 2
