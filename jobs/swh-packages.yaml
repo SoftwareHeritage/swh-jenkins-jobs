@@ -52,7 +52,6 @@
     repo_name: swh-dataset
     pkg: dataset
     python_module: swh.dataset
-    default-tox-environment: py311
     jobs:
       - "swh-jobs-{name}"
 
@@ -359,7 +358,6 @@
     repo_name: swh-webhooks
     pkg: webhooks
     python_module: swh.webhooks
-    default-tox-environment: py311
     jobs:
       - "swh-jobs-{name}"
 
