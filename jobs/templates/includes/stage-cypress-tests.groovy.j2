@@ -3,8 +3,9 @@ stage('Cypress tests') {
     script {
 
       // run cypress tests into dedicated container with mounted yarn cache
-      docker.image('{{docker_registry}}/cypress:latest')
-            .inside("--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
+      def cypressImage = docker.image('{{docker_registry}}/cypress:latest')
+      cypressImage.pull()
+      cypressImage.inside("--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
         script {
           sh '''
