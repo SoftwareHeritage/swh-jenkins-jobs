@@ -60,6 +60,13 @@ void setupGitlabWebhook(gitlabProjectName, jenkinsProjectName, pushEvents = true
 
   def webhookUrl = "${jenkins_url}/project/${jenkinsProjectName}"
   def gitlabProjectEncoded = java.net.URLEncoder.encode(gitlabProjectName, "UTF-8")
+
+  // handle case where project was moved to another one
+  def projectUrl = "${gitlab_url}/api/v4/projects/${gitlabProjectEncoded}"
+  def projectResponse = httpRequest httpMode: 'GET', url: projectUrl, contentType: 'APPLICATION_JSON'
+  def project = readJSON text: projectResponse.content
+  gitlabProjectEncoded = java.net.URLEncoder.encode(project.path_with_namespace, "UTF-8")
+
   def payload = """
     {
       "id": "${gitlabProjectEncoded}",
