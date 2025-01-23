@@ -47,6 +47,17 @@
       - "swh-jobs-{name}"
 
 - project:
+    name: swh-datasets
+    display-name: swh-datasets
+    repo_name: swh-datasets
+    pkg: datasets
+    python_module: swh.datasets
+    do_rust: true
+    timeout: 30
+    jobs:
+      - "swh-jobs-{name}"
+
+- project:
     name: swh-export
     display-name: swh-export
     repo_name: swh-export
