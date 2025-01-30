@@ -54,6 +54,7 @@
     python_module: swh.datasets
     do_rust: true
     timeout: 30
+    default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
 
