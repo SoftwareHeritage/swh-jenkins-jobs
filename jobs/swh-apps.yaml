@@ -30,6 +30,10 @@
         name: "PARALLEL"
         description: Execute image builds in parallel
         default: true
+    - bool:
+        name: "REBUILD_BASE_IMAGE"
+        description: Force the rebuild of the base image
+        default: false
     dsl: !include-jinja2: templates/swh-apps-build-docker-images.groovy.j2
 
 - job-template:

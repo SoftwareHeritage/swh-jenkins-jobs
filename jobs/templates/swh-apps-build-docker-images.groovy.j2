@@ -4,6 +4,7 @@ def module_version = params.VERSION
 def dry_run = params.DRY_RUN
 def cleanup_image = params.CLEANUP_IMAGE
 def trigger_in_parallel = params.PARALLEL
+def rebuild_base_image = params.REBUILD_BASE_IMAGE
 // For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
 {% if production_jenkins %}
 def label_node = 'built-in'
@@ -70,6 +71,28 @@ pipeline {
                             --build-arg groupid=`id -g` \
                             -t app-manager $WORKSPACE/swh-apps/scripts/
         """
+      }
+    }
+
+    stage('Build/Reuse "swh-base" image') {
+      when {
+        expression { rebuild_base_image }
+      }
+      steps {
+        script {
+            build job: 'build-docker-image',
+                  parameters: [
+                    string(name: 'APPLICATION', value: 'swh-base'),
+                    booleanParam(name: 'DRY_RUN', value: dry_run),
+                    booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
+                  ],
+                  // period before building
+                  quietPeriod: 1,
+                  // result of this step will be the result of the downstream job
+                  propagate: true,
+                  // make pipeline wait for result of the job
+                  wait: true
+        }
       }
     }
 
