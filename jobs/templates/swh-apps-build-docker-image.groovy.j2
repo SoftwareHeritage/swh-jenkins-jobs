@@ -135,7 +135,7 @@ pipeline {
                 # around the same time, they will then take the next version. Thus
                 # avoiding any writing concurrent issue down the (pipe)line.
                 git tag -a ${application_tag} -m "Empty tag to be overwritten"
-                git push origin ${application_tag} --follow-tags
+                git push origin ${application_tag}
               """
             }
           }
