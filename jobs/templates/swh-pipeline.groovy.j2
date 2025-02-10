@@ -43,6 +43,14 @@ pipeline {
       }
     }
 
+    stage('Install dependencies') {
+      sh '''
+      if [ -f 'jenkins/install-non-python-deps.sh' ]; then
+        ./jenkins/install-non-python-deps.sh
+      fi
+      '''
+    }
+
     {%- if do_rust %}
     stage('Preparatory steps') {
       parallel {
