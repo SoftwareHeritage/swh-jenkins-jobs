@@ -177,8 +177,14 @@ pipeline {
           if ( dockerfile_exists ) {
             // Determine docker image name and version
             full_image_version = "${registry_domain}/${image_name}:${image_version}"
+            latest_image_version = "${registry_domain}/${image_name}:latest"
             echo "full image version: ${full_image_version}"
-            sh "docker build --pull --tag ${full_image_version} apps/${application}"
+            sh """
+              # Build image with the versioned tag
+              docker build --pull --tag ${full_image_version} apps/${application}
+              # Build image with latest tag
+              docker tag ${full_image_version} ${latest_image_version}
+            """
           }
         }
       }
@@ -206,7 +212,10 @@ pipeline {
         script {
           if ( ! dry_run && dockerfile_exists ) {
             docker.withRegistry("https://${registry_domain}", dockerCredentialsKeyID) {
-              sh "docker push ${full_image_version}"
+              sh """
+                docker push ${full_image_version}
+                docker push ${latest_image_version}
+              """
             }
           } else {
             echo "Skipping `docker image push`."
