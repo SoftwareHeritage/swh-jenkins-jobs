@@ -232,7 +232,10 @@ pipeline {
     always {
       script {
         if ( dockerfile_exists && cleanup_image ) {
-          sh "docker image rm ${full_image_version}"
+          sh """
+            docker image rm ${full_image_version}
+            docker image rm ${latest_image_version}
+          """
         }
       }
     }
