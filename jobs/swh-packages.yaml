@@ -396,8 +396,6 @@
     repo_name: swh-coarnotify
     pkg: coarnotify
     python_module: swh.coarnotify
-    do_cypress: true
-    nb_cypress_runners: 4
     default-tox-environment: py312
     jobs:
       - "swh-jobs-{name}"
