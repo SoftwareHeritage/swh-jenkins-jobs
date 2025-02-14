@@ -396,6 +396,5 @@
     repo_name: swh-coarnotify
     pkg: coarnotify
     python_module: swh.coarnotify
-    default-tox-environment: py312
     jobs:
       - "swh-jobs-{name}"
