@@ -5,7 +5,7 @@
     docker_image: tox
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
-    default-tox-environment: py310
+    default-tox-environment: py311
     sphinx_basepython: py311
     default_branch_name: master
     precommit_skip_checks: mypy

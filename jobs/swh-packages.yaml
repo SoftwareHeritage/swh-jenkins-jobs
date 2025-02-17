@@ -15,7 +15,6 @@
     pkg: alter
     python_module: swh.alter
     default_branch_name: main
-    default-tox-environment: py311
     jobs:
       - "swh-jobs-{name}"
 
@@ -73,7 +72,7 @@
     repo_name: swh-deposit
     pkg: deposit
     python_module: swh.deposit
-    default-tox-environment: py310,deposit_checker_import
+    default-tox-environment: py311,deposit_checker_import
     jobs:
       - "swh-jobs-{name}"
 
@@ -83,7 +82,6 @@
     repo_name: swh-graph
     pkg: graph
     python_module: swh.graph
-    default-tox-environment: py311
     do_rust: true
     timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
@@ -245,7 +243,7 @@
     pkg: perfecthash
     python_module: swh.perfecthash
     use_cibuildwheel: true
-    default-tox-environment: py310,c
+    default-tox-environment: py311,c
     jobs:
       - "swh-jobs-{name}"
 
