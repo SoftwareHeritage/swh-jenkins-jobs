@@ -389,3 +389,12 @@
     python_module: swh.foo
     jobs:
       - "swh-jobs-{name}"
+
+- project:
+    name: swh-coarnotify
+    display-name: swh-coarnotify
+    repo_name: swh-coarnotify
+    pkg: coarnotify
+    python_module: swh.coarnotify
+    jobs:
+      - "swh-jobs-{name}"
