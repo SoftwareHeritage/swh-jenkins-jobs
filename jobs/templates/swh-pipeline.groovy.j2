@@ -71,7 +71,7 @@ pipeline {
       parallel {
         stage ('Code quality') {
           steps {
-            sh '''SKIP={{precommit_skip_checks}} pre-commit run --all-files'''
+            sh '''SKIP={{precommit_skip_checks}} pre-commit run --all-files --show-diff-on-failure'''
           }
         }
         stage ('mypy') {
