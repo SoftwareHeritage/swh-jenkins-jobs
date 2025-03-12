@@ -49,11 +49,7 @@ pipeline {
             pip install --upgrade pip
             # install dependencies
             ./bin/install
-            (cd swh-graph &&
-             prepare-cargo-cache &&
-             RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked)
-            (cd swh-provenance &&
-             RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked)
+            prepare-cargo-cache
             (cd swh-web && yarn install)
             # execute tests in each swh module
             pip install pytest-xdist
@@ -61,6 +57,10 @@ pipeline {
             swh_env_dir=$PWD
             for module in $(./bin/ls-py-modules); do
               cd $swh_env_dir/$module
+              if [ -f Cargo.toml ]; then
+                # build rust binaries
+                RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
+              fi
               echo Executing $module checks and tests
               tests_dir=$(echo $module | sed 's/-/\\//g')/tests
               if [ -d "$tests_dir" ]; then
