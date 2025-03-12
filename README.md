@@ -25,19 +25,24 @@ in a docker container. The local ``swh-jenkins-jobs`` repository will be mounted
 volume and cloned by Jenkins so do not forget to commit the changes you want to test.
 
 - Launch jenkins
+
+Executing the following script located in the root directory of that repository will automatically configure the docker image build and start the compose session.
 ```
-docker-compose build
-docker-compose up
+./start-docker-jenkins.sh
 ```
 
-Connect to localhost:8080, then within the jenkins ui:
+Jenkins jobs for Software Heritage should be automatically registered when the jenkins service is starting.
+
+If the jobs did not get automatically registered, you can trigger their creation by following these instructions:
+
+- Connect to localhost:8080, then within the jenkins ui:
 - Create a jenkins folder `jenkins-tools`
-- Create a new `free-style` job named `job-builder` inside the `jenkins-tools` targeting
-  this git repository `file:///opt/swh-jenkins-jobs`
-  - Configure the branch your are developing on (e.g. `*/master`, `*/awesome-feature`,
-    ...)
-  - Add a `build` step `Execute shell` with this content
+- Create a new `free-style` job named `job-builder` inside the `jenkins-tools`
+- Add a `build` step `Execute shell` with this content
 ```
+git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
+git clone file:///opt/swh-jenkins-jobs
+cd swh-jenkins-jobs
 tox -- update --delete-old --jobs-only
 ```
 - Save your build configuration
@@ -46,32 +51,3 @@ tox -- update --delete-old --jobs-only
 This will install the jobs in your local jenkins. Jobs that can be run directly on the
 built-in node can be executed. Other jobs that may need to run docker needs the docker
 agent to be configured.
-
-# Configure a docker agent
-
-For making a docker agent runnable, it needs the 50000 port to be
-available.
-
-Then, within your local jenkins, click on the local jenkins interface:
-
-> Manage jenkins
-> Manage nodes and clouds
-> New nodes
-
-Then fill in the form, keeping the default values and adapting the rest:
-
-- name: docker agent
-- remote root dir: /var/tmp/jenkins
-- labels: docker
-- launch method: launch agent by connecting it to the controller
-- custom workdir path: /var/tmp/jenkins
-
-Save, then click on 'docker agent' and follow the proposed instructions:
-
-```
-$ curl -sO http://localhost:8080/jnlpJars/agent.jar
-$ mkdir -p /var/tmp/jenkins
-$ java -jar agent.jar \
-  -jnlpUrl http://localhost:8080/manage/computer/docker%20agent/jenkins-agent.jnlp \
-  -workDir "/var/tmp/jenkins"
-```

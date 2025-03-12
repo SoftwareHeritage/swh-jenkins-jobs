@@ -23,6 +23,4 @@ services:
           -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true
     ports:
       - 8080:8080
-      # For docker agent
-      - 50000:50000
     entrypoint: /docker/entrypoint.sh
