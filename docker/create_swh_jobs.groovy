@@ -12,22 +12,6 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.2.1">
-    <configVersion>2</configVersion>
-    <userRemoteConfigs>
-      <hudson.plugins.git.UserRemoteConfig>
-        <url>file:///opt/swh-jenkins-jobs</url>
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
-    <branches>
-      <hudson.plugins.git.BranchSpec>
-        <name>*/master</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <submoduleCfg class="empty-list"/>
-    <extensions/>
-  </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -36,7 +20,12 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>tox -- update --delete-old --jobs-only</command>
+      <command>
+        git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
+        git clone file:///opt/swh-jenkins-jobs
+        cd swh-jenkins-jobs
+        tox -- update --delete-old --jobs-only
+      </command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
