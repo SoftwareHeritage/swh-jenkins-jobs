@@ -45,12 +45,26 @@ pipeline {
 
     stage('Install dependencies') {
       steps {
-        sh '''
-        if [ -f 'jenkins/install-non-python-deps.sh' ]; then
-          ./jenkins/install-non-python-deps.sh
-        fi
-        '''
+        {% if production_jenkins %}
+        withCredentials([
+          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+        ]) {
+        {% endif %}
+          sh '''
+          set -e
+          if [ -f 'jenkins/install-non-python-deps.sh' ]; then
+            prepare-cargo-cache
+            export RUSTC_WRAPPER=sccache
+            export CARGO_INCREMENTAL=0
+
+            ./jenkins/install-non-python-deps.sh
+          fi
+          '''
+        }
+      {% if production_jenkins %}
       }
+      {% endif %}
     }
 
     {%- if do_rust %}
