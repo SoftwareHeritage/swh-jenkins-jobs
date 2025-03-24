@@ -45,7 +45,7 @@ pipeline {
               sh "git checkout ${env.gitlabSourceBranch}"
             }
             sh '''#!/bin/bash
-            SPHINXOPTS='-W -T --jobs auto --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev -x testenv.basepython={{sphinx_basepython}}
+            SPHINXOPTS='-W -T --jobs auto --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -e sphinx-dev -x testenv:sphinx-dev.basepython={{sphinx_basepython}}
             '''
           }
         }
