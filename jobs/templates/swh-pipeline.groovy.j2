@@ -5,6 +5,19 @@ if (env.gitlabMergeRequestIid) {
   branch = env.gitlabSourceBranch
 }
 
+def List<String[]> tox_environments = [env.TOX_ENVIRONMENT.split(', *')]
+
+if (env.gitlabMergeRequestDescription) {
+  env.gitlabMergeRequestDescription.eachLine {
+    def matches = it =~ /^extra-tox-environments: (.+)$/i;
+    if (matches) {
+      tox_environments.add(matches[0][1].split(', *'))
+    }
+  }
+}
+
+env.TOX_ENVIRONMENT = tox_environments.flatten().toUnique().join(',')
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
