@@ -8,8 +8,8 @@ if (env.gitlabMergeRequestIid) {
 def List<String[]> tox_environments = [env.TOX_ENVIRONMENT.split(', *')]
 
 if (env.gitlabMergeRequestDescription) {
-  env.gitlabMergeRequestDescription.eachLine {
-    def matches = it =~ /^extra-tox-environments: (.+)$/i;
+  env.gitlabMergeRequestDescription.split('\\n').each {
+    def matches = it =~ /^(?i)extra-tox-environments: (.+)$/
     if (matches) {
       tox_environments.add(matches[0][1].split(', *'))
     }
