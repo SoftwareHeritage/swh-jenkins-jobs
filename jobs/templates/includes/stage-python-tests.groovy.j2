@@ -4,7 +4,7 @@ stage('Python tests') {
     tox -e "$TOX_ENVIRONMENT" -- \
       --cov-report=xml \
       --junit-xml=test-results.xml \
-      -v
+      -vv
     '''
   }
   post {
