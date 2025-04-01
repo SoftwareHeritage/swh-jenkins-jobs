@@ -1,31 +1,16 @@
+{# When changing this script also update swh-docs-pipeline.groovy.j2 which inlines it #}
 failure {
-  script {
-    updateGitlabCommitStatus name: 'jenkins', state: 'failed'
-    if (env.gitlabMergeRequestIid) {
-      def message = "Jenkins job [${env.JOB_NAME} #${env.BUILD_ID}]"
-      message += "(${env.BUILD_URL}) {-failed-} "
-      message += "in ${currentBuild.durationString.minus(' and counting')}.<br/>"
-      message += "See [Console Output](${env.BUILD_URL}console), "
-      message += "[Blue Ocean](${env.RUN_DISPLAY_URL}) and "
-      message += "[Coverage Report](${env.BUILD_URL}coverage) for more details."
-      addGitLabMRComment comment: message
-    }
-  }
+  {% filter indent(width=2) %}
+    {%- include 'jobs/templates/includes/update-gitlab-commit-status-failure.groovy.j2' -%}
+  {% endfilter %}
 }
 success {
-  script {
-    updateGitlabCommitStatus name: 'jenkins', state: 'success'
-    if (env.gitlabMergeRequestIid) {
-      def message = "Jenkins job [${env.JOB_NAME} #${env.BUILD_ID}]"
-      message += "(${env.BUILD_URL}) {+succeeded+} "
-      message += "in ${currentBuild.durationString.minus(' and counting')}.<br/>"
-      message += "See [Console Output](${env.BUILD_URL}console), "
-      message += "[Blue Ocean](${env.RUN_DISPLAY_URL}) and "
-      message += "[Coverage Report](${env.BUILD_URL}coverage) for more details."
-      addGitLabMRComment comment: message
-    }
-  }
+  {% filter indent(width=2) %}
+    {%- include 'jobs/templates/includes/update-gitlab-commit-status-success.groovy.j2' -%}
+  {% endfilter %}
 }
 aborted {
-  updateGitlabCommitStatus name: 'jenkins', state: 'canceled'
+  {% filter indent(width=2) %}
+    {%- include 'jobs/templates/includes/update-gitlab-commit-status-aborted.groovy.j2' -%}
+  {% endfilter %}
 }

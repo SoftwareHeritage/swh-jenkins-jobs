@@ -52,9 +52,30 @@ pipeline {
   }
 
   post {
-    {% filter indent(width=4) %}
-      {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
-    {% endfilter %}
+    failure {
+      {% filter indent(width=6) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-failure.groovy.j2' -%}
+      {% endfilter %}
+    }
+    success {
+      {% filter indent(width=2) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-success.groovy.j2' -%}
+      {% endfilter %}
+      script {
+        if (env.gitlabSourceBranch == 'master' || env.gitlabSourceBranch == "main") {
+          build(
+            job: '/DDOC/publish',
+            propagate: false,
+            wait: false,
+          )
+        }
+      }
+    }
+    aborted {
+      {% filter indent(width=2) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-aborted.groovy.j2' -%}
+      {% endfilter %}
+    }
     always {
       archiveArtifacts(
         allowEmptyArchive: true,

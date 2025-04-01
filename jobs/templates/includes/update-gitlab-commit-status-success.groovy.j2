@@ -1,0 +1,12 @@
+script {
+  updateGitlabCommitStatus name: 'jenkins', state: 'success'
+  if (env.gitlabMergeRequestIid) {
+    def message = "Jenkins job [${env.JOB_NAME} #${env.BUILD_ID}]"
+    message += "(${env.BUILD_URL}) {+succeeded+} "
+    message += "in ${currentBuild.durationString.minus(' and counting')}.<br/>"
+    message += "See [Console Output](${env.BUILD_URL}console), "
+    message += "[Blue Ocean](${env.RUN_DISPLAY_URL}) and "
+    message += "[Coverage Report](${env.BUILD_URL}coverage) for more details."
+    addGitLabMRComment comment: message
+  }
+}
