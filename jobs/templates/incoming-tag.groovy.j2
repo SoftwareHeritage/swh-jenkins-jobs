@@ -69,6 +69,22 @@ pipeline {
         )
       }
     }
+
+    stage('Trigger publication of documentation') {
+      when {
+        // The tag is in the right format
+        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
+      }
+      steps {
+        build(
+          job: '/DDOC/publish',
+          // Ignore result the remaining parts of the pipeline
+          propagate: false,
+          // Do not wait for result for the remaining parts of the pipeline
+          wait: false
+        )
+      }
+    }
   }
 
   post {
