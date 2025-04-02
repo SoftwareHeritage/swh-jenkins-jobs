@@ -62,8 +62,12 @@ pipeline {
           $class: 'GitSCM',
           branches: [[name: branch]],
           userRemoteConfigs: [[
-            url: "{{gitlab_url}}/{{gitlab_project_name}}"
+            url: "{{gitlab_url}}/{{gitlab_project_name}}",
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/* \
+                      +refs/tags/*:refs/remotes/origin/tags*',
           ]],
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
         ])
       }
     }
