@@ -48,8 +48,6 @@ pipeline {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
         // Job to build images exist
         expression { jenkinsJobExists('/swh-apps/build-docker-images') }
-        // temporarily disabled to avoid churn in coordinated releases
-        expression { false }
       }
       steps {
         build(
