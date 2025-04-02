@@ -33,7 +33,7 @@ pipeline {
           setupGitlabWebhook("swh/infra/swh-mirror", "DFP/run-tests",
                              true, true, false)
           setupGitlabWebhook("swh/devel/fixtures/maven-index-exporter", "DLSMAVEXP/build-and-push",
-                             false, false, true)
+                             true, true, true)
           setupGitlabWebhook("swh/devel/docker", "DENV/docker-tests")
 
           projects = readYaml(file: 'jobs/swh-packages.yaml')
