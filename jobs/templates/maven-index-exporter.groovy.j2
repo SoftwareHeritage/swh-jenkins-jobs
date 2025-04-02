@@ -1,11 +1,29 @@
-def repo_name = "{{repo_name}}"
+def branch = "main"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
+def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+def startedByPushToMaibn = env.gitlabActionType == "PUSH" && env.gitlabBranch == "main"
+
+def can_push_image = false
+if ((startedByUser || startedByPushToMain) && !env.gitlabMergeRequestIid) {
+  can_push_image = true
+}
 
 // Normalize to "latest" if we build from head commit (main or master)
-// Otherwise, keep the transmitted tag
-// remove refs/tags/ prefix from source branch
-def tag = env.gitlabSourceBranch.substring(10)
-
-def tag_name = ( tag == "origin/main" || tag == "origin/master" ) ? "latest" : tag
+def tag = "latest"
+// Otherwise, keep the transmitted tag but remove refs/tags/ prefix from source branch
+if (env.gitlabSourceBranch.startsWith("refs/tags/")) {
+  tag = env.gitlabSourceBranch.substring(10)
+  can_push_image = true
+}
+// Use dev-latest tag when building a merge request
+if (env.gitlabMergeRequestIid) {
+  tag = "dev-latest"
+}
 
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
@@ -42,7 +60,7 @@ pipeline {
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
         checkout([
           $class: 'GitSCM',
-          branches: [[name: tag]],
+          branches: [[name: branch]],
           userRemoteConfigs: [[
             url: "{{gitlab_url}}/{{gitlab_project_name}}"
           ]],
@@ -54,11 +72,17 @@ pipeline {
         sh "make build TAG=${tag} IMAGE_LABEL=${image_label}"
       }
     }
+    stage ('Test image') {
+      steps {
+        sh "make test TAG=${tag}"
+      }
+    }
     stage ('Push image') {
+      when {
+        expression { can_push_image }
+      }
       steps {
         script {
-          // first make sure the image is ok
-          sh "make test TAG=${tag}"
           // then publish it
           docker.withRegistry("https://${registry_url}", dockerCredentialsKeyID) {
             sh "make push TAG=${tag} REGISTRY_URL=${registry_url}"

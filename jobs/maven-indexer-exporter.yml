@@ -10,9 +10,13 @@
     triggers:
       - gitlab:
           trigger-push: true
-          trigger-merge-request: false
-          trigger-note: false
+          trigger-merge-request: true
+          trigger-open-merge-request-push: source
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
+          wip-skip: false
           add-ci-message: true
+          cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw-verbatim: jobs/templates/jenkins-token
     dsl: !include-jinja2: templates/maven-index-exporter.groovy.j2
