@@ -6,7 +6,7 @@ if (env.gitlabMergeRequestIid) {
 }
 
 def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
-def startedByPushToMaibn = env.gitlabActionType == "PUSH" && env.gitlabBranch == "main"
+def startedByPushToMain = env.gitlabActionType == "PUSH" && env.gitlabBranch == "main"
 
 def can_push_image = false
 if ((startedByUser || startedByPushToMain) && !env.gitlabMergeRequestIid) {
