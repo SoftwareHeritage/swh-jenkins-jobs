@@ -1,0 +1,26 @@
+- job-template: &crates_upload
+    name: "{name}/crates-upload"
+    display-name: "Upload to crates.io"
+    docker_image: tox
+    project-type: pipeline
+    sandbox: true
+    properties:
+      - build-discarder:
+          artifact-num-to-keep: 10
+      - copyartifact:
+          projects: "*"
+    parameters:
+      - string:
+          name: GIT_TAG
+          description: git tag to process
+      - bool:
+          name: SKIP_TESTS
+          default: false
+          description: |
+            Do not run tests on the repository.
+      - bool:
+          name: IGNORE_TESTS
+          default: false
+          description: |
+            Proceed even if the tests are failing on the repository.
+    dsl: !include-jinja2: swh-crates.groovy.j2
