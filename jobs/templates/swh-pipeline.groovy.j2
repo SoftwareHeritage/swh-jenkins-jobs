@@ -16,7 +16,28 @@ if (env.gitlabMergeRequestDescription) {
   }
 }
 
-env.TOX_ENVIRONMENT = tox_environments.flatten().toUnique().join(',')
+def List<String> tox_envs = tox_environments.flatten().toUnique()
+
+env.TOX_ENVIRONMENT = tox_envs.join(',')
+
+if (params.USE_CIBUILDWHEEL) {
+  // as this job is not dedicated to release builds, restrict build of
+  // binary wheels by cibuildwheel to Python versions used in tox
+  // environments and build only for x86_64 arch
+  def List<String> cibw_builds = []
+  for (tox_env in tox_envs) {
+    if (tox_env.startsWith("pypy")) {
+      // build and repair wheel for specific PyPy version
+      cibw_builds.add(tox_env.replace("pypy", "pp") + '-manylinux_x86_64')
+    } else if (tox_env.startsWith("py")) {
+      // build and repair wheel for specific CPython version
+      cibw_builds.add(tox_env.replace("py", "cp") + '-manylinux_x86_64')
+    }
+  }
+  if (cibw_builds) {
+    env.CIBW_BUILD = cibw_builds.join(' ')
+  }
+}
 
 pipeline {
   {% filter indent(width=2) %}
