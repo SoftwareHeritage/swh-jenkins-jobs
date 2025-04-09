@@ -11,6 +11,8 @@
     precommit_skip_checks: mypy
     concurrent: true
     sandbox: true
+    include_bdist: false
+    use_cibuildwheel: false
     properties:
       - build-discarder:
           days-to-keep: 90
@@ -45,6 +47,16 @@
           name: TOX_ENVIRONMENT
           description: tox environment to use for the main tox run
           default: "{default-tox-environment}"
+      - bool:
+          name: INCLUDE_BDIST
+          default: "{include_bdist}"
+          description: |
+            Test build of binary distribution before PyPI upload.
+      - bool:
+          name: USE_CIBUILDWHEEL
+          default: "{use_cibuildwheel}"
+          description: |
+            Use `cibuildwheel` to build distro-independent wheels instead of just `build`
 
     dsl: !include-jinja2: swh-pipeline.groovy.j2
 
