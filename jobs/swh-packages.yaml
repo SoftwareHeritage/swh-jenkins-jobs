@@ -245,6 +245,7 @@
     include_bdist: true
     use_cibuildwheel: true
     default-tox-environment: py311,c
+    timeout: 20
     jobs:
       - "swh-jobs-{name}"
 
