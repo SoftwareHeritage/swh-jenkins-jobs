@@ -10,9 +10,8 @@
 
 - project:
     name: parquet_aramid
-    display-name: parquet_aramid
+    display-name: rust_parquet_aramid
     repo_name: parquet_aramid-rs
-    crate_name: parquet_aramid
     # no python defined
     python_module: false
     default_branch_name: main
