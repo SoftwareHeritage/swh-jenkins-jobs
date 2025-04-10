@@ -22,5 +22,11 @@
           name: IGNORE_TESTS
           default: false
           description: |
-            Proceed even if the tests are failing on the repository.
+            Execute tests and publish crate even when failing tests happen.
+      - bool:
+          name: DRY_RUN
+          # FIXME: Default to true for dev-mode. Toggle this to false when ready
+          default: true
+          description: |
+            Execute the job as usual but do not publish the crates in crates.io.
     dsl: !include-jinja2: swh-crates.groovy.j2
