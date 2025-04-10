@@ -4,7 +4,7 @@
     jobs:
       - "{name}"
       - "{name}/incoming-tag"
-      - "{name}/crates-upload"
+      - "{name}/rust-crates-upload"
       - "{name}/rust-gitlab-builds"
       - "{name}/rust-master"
 

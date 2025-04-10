@@ -1,5 +1,5 @@
-- job-template: &crates_upload
-    name: "{name}/crates-upload"
+- job-template: &rust_crates_upload
+    name: "{name}/rust-crates-upload"
     display-name: "Upload to crates.io"
     docker_image: tox
     project-type: pipeline
@@ -29,4 +29,4 @@
           default: true
           description: |
             Execute the job as usual but do not publish the crates in crates.io.
-    dsl: !include-jinja2: swh-crates.groovy.j2
+    dsl: !include-jinja2: rust-crates.groovy.j2
