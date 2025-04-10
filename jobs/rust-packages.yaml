@@ -17,3 +17,13 @@
     default_branch_name: main
     jobs:
       - "rust-swh-jobs-{name}"
+
+- project:
+    name: ar_row
+    display-name: rust_ar_row
+    repo_name: ar_row-rs
+    # no python defined
+    python_module: false
+    default_branch_name: master
+    jobs:
+      - "rust-swh-jobs-{name}"
