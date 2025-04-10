@@ -106,12 +106,17 @@ pipeline {
         }
       }
       steps {
+        {% if production_jenkins %}
         withCredentials([
           usernamePassword(credentialsId: PYPI_UPLOAD_HOST,
                            usernameVariable: 'TWINE_USERNAME',
                            passwordVariable: 'TWINE_PASSWORD')]) {
           sh "twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
         }
+        {% else %}
+        // simply check package can be uploaded when testing job locally
+        sh "twine check dist/*"
+        {% endif %}
       }
     }
   }
