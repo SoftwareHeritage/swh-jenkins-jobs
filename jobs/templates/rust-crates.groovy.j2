@@ -1,8 +1,7 @@
-// Name of the crate is declared in the rust-packages.yaml per package
-def crate_name = '{{name}}'
-
-// Whether we'll be able to publish or not
-def publish_ok = false
+// Whether the package is publishable
+def crate_is_ok = false
+// Whether we accept to publish
+def publish_ok = not params.dry_run
 
 pipeline {
   {% filter indent(width=2) %}
@@ -51,29 +50,30 @@ pipeline {
       when {
         expression {
           LASTV=sh(returnStdout: true,
-                   script:"cargo publish -p ${crate_name} --dry-run | awk '/Uploading/{print $3}'").trim()
+                   script:"cargo publish -p {{name}} --dry-run | awk '/Uploading/{print \$3}'").trim()
           return LASTV != params.GIT_TAG
         }
       }
       steps {
-         // It's fine to publish
-         publish_ok = true
+        script {
+          crate_is_ok = true
+        }
       }
     }
 
     stage('Publish') {
       when {
-        // The dry-run publish is ok (meaning the package is crates compliant)
-        expression { return publish_ok }
-        // and we are running in dry-run mode
-        expression { return not params.DRY_RUN }
+        // The package is crates compliant so publishable
+        expression { crate_is_ok }
+        // and we are ok to publish
+        expression { publish_ok }
       }
       steps {
         // Then we are go to publish the crates
         withCredentials([
           string(credentialsId: 'swhmirror-crates-api-token',
                  variable: 'CARGO_REGISTRY_TOKEN')]) {
-          sh "cargo publish -p ${crate_name}"
+          sh "cargo publish -p {{name}}"
         }
       }
     }
