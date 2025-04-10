@@ -76,9 +76,11 @@ pipeline {
       }
     }
 
+    {%- if include_bdist %}
     {% filter indent(width=4) %}
       {%- include 'includes/stage-build-wheel.groovy.j2' -%}
     {% endfilter %}
+    {%- endif %}
 
     stage('Archive artifacts') {
       steps {

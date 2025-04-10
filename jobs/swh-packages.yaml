@@ -242,7 +242,6 @@
     repo_name: swh-perfecthash
     pkg: perfecthash
     python_module: swh.perfecthash
-    include_bdist: true
     use_cibuildwheel: true
     default-tox-environment: py311,c
     timeout: 20
