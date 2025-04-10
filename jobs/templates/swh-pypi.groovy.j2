@@ -56,17 +56,21 @@ pipeline {
     }
 
     stage('Build assets') {
+      when { expression { fileExists 'yarn.lock' } }
       steps {
+        {% if production_jenkins %}
         withCredentials([
           string(credentialsId: 'sentry-auth-token',
                  variable: 'SENTRY_AUTH_TOKEN')]) {
+        {% endif %}
           sh """
-            # Build javascript assets
-            if [ -f yarn.lock ]; then
-              yarn install --frozen-lockfile
-              yarn build
-            fi"""
+          # Build javascript assets
+          yarn install --frozen-lockfile
+          yarn build
+          """
+        {% if production_jenkins %}
         }
+        {% endif %}
       }
     }
 
