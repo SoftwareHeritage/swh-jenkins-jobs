@@ -15,12 +15,9 @@ stage('Rust tests') {
         prepare-cargo-cache
         export RUSTC_WRAPPER=sccache
         export CARGO_INCREMENTAL=0
-        # cargo clippy --all-features -- --deny warnings
-        cargo build
-        # RUSTDOCFLAGS="--deny warnings" cargo doc --all-features --no-deps
-        cargo doc --no-deps
-        # cargo test --all-features
-        cargo test
+        cargo clippy --all-features -- --deny warnings
+        RUSTDOCFLAGS="--deny warnings" cargo doc --all-features --no-deps
+        cargo test --all-features
       '''
     {% if production_jenkins %}
     }
