@@ -1,0 +1,53 @@
+- job-template: &rust_gitlab_builds
+    name: "{name}/rust-gitlab-builds"
+    display-name: "Rust GitLab builds"
+    project-type: pipeline
+    docker_image: tox
+    default_branch_name: master
+    concurrent: true
+    sandbox: true
+    properties:
+      - build-discarder:
+          days-to-keep: 90
+          artifact-num-to-keep: 20
+    timeout: 10
+    max_concurrent: 0
+    properties:
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          trigger-open-merge-request-push: source
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
+          wip-skip: false
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw-verbatim: jenkins-token
+          branch-filter-type: RegexBasedFilter
+          target-branch-regex: ^(?!(debian|pristine-tar)).*
+    parameters:
+      - string:
+          name: REVISION
+          description: Git revision to build.
+
+    dsl: !include-jinja2: rust-pipeline.groovy.j2
+
+- job-template:
+    name: "{name}/rust-master"
+    display-name: "rust master branch"
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
+      - timed: "@daily"
+      {% else %}
+      []
+      {% endif %}
+    parameters:
+      - string:
+          name: REVISION
+          description: Git revision to build.
+          default: "{default_branch_name}"
+    <<: *rust_gitlab_builds

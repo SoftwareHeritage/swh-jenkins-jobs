@@ -1,0 +1,99 @@
+def branch = "{{default_branch_name}}"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
+pipeline {
+  {% filter indent(width=2) %}
+    {%- include 'includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
+
+  options {
+    {% filter indent(width=4) %}
+      {%- include 'includes/throttle-job-property.groovy.j2' -%}
+    {% endfilter %}
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        updateGitlabCommitStatus name: 'jenkins', state: 'running'
+        checkout([
+          $class: 'GitSCM',
+          userRemoteConfigs: [[
+            url: '{{gitlab_url}}/{{gitlab_project_name}}.git',
+            refspec: '+refs/heads/*:refs/remotes/origin/* \
+                      +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/* \
+                      +refs/tags/*:refs/remotes/origin/tags*',
+          ]],
+          branches: [[
+            name: params.REVISION ?: branch
+          ]],
+          browser: [
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          gitTool: 'Default',
+          submoduleCfg: [],
+        ])
+      }
+    }
+
+    stage('Install dependencies') {
+      steps {
+        {% if production_jenkins %}
+        withCredentials([
+          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+        ]) {
+        {% endif %}
+          sh '''
+          set -e
+          if [ -f 'jenkins/install-non-python-deps.sh' ]; then
+            prepare-cargo-cache
+            export RUSTC_WRAPPER=sccache
+            export CARGO_INCREMENTAL=0
+
+            ./jenkins/install-non-python-deps.sh
+          fi
+          '''
+        }
+      {% if production_jenkins %}
+      }
+      {% endif %}
+    }
+
+    stage('Preparatory steps') {
+      parallel {
+        {% filter indent(width=8) %}
+          {%- include 'includes/stage-rust-build.groovy.j2' -%}
+        {% endfilter %}
+      }
+    }
+
+    stage('Checks') {
+      options {
+        timeout(time: {{ timeout }}, unit: 'MINUTES')
+      }
+
+      parallel {
+        {% filter indent(width=8) %}
+          {%- include 'includes/stage-rust-tests.groovy.j2' -%}
+        {% endfilter %}
+      } // parallel
+    } // Tests stage
+  } // stages
+
+  post {
+    {% filter indent(width=4) %}
+      {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
+    {% endfilter %}
+    cleanup {
+      cleanWs()
+    }
+  } // post
+} // pipeline

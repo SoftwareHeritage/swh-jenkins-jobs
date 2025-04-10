@@ -1,12 +1,12 @@
 - job-group:
-    name: "swh-jobs-rust-{name}"
+    name: "rust-swh-jobs-{name}"
     gitlab_project_name: "swh/devel/{repo_name}"
     jobs:
       - "{name}"
       - "{name}/incoming-tag"
-      - "{name}/crate-upload"
-      - "{name}/gitlab-builds"
-      - "{name}/master"
+      - "{name}/crates-upload"
+      - "{name}/rust-gitlab-builds"
+      - "{name}/rust-master"
 
 - project:
     name: parquet_aramid
@@ -17,4 +17,4 @@
     python_module: false
     default_branch_name: main
     jobs:
-      - "swh-jobs-{name}"
+      - "rust-swh-jobs-{name}"
