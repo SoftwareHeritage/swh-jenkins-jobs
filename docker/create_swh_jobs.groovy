@@ -22,6 +22,7 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
     <hudson.tasks.Shell>
       <command>
         git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
+        rm -rf swh-jenkins-jobs
         git clone file:///opt/swh-jenkins-jobs
         cd swh-jenkins-jobs
         tox -- update --delete-old --jobs-only

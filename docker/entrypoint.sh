@@ -14,7 +14,7 @@ fi
 
 # create swh CI jobs in jenkins
 wait-for-it localhost:8080 -s --timeout=0
-curl --retry 5 --data-urlencode \
+curl --retry 7 --data-urlencode \
     "script=$(< /docker/create_swh_jobs.groovy)" \
     http://localhost:8080/scriptText
 
