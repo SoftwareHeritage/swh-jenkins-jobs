@@ -41,7 +41,8 @@ If the jobs did not get automatically registered, you can trigger their creation
 - Add a `build` step `Execute shell` with this content
 ```
 git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
-git clone file:///opt/swh-jenkins-jobs
+mkdir -p swh-jenkins-jobs
+cp -rf /opt/swh-jenkins-jobs/* swh-jenkins-jobs/
 cd swh-jenkins-jobs
 tox -- update --delete-old --jobs-only
 ```

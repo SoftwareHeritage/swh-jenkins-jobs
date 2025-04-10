@@ -22,8 +22,8 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
     <hudson.tasks.Shell>
       <command>
         git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
-        rm -rf swh-jenkins-jobs
-        git clone file:///opt/swh-jenkins-jobs
+        mkdir -p swh-jenkins-jobs
+        cp -rf /opt/swh-jenkins-jobs/* swh-jenkins-jobs/
         cd swh-jenkins-jobs
         tox -- update --delete-old --jobs-only
       </command>
@@ -57,4 +57,3 @@ job = folder.createProjectFromXML(jobName, xmlStream)
 
 // Schedule job execution
 Queue.instance.schedule(job, 0)
-
