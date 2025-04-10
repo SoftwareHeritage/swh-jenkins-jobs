@@ -1,0 +1,19 @@
+- job-template: &rust_incoming_tag
+    name: "{name}/rust-incoming-tag"
+    display-name: Rust Incoming tag
+    project-type: pipeline
+    sandbox: true
+    properties:
+      - build-discarder:
+          num-to-keep: 20
+      - gitlab:
+          connection: "{gitlab_connection_name}"
+    triggers:
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: false
+          trigger-note: false
+          add-ci-message: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw-verbatim: jenkins-token
+    dsl: !include-jinja2: rust-incoming-tag.groovy.j2

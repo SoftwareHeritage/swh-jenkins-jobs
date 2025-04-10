@@ -3,7 +3,7 @@
     gitlab_project_name: "swh/devel/{repo_name}"
     jobs:
       - "{name}"
-      - "{name}/incoming-tag"
+      - "{name}/rust-incoming-tag"
       - "{name}/rust-crates-upload"
       - "{name}/rust-gitlab-builds"
       - "{name}/rust-master"
