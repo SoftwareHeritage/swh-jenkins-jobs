@@ -1,3 +1,13 @@
+def branch = params.GIT_TAG ? params.GIT_TAG : env.gitlabSourceBranch
+def tag = branch
+if ( tag.contains("refs/tags/") ) {
+  // the tag is the actual branch without 'refs/tags/' prefix
+  // so we are trying to compute the tag properly once
+  tag = tag.substring(10)
+}
+// Do we actually publish anything?
+def dry_run = params.DRY_RUN
+
 pipeline {
   agent none
   stages {
@@ -13,7 +23,7 @@ pipeline {
             refspec: '+refs/tags/*:refs/remotes/origin/tags*'
           ]],
           branches: [[
-            name: "${env.gitlabSourceBranch}"
+            name: branch
           ]],
           browser: [
             $class: 'GitLab',
@@ -27,7 +37,7 @@ pipeline {
     stage('Build and upload PyPI package') {
       when {
         // The tag is in the right format
-        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
+        expression { branch ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
         // Job to build images exist
         expression { jenkinsJobExists('/{{name}}/pypi-upload') }
       }
@@ -35,9 +45,9 @@ pipeline {
         build(
           job: '/{{name}}/pypi-upload',
           parameters: [
-            // remove refs/tags/ prefix from source branch
-            string(name: 'GIT_TAG', value: env.gitlabSourceBranch.substring(10)),
+            string(name: 'GIT_TAG', value: tag),
             string(name: 'PYPI_HOST', value: '{{incoming_tag_auto_pypi_host}}'),
+            booleanParam(name: 'DRY_RUN', value: dry_run),
           ],
           wait: true,
         )
@@ -51,7 +61,7 @@ pipeline {
     stage('Build Docker Image(s) depending on new release') {
       when {
         // The tag is in the right format
-        expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
+        expression { branch ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
         // Job to build images exist
         expression { jenkinsJobExists('/swh-apps/build-docker-images') }
       }
@@ -61,7 +71,8 @@ pipeline {
           parameters: [
             string(name: 'MODULE', value: '{{python_module}}'),
             // VERSION is the actual tag without 'refs/tags/' prefix
-            string(name: 'VERSION', value: env.gitlabSourceBranch.substring(10))
+            string(name: 'VERSION', value: tag),
+            booleanParam(name: 'DRY_RUN', value: dry_run),
           ],
           // Wait 10 seconds prior to build (so pypi can refresh index)
           quietPeriod: 10,

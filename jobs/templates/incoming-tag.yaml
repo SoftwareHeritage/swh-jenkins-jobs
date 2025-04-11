@@ -17,4 +17,14 @@
           add-ci-message: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw-verbatim: jenkins-token
+    parameters:
+      - string:
+          name: GIT_TAG
+          description: git tag to process in the form "refs/tags/vx.y.z"
+          default: ""
+      - bool:
+          name: DRY_RUN
+          default: false
+          description: |
+            Execute the job as usual but do not trigger jobs
     dsl: !include-jinja2: incoming-tag.groovy.j2

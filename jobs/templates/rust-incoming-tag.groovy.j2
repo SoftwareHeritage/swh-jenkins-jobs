@@ -1,3 +1,13 @@
+def branch = params.GIT_TAG ? params.GIT_TAG : env.gitlabSourceBranch
+def tag = branch
+if ( tag.contains("refs/tags/") ) {
+  // the tag is the actual branch without 'refs/tags/' prefix
+  // so we are trying to compute the tag properly once
+  tag = tag.substring(10)
+}
+// Do we actually publish anything?
+def dry_run = params.DRY_RUN
+
 pipeline {
   agent none
   stages {
@@ -13,7 +23,7 @@ pipeline {
             refspec: '+refs/tags/*:refs/remotes/origin/tags*'
           ]],
           branches: [[
-            name: "${env.gitlabSourceBranch}"
+            name: branch
           ]],
           browser: [
             $class: 'GitLab',
