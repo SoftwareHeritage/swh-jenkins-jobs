@@ -15,6 +15,8 @@
     # no python defined
     python_module: false
     default_branch_name: main
+    crate_names:
+      - parquet_aramid
     jobs:
       - "rust-swh-jobs-{name}"
 
@@ -25,6 +27,8 @@
     # no python defined
     python_module: false
     default_branch_name: master
+    crate_names:
+      - ar_row
     jobs:
       - "rust-swh-jobs-{name}"
 
@@ -35,6 +39,8 @@
     # no python defined
     python_module: false
     default_branch_name: master
+    crate_names:
+      - swh-digestmap
     jobs:
       - "rust-swh-jobs-{name}"
 

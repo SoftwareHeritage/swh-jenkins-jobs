@@ -54,6 +54,10 @@
     python_module: swh.datasets
     do_rust: true
     gitlab_project_name: swh/devel/swh-datasets
+    crate_names:
+    - swh_graph_aggregate
+    - swh_graph_contributions
+    - swh_graph_file_names
     timeout: 30
     default_branch_name: main
     jobs:
@@ -88,6 +92,10 @@
     python_module: swh.graph
     gitlab_project_name: swh/devel/swh-graph
     do_rust: true
+    crate_names:
+      - swh-graph
+      - swh-graph-grpc-server
+      - swh_graph_topology
     timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
     jobs:
@@ -263,6 +271,9 @@
     python_module: swh.provenance
     gitlab_project_name: swh/devel/swh-provenance
     do_rust: true
+    crate_names:
+      - swh-provenance
+      - swh-provenance-db-build
     timeout: 30
     default_branch_name: main
     jobs:

@@ -1,7 +1,7 @@
-// Whether the package is publishable
-def crate_is_ok = false
 // Whether we accept to publish
 def publish_ok = not params.dry_run
+
+def crate_names = []
 
 pipeline {
   {% filter indent(width=2) %}
@@ -47,25 +47,17 @@ pipeline {
     }
 
     stage('(DryRun) Publish - Checks cargo package step is ok') {
-      when {
-        expression {
-          LASTV=sh(returnStdout: true,
-                   script:"cargo publish -p {{name}} --dry-run | awk '/Uploading/{print \$3}'").trim()
-          return LASTV != params.GIT_TAG
-        }
-      }
       steps {
-        script {
-          crate_is_ok = true
-        }
+        // Check whether all crates from the repositories are crate compliant
+        {% for crate in crate_names %}
+          sh "cargo publish -p {{crate}} --dry-run"
+        {% endfor %}
       }
     }
 
     {% if production_jenkins %}
     stage('Publish') {
       when {
-        // The package is crates compliant so publishable
-        expression { crate_is_ok }
         // and we are ok to publish
         expression { publish_ok }
       }
@@ -74,7 +66,9 @@ pipeline {
         withCredentials([
           string(credentialsId: 'swhmirror-crates-api-token',
                  variable: 'CARGO_REGISTRY_TOKEN')]) {
-          sh "cargo publish -p {{name}}"
+          {% for crate in crate_names %}
+            sh "cargo publish -p {{crate}}
+          {% endfor %}
         }
       }
     }
