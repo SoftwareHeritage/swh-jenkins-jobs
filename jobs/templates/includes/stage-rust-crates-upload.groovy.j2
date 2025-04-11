@@ -1,0 +1,18 @@
+stage('Build and upload Rust Crates') {
+  when {
+    // The tag is in the right format
+    expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
+    // Job to build images exist
+    expression { jenkinsJobExists('/{{name}}/rust-crates-upload') }
+  }
+  steps {
+    build(
+      job: '/{{name}}/rust-crates-upload',
+      parameters: [
+        // remove refs/tags/ prefix from source branch
+        string(name: 'GIT_TAG', value: env.gitlabSourceBranch.substring(10)),
+      ],
+      wait: true,
+    )
+  }
+}
