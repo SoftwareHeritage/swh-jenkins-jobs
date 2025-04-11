@@ -36,7 +36,7 @@ pipeline {
                              true, true, true)
           setupGitlabWebhook("swh/devel/docker", "DENV/docker-tests")
 
-          projects = readYaml(file: 'jobs/swh-packages.yaml')
+          projects = readYaml(file: 'jobs/swh-packages.yaml') + readYaml(file: 'jobs/rust-packages.yaml')
           for (project in projects) {
             if (project.containsKey("project")) {
               def jenkinsFolder = project.get('project').get('name')
