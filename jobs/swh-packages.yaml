@@ -53,10 +53,13 @@
     pkg: datasets
     python_module: swh.datasets
     do_rust: true
+    gitlab_project_name: swh/devel/swh-datasets
     timeout: 30
     default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
+      - "{name}/rust-crates-upload"
+      - "{name}/rust-gitlab-builds"
 
 - project:
     name: swh-export
@@ -83,11 +86,14 @@
     repo_name: swh-graph
     pkg: graph
     python_module: swh.graph
+    gitlab_project_name: swh/devel/swh-graph
     do_rust: true
     timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
     jobs:
       - "swh-jobs-{name}"
+      - "{name}/rust-crates-upload"
+      - "{name}/rust-gitlab-builds"
 
 - project:
     name: DGQL
@@ -255,11 +261,14 @@
     repo_name: swh-provenance
     pkg: provenance
     python_module: swh.provenance
+    gitlab_project_name: swh/devel/swh-provenance
     do_rust: true
     timeout: 30
     default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
+      - "{name}/rust-crates-upload"
+      - "{name}/rust-gitlab-builds"
 
 - project:
     name: DSEA
