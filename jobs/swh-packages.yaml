@@ -397,5 +397,6 @@
     repo_name: swh-coarnotify
     pkg: coarnotify
     python_module: swh.coarnotify
+    default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
