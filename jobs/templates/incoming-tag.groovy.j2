@@ -54,9 +54,11 @@ pipeline {
       }
     }
 
-    {% filter indent(width=4) %}
-      {%- include 'includes/stage-rust-crates-upload.groovy.j2' -%}
-    {% endfilter %}
+    {%- if do_rust %}
+      {% filter indent(width=4) %}
+        {%- include 'includes/stage-rust-crates-upload.groovy.j2' -%}
+      {% endfilter %}
+    {%- endif %}
 
     stage('Build Docker Image(s) depending on new release') {
       when {

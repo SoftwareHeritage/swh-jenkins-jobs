@@ -4,6 +4,7 @@
     project-type: pipeline
     incoming_tag_auto_pypi_host: pypi.org
     sandbox: true
+    do_rust: false
     properties:
       - build-discarder:
           num-to-keep: 20
