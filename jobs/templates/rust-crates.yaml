@@ -4,6 +4,7 @@
     docker_image: tox
     project-type: pipeline
     sandbox: true
+    rust_crates: []
     properties:
       - build-discarder:
           artifact-num-to-keep: 10

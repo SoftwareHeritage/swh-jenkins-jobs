@@ -1,8 +1,6 @@
 // Whether we accept to publish
 def publish_ok = not params.dry_run
 
-def crate_names = []
-
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
