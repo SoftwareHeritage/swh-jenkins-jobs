@@ -238,10 +238,10 @@
 
 - project:
     name: DOPH
-    display-name: swh-perfecthash
-    repo_name: swh-perfecthash
-    pkg: perfecthash
-    python_module: swh.perfecthash
+    display-name: swh-shard
+    repo_name: swh-shard
+    pkg: shard
+    python_module: swh.shard
     use_cibuildwheel: true
     default-tox-environment: py311,c
     timeout: 20
