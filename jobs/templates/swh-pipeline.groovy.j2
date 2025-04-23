@@ -9,9 +9,9 @@ def List<String[]> tox_environments = [env.TOX_ENVIRONMENT.split(', *')]
 
 if (env.gitlabMergeRequestDescription) {
   env.gitlabMergeRequestDescription.split('\\n').each {
-    def matches = it =~ /^(?i)extra-tox-environments: (.+)$/
-    if (matches) {
-      tox_environments.add(matches[0][1].split(', *'))
+    def extra_envs_line = it =~ /^(?i)extra-tox-environments: (.+)$/
+    if (extra_envs_line) {
+      tox_environments.add(extra_envs_line[0][1].split(', *'))
     }
   }
 }
