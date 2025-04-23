@@ -1,3 +1,4 @@
+---
 - job-group:
     name: "swh-jobs-{name}"
     gitlab_project_name: "swh/devel/{repo_name}"
@@ -72,7 +73,7 @@
     repo_name: swh-deposit
     pkg: deposit
     python_module: swh.deposit
-    default-tox-environment: py311,deposit_checker_import
+    default_tox_environment: py311,deposit_checker_import
     jobs:
       - "swh-jobs-{name}"
 
@@ -243,7 +244,7 @@
     pkg: shard
     python_module: swh.shard
     use_cibuildwheel: true
-    default-tox-environment: py311,c
+    default_tox_environment: py311,c
     timeout: 20
     jobs:
       - "swh-jobs-{name}"
