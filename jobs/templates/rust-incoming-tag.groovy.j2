@@ -8,10 +8,11 @@ if ( tag.contains("refs/tags/") ) {
 // Do we actually publish anything?
 def dry_run = params.DRY_RUN
 
+{% include 'includes/jenkins-job-exists.groovy.j2' %}
+
 pipeline {
   agent none
   stages {
-
     stage('Refresh tag list') {
       agent any
       steps {
@@ -44,5 +45,3 @@ pipeline {
     {% endfilter %}
   }
 }
-
-{% include 'includes/jenkins-job-exists.groovy.j2' %}
