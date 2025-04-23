@@ -37,7 +37,7 @@ pipeline {
     {% filter indent(width=4) %}
       {%- include 'includes/stage-rust-crates-upload.groovy.j2' -%}
     {% endfilter %}
-
+  }
   post {
     {% filter indent(width=4) %}
       {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
