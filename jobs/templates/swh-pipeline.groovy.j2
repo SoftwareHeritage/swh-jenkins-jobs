@@ -6,6 +6,7 @@ if (env.gitlabMergeRequestIid) {
 }
 
 def List<String[]> tox_environments = [env.TOX_ENVIRONMENT.split(', *')]
+def tox_profile = env.TOX_PROFILE
 
 if (env.gitlabMergeRequestDescription) {
   env.gitlabMergeRequestDescription.split('\\n').each {
@@ -13,7 +14,17 @@ if (env.gitlabMergeRequestDescription) {
     if (extra_envs_line) {
       tox_environments.add(extra_envs_line[0][1].split(', *'))
     }
+    def tox_profile_line = it =~ /^(?i)tox-profile: (.*)$/
+    if (tox_profile_line) {
+      tox_profile = tox_profile_line[0][1].trim()
+    }
   }
+}
+
+if (tox_profile == "full") {
+  tox_environments.add('{{full_tox_environment}}'.split(', *'))
+} else if (tox_profile != "default") {
+  error("Unknown tox profile: ${tox_profile}")
 }
 
 def List<String> tox_envs = tox_environments.flatten().toUnique()

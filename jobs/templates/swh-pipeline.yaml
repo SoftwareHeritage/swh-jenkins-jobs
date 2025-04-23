@@ -6,6 +6,7 @@
     cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     default_tox_environment: py311
+    full_tox_environment: py311
     sphinx_basepython: py311
     default_branch_name: master
     precommit_skip_checks: mypy
@@ -46,6 +47,10 @@
           name: TOX_ENVIRONMENT
           description: tox environment to use for the main tox run
           default: "{default_tox_environment}"
+      - string:
+          name: TOX_PROFILE
+          description: tox profile to use for the main tox run ("default" or "full")
+          default: "default"
 
     dsl: !include-jinja2: swh-pipeline.groovy.j2
 
