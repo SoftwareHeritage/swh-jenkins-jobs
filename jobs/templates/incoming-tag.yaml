@@ -27,5 +27,7 @@
           name: DRY_RUN
           default: false
           description: |
-            Execute the job as usual but do not trigger jobs
+            Execute the job as usual but avoid publishing (e.g. docker image, pypi,
+            crates.io) if any. Default to false. This is set to true mostly for
+            debugging purposes.
     dsl: !include-jinja2: incoming-tag.groovy.j2
