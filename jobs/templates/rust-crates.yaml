@@ -26,8 +26,7 @@
             Execute tests and publish crate even when failing tests happen.
       - bool:
           name: DRY_RUN
-          # FIXME: Default to true for dev-mode. Toggle this to false when ready
-          default: true
+          default: false
           description: |
             Execute the job as usual but do not publish the crates in crates.io.
     dsl: !include-jinja2: rust-crates.groovy.j2
