@@ -1,3 +1,8 @@
+// This includes expects the `branch` and `tag` variable to be defined.
+// `branch` being possibly of the form /refs/tags/vx.y.z
+// `tag` being derived out of the `branch` variable
+// See rust-incoming-tag.groovy.j2 for an example
+
 stage('Build and upload Rust Crates') {
   when {
     // The tag is in the right format
