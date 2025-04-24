@@ -11,6 +11,9 @@ switch (params.PYPI_HOST) {
     break
 }
 
+// Whether we do the publication step
+def publish_ok = not params.dry_run
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
@@ -97,6 +100,7 @@ pipeline {
     stage('Publish') {
       when {
         anyOf {
+          expression { return publish_ok }
           expression { return params.FORCE_UPLOAD }
           expression {
             LASTV=sh(returnStdout: true,

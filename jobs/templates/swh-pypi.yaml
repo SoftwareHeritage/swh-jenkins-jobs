@@ -35,7 +35,7 @@
           name: DRY_RUN
           default: false
           description: |
-            Do everything but publish
+            Execute the job as usual but do not trigger publication.
       - bool:
           name: SKIP_TESTS
           default: false
