@@ -5,6 +5,7 @@
 import hudson.model.Queue
 import jenkins.model.Jenkins
 import com.cloudbees.hudson.plugins.folder.*
+import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 
 def folderName = 'jenkins-tools'
 def jobName = 'jenkins-jobs-builder'
@@ -57,3 +58,15 @@ job = folder.createProjectFromXML(jobName, xmlStream)
 
 // Schedule job execution
 Queue.instance.schedule(job, 0)
+
+def scriptApproval = ScriptApproval.get()
+
+String[] signatures = [
+  "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods toUnique java.util.List",
+]
+
+for (String signature : signatures) {
+  scriptApproval.approveSignature(signature)
+}
+
+scriptApproval.save()
