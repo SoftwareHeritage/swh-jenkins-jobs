@@ -184,6 +184,7 @@
     repo_name: swh-loader-git
     pkg: loader.git
     python_module: swh.loader.git
+    full_tox_environment: py310,py311,py312,pypy311
     jobs:
       - "swh-jobs-{name}"
 
