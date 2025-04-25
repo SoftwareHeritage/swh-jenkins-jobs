@@ -243,6 +243,7 @@
     deb-extra-repositories: ceph
     python_module: swh.objstorage
     timeout: 20
+    full_tox_environment: py311,py312,py313,pypy311
     jobs:
       - "swh-jobs-{name}"
 
