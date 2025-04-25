@@ -220,6 +220,7 @@
     repo_name: swh-model
     pkg: model
     python_module: swh.model
+    full_tox_environment: py310,py311,py312,py313,pypy310,pypy311
     jobs:
       - "swh-jobs-{name}"
 
