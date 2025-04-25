@@ -36,16 +36,30 @@ pipeline {
                              true, true, true)
           setupGitlabWebhook("swh/devel/docker", "DENV/docker-tests")
 
-          projects = readYaml(file: 'jobs/swh-packages.yaml') + readYaml(file: 'jobs/rust-packages.yaml')
+          projects = readYaml(file: 'jobs/swh-packages.yaml')
           for (project in projects) {
             if (project.containsKey("project")) {
               def jenkinsFolder = project.get('project').get('name')
-              def repoName= project.get('project').get('repo_name')
+              def repoName = project.get('project').get('repo_name')
               def gitlabProjectName = "swh/devel/${repoName}"
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/gitlab-builds")
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/incoming-tag",
                                  false, false, true)
               setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/master",
+                                 true, false, false)
+            }
+          }
+
+          rust_projects = readYaml(file: 'jobs/rust-packages.yaml')
+          for (rust_project in rust_projects) {
+            if (rust_project.containsKey("project")) {
+              def jenkinsFolder = rust_project.get('project').get('name')
+              def repoName = rust_project.get('project').get('repo_name')
+              def gitlabProjectName = "swh/devel/${repoName}"
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-gitlab-builds")
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-incoming-tag",
+                                 false, false, true)
+              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-master",
                                  true, false, false)
             }
           }
