@@ -1,11 +1,23 @@
 stage('Python tests') {
   steps {
-    sh '''
-    tox -e "$TOX_ENVIRONMENT" -- \
-      --cov-report=xml \
-      --junit-xml=test-results.xml \
-      -vv
-    '''
+    script {
+      def max_concurrent = {{ tox_max_concurrent }}
+      def lock_prefix = "${env.JOB_NAME}-${env.BUILD_ID}-lock"
+      def tox_env_idx = 0
+      parallel env.TOX_ENVIRONMENT.split(',').collectEntries { tox_env -> [
+          (tox_env): {
+            lock("${lock_prefix}-${tox_env_idx++ % max_concurrent}") {
+              sh """
+              tox --workdir .tox${tox_env} -e ${tox_env} -- \
+                --cov-report=xml \
+                --junit-xml=test-results.xml \
+                -vv
+              """
+            }
+          }
+        ]
+      }
+    }
   }
   post {
     always {

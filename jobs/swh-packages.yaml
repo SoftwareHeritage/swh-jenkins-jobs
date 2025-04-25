@@ -349,6 +349,7 @@
     deb-extra-repositories: cassandra,pgdg
     python_module: swh.storage
     timeout: 25
+    tox_max_concurrent: 2
     jobs:
       - "swh-jobs-{name}"
 
@@ -371,6 +372,7 @@
     nb_cypress_runners: 4
     timeout: 30
     max_concurrent: 3
+    tox_max_concurrent: 2
     precommit_skip_checks: mypy,eslint
     jobs:
       - "swh-jobs-{name}"
