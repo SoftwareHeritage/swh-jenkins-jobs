@@ -327,6 +327,7 @@
     pkg: scheduler
     python_module: swh.scheduler
     timeout: 20
+    full_tox_environment: py310,py311,py312,pypy311
     jobs:
       - "swh-jobs-{name}"
 
