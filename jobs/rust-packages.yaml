@@ -57,3 +57,15 @@
     jobs:
       - "rust-swh-jobs-{name}"
 
+- project:
+    name: pthash-rs
+    display-name: rust_pthash
+    repo_name: pthash-rs
+    # no python defined
+    python_module: false
+    default_branch_name: master
+    crate_names:
+      - pthash
+    jobs:
+      - "rust-swh-jobs-{name}"
+
