@@ -44,3 +44,16 @@
     jobs:
       - "rust-swh-jobs-{name}"
 
+- project:
+    name: orcxx-rs
+    display-name: rust_orcxx
+    repo_name: orcxx-rs
+    # no python defined
+    python_module: false
+    default_branch_name: master
+    crate_names:
+      - orcxx
+      - orcxx_derive
+    jobs:
+      - "rust-swh-jobs-{name}"
+
