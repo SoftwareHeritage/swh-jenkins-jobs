@@ -350,6 +350,7 @@
     python_module: swh.storage
     timeout: 25
     tox_max_concurrent: 2
+    docker_options: --tmpfs /tmp:exec --shm-size=1gb
     jobs:
       - "swh-jobs-{name}"
 
