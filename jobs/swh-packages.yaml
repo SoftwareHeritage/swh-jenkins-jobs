@@ -239,6 +239,7 @@
     pkg: objstorage
     deb-extra-repositories: ceph
     python_module: swh.objstorage
+    timeout: 20
     jobs:
       - "swh-jobs-{name}"
 
