@@ -70,7 +70,7 @@ pipeline {
         sh '''
           basetemp=$WORKSPACE/tmp-pytest
           mkdir -p $basetemp
-          tox -- -vv --basetemp=$basetemp
+          tox --runner virtualenv -- -vv --basetemp=$basetemp
         '''
       }
     }
