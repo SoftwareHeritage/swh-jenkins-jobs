@@ -321,6 +321,7 @@
     repo_name: swh-scheduler
     pkg: scheduler
     python_module: swh.scheduler
+    timeout: 20
     jobs:
       - "swh-jobs-{name}"
 
