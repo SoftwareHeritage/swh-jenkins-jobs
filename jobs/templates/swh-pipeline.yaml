@@ -65,3 +65,15 @@
       []
       {% endif %}
     <<: *gitlab_builds
+    parameters:
+      - string:
+          name: REVISION
+          description: Git revision to build.
+      - string:
+          name: TOX_ENVIRONMENT
+          description: tox environment to use for the main tox run
+          default: "{default_tox_environment}"
+      - string:
+          name: TOX_PROFILE
+          description: tox profile to use for the main tox run ("default" or "full")
+          default: "full"
