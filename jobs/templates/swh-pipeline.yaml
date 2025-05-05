@@ -12,7 +12,6 @@
     precommit_skip_checks: mypy
     concurrent: true
     sandbox: true
-    use_cibuildwheel: false
     properties:
       - build-discarder:
           days-to-keep: 90

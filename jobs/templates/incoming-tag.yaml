@@ -2,7 +2,6 @@
     name: "{name}/incoming-tag"
     display-name: Incoming tag
     project-type: pipeline
-    incoming_tag_auto_pypi_host: pypi.org
     sandbox: true
     do_rust: false
     properties:

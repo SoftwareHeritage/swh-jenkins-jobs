@@ -14,6 +14,8 @@ switch (params.PYPI_HOST) {
 // Whether we do the publication step
 def publish_ok = not params.dry_run
 
+{% include 'includes/jenkins-job-exists.groovy.j2' %}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
@@ -23,6 +25,7 @@ pipeline {
     stage('Run tests') {
       when {
         expression { return !params.SKIP_TESTS }
+        expression { jenkinsJobExists('/{{name}}/gitlab-builds') }
         beforeAgent true
       }
       agent none
@@ -78,7 +81,7 @@ pipeline {
 
     stage('Build sdist') {
       steps {
-        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist'
+        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist {{ wheel_package }}'
       }
     }
 

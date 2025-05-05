@@ -3,7 +3,6 @@
     display-name: "Upload to PyPI"
     docker_image: tox
     include_bdist: true
-    use_cibuildwheel: false
     project-type: pipeline
     sandbox: true
     properties:

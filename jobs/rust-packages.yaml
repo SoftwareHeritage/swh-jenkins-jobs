@@ -36,13 +36,16 @@
     name: swh-digestmap
     display-name: rust_swh_digestmap
     repo_name: swh-digestmap
-    # no python defined
-    python_module: false
+    python_module: true
+    wheel_package: pyo3
+    use_cibuildwheel: true
     default_branch_name: master
+    gitlab_project_name: swh/devel/swh-digestmap
     crate_names:
       - swh-digestmap
     jobs:
       - "rust-swh-jobs-{name}"
+      - "{name}/pypi-upload"
 
 - project:
     name: orcxx-rs

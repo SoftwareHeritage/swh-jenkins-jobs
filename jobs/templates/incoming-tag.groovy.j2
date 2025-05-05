@@ -34,25 +34,9 @@ pipeline {
       }
     }
 
-    stage('Build and upload PyPI package') {
-      when {
-        // The tag is in the right format
-        expression { branch ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
-        // Job to build images exist
-        expression { jenkinsJobExists('/{{name}}/pypi-upload') }
-      }
-      steps {
-        build(
-          job: '/{{name}}/pypi-upload',
-          parameters: [
-            string(name: 'GIT_TAG', value: tag),
-            string(name: 'PYPI_HOST', value: '{{incoming_tag_auto_pypi_host}}'),
-            booleanParam(name: 'DRY_RUN', value: dry_run),
-          ],
-          wait: true,
-        )
-      }
-    }
+    {% filter indent(width=4) %}
+      {%- include 'includes/stage-pypi-upload.groovy.j2' -%}
+    {% endfilter %}
 
     {%- if do_rust %}
       {% filter indent(width=4) %}
