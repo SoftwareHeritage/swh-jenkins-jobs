@@ -31,6 +31,7 @@ pipeline {
           job: '/{{name}}/gitlab-builds',
           parameters: [
             string(name: 'REVISION', value: params.GIT_TAG),
+            string(name: 'TOX_PROFILE', value: "full"),
           ],
           propagate: !params.IGNORE_TESTS,
         )
