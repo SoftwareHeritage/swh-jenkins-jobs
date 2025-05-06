@@ -35,7 +35,14 @@ pipeline {
             $class: 'GitLab',
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
-          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          extensions: [
+            [$class: 'CloneOption', honorRefspec: true],
+            [
+              $class: 'SubmoduleOption',
+              disableSubmodules: false,
+              recursiveSubmodules: true,
+            ]
+          ],
           gitTool: 'Default',
         ])
       }

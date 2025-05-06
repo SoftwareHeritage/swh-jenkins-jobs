@@ -35,7 +35,14 @@ pipeline {
           branches: [[
             name: "${params.GIT_TAG}"
           ]],
-          extensions: [[$class: 'CloneOption', honorRefspec: true]],
+          extensions: [
+            [$class: 'CloneOption', honorRefspec: true],
+            [
+              $class: 'SubmoduleOption',
+              disableSubmodules: false,
+              recursiveSubmodules: true,
+            ]
+          ],
           extensions: [],
           gitTool: 'Default',
         ])
