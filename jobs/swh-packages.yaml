@@ -265,7 +265,7 @@
     python_module: swh.shard
     use_cibuildwheel: true
     default_tox_environment: py311,ctests
-    full_tox_environment: py39,py310,py311,py312,py313,pypy310,pypy311,c
+    full_tox_environment: py39,py310,py311,py312,py313,pypy310,pypy311,ctests
     timeout: 20
     jobs:
       - "swh-jobs-{name}"
