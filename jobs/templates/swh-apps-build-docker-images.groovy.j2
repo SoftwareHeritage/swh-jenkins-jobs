@@ -48,9 +48,7 @@ pipeline {
             ]],
             extensions: [[$class: 'CloneOption', depth: 1, shallow: false],
                          [$class: 'LocalBranch', localBranch: "**"]],
-            doGenerateSubmoduleConfigurations: false,
             gitTool: 'Default',
-            submoduleCfg: [],
             branches: [[
               name: "master"
             ]],
@@ -174,9 +172,7 @@ pipeline {
               name: target_branch,
             ]],
             extensions: [[$class: 'CloneOption', honorRefspec: true]],
-            doGenerateSubmoduleConfigurations: false,
             gitTool: 'Default',
-            submoduleCfg: [],
             branches: [[
               name: target_branch
             ]],

@@ -36,10 +36,8 @@ pipeline {
             name: "${params.GIT_TAG}"
           ]],
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
-          doGenerateSubmoduleConfigurations: false,
           extensions: [],
           gitTool: 'Default',
-          submoduleCfg: [],
         ])
       }
     }

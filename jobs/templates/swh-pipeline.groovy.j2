@@ -80,10 +80,8 @@ pipeline {
             $class: 'GitLab',
             repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
           ],
-          doGenerateSubmoduleConfigurations: false,
           extensions: [[$class: 'CloneOption', honorRefspec: true]],
           gitTool: 'Default',
-          submoduleCfg: [],
         ])
       }
     }

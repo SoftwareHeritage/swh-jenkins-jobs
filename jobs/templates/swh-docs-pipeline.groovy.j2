@@ -9,10 +9,8 @@ pipeline {
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
         checkout([
           $class: 'GitSCM',
-          doGenerateSubmoduleConfigurations: false,
           extensions: [[$class: 'CloneOption', depth: 1, shallow: true]],
           gitTool: 'Default',
-          submoduleCfg: [],
           userRemoteConfigs: [[
             url: '{{gitlab_url}}/swh/devel/swh-environment.git'
           ]],
