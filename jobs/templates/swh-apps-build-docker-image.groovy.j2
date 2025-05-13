@@ -179,15 +179,16 @@ pipeline {
             latest_image_version = "${registry_domain}/${image_name}:latest"
             echo "full image version: ${full_image_version}"
             sh """
-              EXTRA_CLI_FLAGS=()
-              # Add extra specific build argument for the graph image
               if [ "${image_name}" = "graph" ]; then
-                EXTRA_CLI_FLAGS+=('--build-arg' "GRAPH_SOURCE_VERSION=${graph_source_version}")
+                # Build specific command for the graph
+                docker build --pull --tag ${full_image_version} \
+                  --build-arg "GRAPH_SOURCE_VERSION=${graph_source_version}" \
+                  apps/${application}
+              else
+                # Build image as usual with the versioned tag
+                docker build --pull --tag ${full_image_version} \
+                  apps/${application}
               fi
-              # Build image with the versioned tag
-              docker build --pull --tag ${full_image_version} \
-                "\${EXTRA_CLI_FLAGS[@]}" \
-                apps/${application}
               # Build image with latest tag
               docker tag ${full_image_version} ${latest_image_version}
             """
