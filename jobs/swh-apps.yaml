@@ -55,6 +55,13 @@
         name: "CLEANUP_IMAGE"
         description: Clean up docker image at the end of the build
         default: true
+    - string:
+        name: GRAPH_SOURCE_VERSION
+        description: |
+          Specific option to allow building graph from either an annotated tag (the
+          default), the latest swh-graph's git repository default branch or from a
+          specific commit.
+        default: tag
     dsl: !include-jinja2: templates/swh-apps-build-docker-image.groovy.j2
 
 # pipeline to define the swh-apps image(s) build jobs

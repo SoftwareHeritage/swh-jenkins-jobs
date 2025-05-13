@@ -1,6 +1,7 @@
 def application = params.APPLICATION
 def dry_run = params.DRY_RUN
 def cleanup_image = params.CLEANUP_IMAGE
+def graph_source_version = params.GRAPH_SOURCE_VERSION
 // For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
 {% if production_jenkins %}
 def label_node = 'built-in'
@@ -178,8 +179,15 @@ pipeline {
             latest_image_version = "${registry_domain}/${image_name}:latest"
             echo "full image version: ${full_image_version}"
             sh """
+              EXTRA_CLI_FLAGS=()
+              # Add extra specific build argument for the graph image
+              if [ "${image_name}" = "graph" ]; then
+                EXTRA_CLI_FLAGS+=('--build-arg' "GRAPH_SOURCE_VERSION=${graph_source_version}")
+              fi
               # Build image with the versioned tag
-              docker build --pull --tag ${full_image_version} apps/${application}
+              docker build --pull --tag ${full_image_version} \
+                "\${EXTRA_CLI_FLAGS[@]}" \
+                apps/${application}
               # Build image with latest tag
               docker tag ${full_image_version} ${latest_image_version}
             """
