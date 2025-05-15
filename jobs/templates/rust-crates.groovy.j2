@@ -1,5 +1,6 @@
 // Whether we do the publication step
 def publish_ok = not params.dry_run
+def skip_crates_publication = params.SKIP_CRATES_PUBLICATION
 
 pipeline {
   {% filter indent(width=2) %}
@@ -50,6 +51,9 @@ pipeline {
     }
 
     stage('(DryRun) Publish - Checks cargo package step is ok') {
+      when {
+        expression { return !skip_crates_publication }
+      }
       steps {
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
@@ -63,6 +67,7 @@ pipeline {
       when {
         // and we are ok to publish
         expression { publish_ok }
+        expression { return !skip_crates_publication }
       }
       steps {
         // Then we are go to publish the crates

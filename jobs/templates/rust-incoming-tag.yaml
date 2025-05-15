@@ -22,6 +22,14 @@
           description: git tag to process in the form "refs/tags/vx.y.z"
           default: ""
       - bool:
+          name: SKIP_CRATES_PUBLICATION
+          default: false
+          description: |
+            Allow skipping the crates publication when true. False by default to
+            actually publish crates and/or python modules. Crates being immutable, if we
+            trigger multiple times the rust-incoming-tag job, that step will
+            subsequently (once a first successful publication occurred).
+      - bool:
           name: DRY_RUN
           default: false
           description: |
