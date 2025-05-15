@@ -41,6 +41,7 @@
     use_cibuildwheel: true
     default_branch_name: master
     gitlab_project_name: swh/devel/swh-digestmap
+    timeout: 30
     crate_names:
       - swh-digestmap
     jobs:
