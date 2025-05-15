@@ -16,7 +16,6 @@ stage('Build and upload Rust Crates') {
       parameters: [
         string(name: 'GIT_TAG', value: tag),
         booleanParam(name: 'DRY_RUN', value: dry_run),
-        booleanParam(name: 'SKIP_CRATES_PUBLICATION', value: skip_crates_publication),
       ],
       wait: true,
     )

@@ -8,10 +8,6 @@ if ( tag.contains("refs/tags/") ) {
 // Do we actually publish anything?
 def dry_run = params.DRY_RUN
 
-// This is a job parameter in this context (the stage-rust-crates-upload.groovy.j2
-// include requires it)
-def skip_crates_publication = params.SKIP_CRATES_PUBLICATION
-
 {% include 'includes/jenkins-job-exists.groovy.j2' %}
 
 pipeline {

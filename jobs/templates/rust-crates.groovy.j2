@@ -1,6 +1,5 @@
 // Whether we do the publication step
 def publish_ok = not params.dry_run
-def skip_crates_publication = params.SKIP_CRATES_PUBLICATION
 
 pipeline {
   {% filter indent(width=2) %}
@@ -51,9 +50,6 @@ pipeline {
     }
 
     stage('(DryRun) Publish - Checks cargo package step is ok') {
-      when {
-        expression { return !skip_crates_publication }
-      }
       steps {
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
@@ -67,7 +63,6 @@ pipeline {
       when {
         // and we are ok to publish
         expression { publish_ok }
-        expression { return !skip_crates_publication }
       }
       steps {
         // Then we are go to publish the crates
@@ -75,7 +70,15 @@ pipeline {
           string(credentialsId: 'swhmirror-crates-api-token',
                  variable: 'CARGO_REGISTRY_TOKEN')]) {
           {% for crate in crate_names %}
-            sh "cargo publish -p {{crate}}"
+            sh '''
+            crate_version=$(echo ${GIT_TAG} | cut -c2-)
+            if cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""
+            then
+              echo "Crate {{crate}} with version ${crate_version} already published, nothing to do."
+            else
+              cargo publish -p {{crate}}
+            fi
+            '''
           {% endfor %}
         }
       }
