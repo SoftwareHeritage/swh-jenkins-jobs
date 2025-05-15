@@ -25,7 +25,7 @@
           name: DRY_RUN
           default: false
           description: |
-            Execute the job as usual but avoid publishing crates. Default to false. This
-            is set to true mostly for debugging purposes.
+            Execute the job as usual but avoid publishing crates or python module.
+            Default to false. This can be set to true mostly for debugging purposes.
 
     dsl: !include-jinja2: rust-incoming-tag.groovy.j2
