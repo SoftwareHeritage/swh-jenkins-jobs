@@ -104,11 +104,6 @@ pipeline {
         anyOf {
           expression { return publish_ok }
           expression { return params.FORCE_UPLOAD }
-          expression {
-            LASTV=sh(returnStdout: true,
-                     script:"curl -s https://${params.PYPI_HOST}/pypi/${module_name}/json | jq -r .info.version || true").trim()
-            return 'v'+LASTV != params.GIT_TAG
-            }
         }
       }
       steps {
@@ -117,7 +112,7 @@ pipeline {
           usernamePassword(credentialsId: PYPI_UPLOAD_HOST,
                            usernameVariable: 'TWINE_USERNAME',
                            passwordVariable: 'TWINE_PASSWORD')]) {
-          sh "twine upload --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
+          sh "twine upload --skip-existing --verbose --repository-url https://${PYPI_UPLOAD_HOST}/legacy/ dist/*"
         }
         {% else %}
         // simply check package can be uploaded when testing job locally
