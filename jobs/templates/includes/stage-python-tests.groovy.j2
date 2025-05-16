@@ -1,18 +1,18 @@
 stage('Python tests') {
   steps {
     script {
-      {% if wheels_abi3 %}
-      def max_concurrent = 1
-      {% else %}
       def max_concurrent = {{ tox_max_concurrent }}
-      {% endif %}
       def lock_prefix = "${env.JOB_NAME}-${env.BUILD_ID}-lock"
       def tox_env_idx = 0
       parallel env.TOX_ENVIRONMENT.split(',').collectEntries { tox_env -> [
           (tox_env): {
             lock("${lock_prefix}-${tox_env_idx++ % max_concurrent}") {
               sh """
-              tox --workdir .tox${tox_env} -e ${tox_env} -- \
+              tox --installpkg dist/*.whl --workdir .tox${tox_env} -e ${tox_env} -- \
+                {%- if wheels_abi3 %}
+                {#- ensure extension modules installed in virtualenv can be imported #}
+                --import-mode importlib \
+                {%- endif %}
                 --cov-report=xml \
                 --junit-xml=test-results.xml \
                 -vv
