@@ -13,7 +13,7 @@ stage('Build rust artifacts') {
       sh '''\
         set -e
         prepare-cargo-cache
-        RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features
+        RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
       '''
     {% if production_jenkins %}
     }
