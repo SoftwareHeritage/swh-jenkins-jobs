@@ -53,7 +53,7 @@ pipeline {
       steps {
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
-          sh "cargo publish -p {{crate}} --dry-run"
+          sh "cargo publish --locked --no-verify -p {{crate}} --dry-run"
         {% endfor %}
       }
     }
@@ -76,7 +76,7 @@ pipeline {
             then
               echo "Crate {{crate}} with version ${crate_version} already published, nothing to do."
             else
-              cargo publish -p {{crate}}
+              cargo publish --locked -p {{crate}}
             fi
             '''
           {% endfor %}
