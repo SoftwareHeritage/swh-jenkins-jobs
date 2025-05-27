@@ -30,5 +30,10 @@
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw-verbatim: jobs/templates/jenkins-token
+    parameters:
+      - string:
+          name: TOX_ENVIRONMENT
+          description: tox environment to use for the main tox run
+          default: "{default_tox_environment}"
 
     dsl: !include-jinja2: templates/swh-mirror-run-tests.groovy.j2

@@ -67,9 +67,8 @@ pipeline {
             usernameColonPassword(credentialsId: 'swh-mirror-test-objstorage',
                                   variable: 'SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS')]) {
             sh '''
-            python3 -m pip install -rrequirements-test.txt
             SWH_MIRROR_TEST_OBJSTORAGE_URL="https://$SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS@$SWH_MIRROR_TEST_OBJSTORAGE_HOST/" \
-            python3 -m pytest -v --envfile=image-tag.env --timeout=3600
+            tox -e "$TOX_ENVIRONMENT" -- -v --envfile=image-tag.env --timeout=3600
             '''
           }
         }
