@@ -52,7 +52,7 @@ pipeline {
 
     stage('Run tests') {
       environment {
-        SWH_MIRROR_TEST_API_URL = "http://172.17.0.1:5081/api/1"
+        SWH_MIRROR_TEST_BASE_URL = "http://172.17.0.1:5081"
         SWH_MIRROR_TEST_KAFKA_BROKER = "broker2.journal.staging.swh.network:9093"
         SWH_MIRROR_TEST_OBJSTORAGE_HOST = "objstorage.softwareheritage.org"
       }
