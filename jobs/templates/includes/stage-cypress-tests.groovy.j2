@@ -83,9 +83,6 @@ stage('Cypress tests') {
       )
 
       sh '''
-        # generate HTML report for tests
-        yarn run mochawesome || true
-
         # merge code coverage data produced by each cypress runner
         yarn run nyc merge cypress/coverage_output cypress/coverage/coverage-final.json
         yarn run nyc merge .nyc_outputs .nyc_output/out.json
@@ -97,15 +94,6 @@ stage('Cypress tests') {
         # remove node_modules folder
         rm -rf node_modules
       '''
-
-      publishHTML (target: [
-        allowMissing: true,
-        alwaysLinkToLastBuild: false,
-        keepAll: true,
-        reportDir: 'cypress/mochawesome/report',
-        reportFiles: 'mochawesome.html',
-        reportName: "Mochawesome Tests Report"
-      ])
 
       publishHTML (target: [
         allowMissing: true,
