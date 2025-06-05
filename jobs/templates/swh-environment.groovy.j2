@@ -53,11 +53,12 @@ pipeline {
             pip install pytest-xdist
             exit_code=0
             swh_env_dir=$PWD
-            for module in $(./bin/ls-py-modules); do
+            for module in $(./bin/pip-swh-packages | cut -c4-); do
               cd $swh_env_dir/$module
               if [ -f Cargo.toml ]; then
                 # build rust binaries
                 RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
+                export PATH=$PWD/target/debug:$PATH
               fi
               echo Executing $module checks and tests
               tests_dir=$(echo $module | sed 's/-/\\//g')/tests
