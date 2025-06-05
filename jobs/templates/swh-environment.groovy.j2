@@ -61,6 +61,8 @@ pipeline {
                 export PATH=$PWD/target/debug:$PATH
               fi
               echo Executing $module checks and tests
+              echo Latest commit in $module is:
+              git show --summary
               tests_dir=$(echo $module | sed 's/-/\\//g')/tests
               if [ -d "$tests_dir" ]; then
                 # enable parallel tests execution except for scanner
