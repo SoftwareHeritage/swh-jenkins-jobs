@@ -87,6 +87,10 @@ pipeline {
       docker config ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker config rm || true
       docker volume ls --filter=label=com.docker.stack.namespace=swhtest_mirror0 --quiet | xargs --no-run-if-empty docker volume rm || true
       '''
+      archiveArtifacts(
+        allowEmptyArchive: true,
+        artifacts: 'tmp-pytest/**/*.logs',
+      )
     }
     {% filter indent(width=4) %}
       {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
