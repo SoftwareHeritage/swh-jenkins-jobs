@@ -10,6 +10,7 @@
     gitlab_project_name: swh/infra/swh-mirror
     project-type: pipeline
     docker_image: tox
+    docker_options: -v /tmp:/tmp
     sandbox: true
     max_concurrent: 1
     properties:

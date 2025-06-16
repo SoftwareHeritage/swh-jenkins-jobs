@@ -67,8 +67,10 @@ pipeline {
             usernameColonPassword(credentialsId: 'swh-mirror-test-objstorage',
                                   variable: 'SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS')]) {
             sh '''
+            basetemp=$WORKSPACE/tmp-pytest
+            mkdir -p $basetemp 
             SWH_MIRROR_TEST_OBJSTORAGE_URL="https://$SWH_MIRROR_TEST_OBJSTORAGE_CREDENTIALS@$SWH_MIRROR_TEST_OBJSTORAGE_HOST/" \
-            tox -e "$TOX_ENVIRONMENT" -- -v --envfile=image-tag.env --timeout=3600
+            tox -e "$TOX_ENVIRONMENT" -- -v --envfile=image-tag.env --timeout=3600 --basetemp=$basetemp
             '''
           }
         }
@@ -89,7 +91,7 @@ pipeline {
       '''
       archiveArtifacts(
         allowEmptyArchive: true,
-        artifacts: 'tmp-pytest/**/*.logs',
+        artifacts: 'tmp-pytest/**',
       )
     }
     {% filter indent(width=4) %}
