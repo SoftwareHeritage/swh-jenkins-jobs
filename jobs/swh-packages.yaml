@@ -95,6 +95,7 @@
     do_rust: true
     crate_names:
       - swh-graph
+      - swh-graph-stdlib
       - swh-graph-grpc-server
       - swh_graph_topology
     timeout: 30
