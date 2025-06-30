@@ -37,7 +37,6 @@
     display-name: rust_swh_digestmap
     repo_name: swh-digestmap
     python_module: true
-    wheel_package: pyo3
     use_cibuildwheel: true
     default_branch_name: master
     gitlab_project_name: swh/devel/swh-digestmap

@@ -2,11 +2,11 @@ stage('Build wheel') {
     steps {
     {%- if use_cibuildwheel %}
         sh '''
-        $SWH_PYTHON_FOR_GLOBAL_TOOLS -m cibuildwheel --platform linux --output-dir dist/ {{ wheel_package }}
+        $SWH_PYTHON_FOR_GLOBAL_TOOLS -m cibuildwheel --platform linux --output-dir dist/
         '''
     {%- else %}
         sh '''
-        $SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel {{ wheel_package }}
+        $SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel
         '''
     {%- endif %}
     }

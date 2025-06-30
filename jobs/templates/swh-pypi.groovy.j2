@@ -81,7 +81,7 @@ pipeline {
 
     stage('Build sdist') {
       steps {
-        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist {{ wheel_package }}'
+        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist'
       }
     }
 

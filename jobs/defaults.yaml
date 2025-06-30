@@ -12,6 +12,5 @@
     docker_gid: !include: docker-gid
     docker_options: --tmpfs /tmp:exec
     use_cibuildwheel: false
-    wheel_package: ""
     incoming_tag_auto_pypi_host: pypi.org
     default_tox_environment: py311
