@@ -49,11 +49,22 @@ pipeline {
       }
     }
 
-    stage('(DryRun) Publish - Checks cargo package step is ok') {
+    stage('(DryRun) Publish locally - Checks cargo package step is ok') {
       steps {
+        // Use a local cargo registry to publish crates
+        sh """#!/bin/bash
+        cargo install cargo-http-registry
+        cargo-http-registry /tmp/cargo-registry &
+        mkdir -p .cargo
+        echo -e '[registries]\nlocal-registry = {index = "file:///tmp/cargo-registry"}\n' \
+          > .cargo/config.toml
+        """
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
-          sh "cargo publish --locked --no-verify -p {{crate}} --dry-run"
+          sh """
+          CARGO_REGISTRIES_LOCAL_REGISTRY_TOKEN=foo \
+          cargo publish --locked --registry=local-registry -p {{crate}}
+          """
         {% endfor %}
       }
     }
