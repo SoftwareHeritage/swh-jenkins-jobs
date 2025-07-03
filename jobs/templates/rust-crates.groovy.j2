@@ -82,7 +82,7 @@ pipeline {
                  variable: 'CARGO_REGISTRY_TOKEN')]) {
           {% for crate in crate_names %}
             sh '''#!/bin/bash
-            crate_version=$(echo ${GIT_TAG} | cut -c2-)
+            crate_version=$(cargo pkgid -p {{crate}} | cut -d@ -f2)
             if cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""
             then
               echo "Crate {{crate}} with version ${crate_version} already published, nothing to do."
