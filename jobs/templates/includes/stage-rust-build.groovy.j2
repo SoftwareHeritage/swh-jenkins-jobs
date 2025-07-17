@@ -4,19 +4,30 @@ stage('Build rust artifacts') {
   {% endfilter %}
 
   steps {
-    {% if production_jenkins %}
-    withCredentials([
-      string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
-      string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
-    ]) {
-    {% endif %}
-      sh '''\
-        set -e
-        prepare-cargo-cache
-        RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
-      '''
-    {% if production_jenkins %}
+    script {
+      sh "prepare-cargo-cache"
+      parallel([
+        {% for rust_version in [rust_min_version, 'stable', 'nightly'] %}
+          'rust {{ rust_version }}': {
+            {% if production_jenkins %}
+            withCredentials([
+              string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+              string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+            ]) {
+            {% endif %}
+              def target_dir="/tmp/${env.JOB_NAME}-${env.BUILD_ID}/target_{{ rust_version }}"
+              sh """\
+                  set -e
+                  mkdir -p ${target_dir}
+                  RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 \
+                  cargo +{{ rust_version }} build --target-dir ${target_dir} --all-features --locked
+                """
+            {% if production_jenkins %}
+            }
+            {% endif %}
+          },
+        {% endfor %}
+      ])
     }
-    {% endif %}
   }
 }
