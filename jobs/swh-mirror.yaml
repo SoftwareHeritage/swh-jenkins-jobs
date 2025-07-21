@@ -16,6 +16,10 @@
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
+      - throttle:
+          option: project
+          max-per-node: "{max_concurrent}"
+          max-total: "{max_concurrent}"
     triggers: !j2-yaml: |
       {% if production_jenkins %}
       - timed: "0 4 * * *"

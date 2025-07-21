@@ -19,11 +19,14 @@
     cypress_python_version: "3.11"
     do_rust: false
     timeout: 10
-    max_concurrent: 0
     tox_max_concurrent: 6
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
+      - throttle:
+          option: project
+          max-per-node: "{max_concurrent}"
+          max-total: "{max_concurrent}"
     triggers:
       - gitlab:
           trigger-push: true

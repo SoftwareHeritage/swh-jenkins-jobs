@@ -26,12 +26,6 @@ def source_branch = "swh-next-version"
 pipeline {
   agent { label label_node }
 
-  options {
-    {% filter indent(width=4) %}
-      {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
-    {% endfilter %}
-  }
-
   stages {
     stage('Checkout swh-apps repository') {
       steps {

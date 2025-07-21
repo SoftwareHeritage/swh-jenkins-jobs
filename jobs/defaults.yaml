@@ -15,3 +15,4 @@
     incoming_tag_auto_pypi_host: pypi.org
     default_tox_environment: py311
     rust_min_version: "1.83"
+    max_concurrent: 0

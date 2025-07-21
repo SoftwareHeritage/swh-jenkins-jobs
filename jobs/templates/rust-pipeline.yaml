@@ -11,10 +11,13 @@
           days-to-keep: 90
           artifact-num-to-keep: 20
     timeout: 10
-    max_concurrent: 0
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
+      - throttle:
+          option: project
+          max-per-node: "{max_concurrent}"
+          max-total: "{max_concurrent}"
     triggers:
       - gitlab:
           trigger-push: true

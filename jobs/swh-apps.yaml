@@ -5,6 +5,11 @@
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
     max_concurrent: 1
+    properties:
+        - throttle:
+              option: project
+              max-per-node: "{max_concurrent}"
+              max-total: "{max_concurrent}"
     parameters:
     - choice:
         name: "TARGET_BRANCH"
@@ -43,6 +48,11 @@
     project-type: pipeline
     concurrent: true
     max_concurrent: 3
+    properties:
+        - throttle:
+              option: project
+              max-per-node: "{max_concurrent}"
+              max-total: "{max_concurrent}"
     parameters:
     - string:
         name: "APPLICATION"

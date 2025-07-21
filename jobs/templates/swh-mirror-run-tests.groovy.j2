@@ -10,12 +10,6 @@ pipeline {
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
   {% endfilter %}
 
-  options {
-    {% filter indent(width=4) %}
-      {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
-    {% endfilter %}
-  }
-
   stages {
     stage('Checkout') {
       steps {

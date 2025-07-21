@@ -6,9 +6,6 @@ pipeline {
   options {
     timeout(time: {{timeout}}, unit: 'MINUTES')
     timestamps()
-    {% filter indent(width=4) %}
-      {%- include 'templates/includes/throttle-job-property.groovy.j2' -%}
-    {% endfilter %}
   }
 
   stages {
