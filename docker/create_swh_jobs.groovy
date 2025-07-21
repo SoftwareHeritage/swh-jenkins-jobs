@@ -2,6 +2,7 @@
 // https://github.com/peterjenkins1/jenkins-scripts/blob/master/add-xml-job.groovy
 // to automatically configue SWH jobs when jenkins starts
 
+import hudson.model.Hudson
 import hudson.model.Queue
 import jenkins.model.Jenkins
 import com.cloudbees.hudson.plugins.folder.*
@@ -46,7 +47,13 @@ def jobXml = '''<?xml version='1.1' encoding='UTF-8'?>
 </project>
 '''
 
-Jenkins jenkins = Jenkins.instance // saves some typing
+Hudson hudson = Hudson.instance
+Jenkins jenkins = Jenkins.instance
+
+// Increase number of executors from 2 to 6
+hudson.setNumExecutors(6)
+hudson.save()
+hudson.setNodes(hudson.getNodes())
 
 // Get the folder where this job should be
 def folder = jenkins.getItem(folderName)
