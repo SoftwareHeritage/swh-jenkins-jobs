@@ -6,18 +6,18 @@
     default_branch_name: master
     concurrent: true
     sandbox: true
+    timeout: 10
+    throttle_categories:
+      - rust
     properties:
       - build-discarder:
           days-to-keep: 90
           artifact-num-to-keep: 20
-    timeout: 10
-    properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
       - throttle:
-          option: project
-          max-per-node: "{max_concurrent}"
-          max-total: "{max_concurrent}"
+          categories: "{throttle_categories}"
+          option: category
     triggers:
       - gitlab:
           trigger-push: true

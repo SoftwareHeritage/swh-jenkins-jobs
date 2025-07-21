@@ -46,6 +46,9 @@ pipeline {
         script {
           sh('tox -- update --delete-old --jobs-only')
           build(
+            job: '/jenkins-tools/setup-throttle-categories'
+          )
+          build(
             job: '/jenkins-tools/setup-gitlab-webhooks'
           )
         }

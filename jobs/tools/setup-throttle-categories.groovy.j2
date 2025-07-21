@@ -1,0 +1,28 @@
+import hudson.plugins.throttleconcurrents.ThrottleJobProperty;
+
+pipeline {
+  agent {
+    label "built-in"
+  }
+
+  stages {
+
+    stage('Setup throttle categories') {
+      steps {
+        script {
+          def throttleCategories = []
+          {% for throttleCategoryName, throttleCategoryData in throttle_categories_definition.items() %}
+          throttleCategories << new ThrottleJobProperty.ThrottleCategory(
+            '{{ throttleCategoryName }}',
+            {{ throttleCategoryData.max_jobs_per_node }},
+            {{ throttleCategoryData.max_jobs_total }},
+            null
+          )
+          {% endfor %}
+          def descriptor = ThrottleJobProperty.fetchDescriptor()
+          descriptor.setCategories(throttleCategories)
+        }
+      }
+    }
+  }
+}

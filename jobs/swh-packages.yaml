@@ -56,11 +56,13 @@
     do_rust: true
     gitlab_project_name: swh/devel/swh-datasets
     crate_names:
-    - swh_graph_aggregate
-    - swh_graph_contributions
-    - swh_graph_file_names
+      - swh_graph_aggregate
+      - swh_graph_contributions
+      - swh_graph_file_names
     timeout: 30
     default_branch_name: main
+    throttle_categories:
+      - rust
     jobs:
       - "swh-jobs-{name}"
       - "{name}/rust-crates-upload"
@@ -100,6 +102,8 @@
       - swh_graph_topology
     timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
+    throttle_categories:
+      - rust
     jobs:
       - "swh-jobs-{name}"
       - "{name}/rust-crates-upload"
@@ -284,6 +288,8 @@
       - swh-provenance-db-build
     timeout: 30
     default_branch_name: main
+    throttle_categories:
+      - rust
     jobs:
       - "swh-jobs-{name}"
       - "{name}/rust-crates-upload"

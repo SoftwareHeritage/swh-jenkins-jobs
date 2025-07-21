@@ -1,0 +1,13 @@
+- job-template:
+    name: jenkins-tools/{job_name}
+    project-type: pipeline
+    description: Setup Jenkins throttle categories
+    node: built-in
+
+    dsl: !include-jinja2: setup-throttle-categories.groovy.j2
+
+- project:
+    name: setup-throttle-categories
+    job_name: "{name}"
+    jobs:
+      - "jenkins-tools/{job_name}"

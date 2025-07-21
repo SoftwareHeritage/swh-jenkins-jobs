@@ -16,3 +16,8 @@
     default_tox_environment: py311
     rust_min_version: "1.83"
     max_concurrent: 0
+    throttle_categories_definition:
+        rust:
+            max_jobs_per_node: 3
+            max_jobs_total: 3
+    throttle_categories: []

@@ -23,10 +23,15 @@
     properties:
       - gitlab:
           connection: "{gitlab_connection_name}"
-      - throttle:
+      - throttle: !j2-yaml: |
+          {% if throttle_categories %}
+          option: category
+          categories: {{ throttle_categories }}
+          {% else %}
           option: project
-          max-per-node: "{max_concurrent}"
-          max-total: "{max_concurrent}"
+          max-per-node: {{ max_concurrent }}
+          max-total: {{ max_concurrent }}
+          {% endif %}
     triggers:
       - gitlab:
           trigger-push: true
