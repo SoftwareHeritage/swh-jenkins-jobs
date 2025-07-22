@@ -54,6 +54,7 @@
     # no python defined
     python_module: false
     default_branch_name: master
+    timeout: 20
     crate_names:
       - orcxx
       - orcxx_derive
