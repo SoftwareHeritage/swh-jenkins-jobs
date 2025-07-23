@@ -1,6 +1,7 @@
 agent {
   docker {
     reuseNode true
+    alwaysPull true
     image '{{docker_registry}}/{{cypress_docker_image}}:latest'
     args '--ipc=host --shm-size 1024M --tmpfs /tmp:exec --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache'
   }
