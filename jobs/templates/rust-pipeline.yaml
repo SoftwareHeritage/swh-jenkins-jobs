@@ -6,7 +6,7 @@
     default_branch_name: master
     concurrent: true
     sandbox: true
-    timeout: 10
+    timeout: 20
     throttle_categories:
       - rust
     properties:
