@@ -15,7 +15,13 @@ stage('Rust tests') {
               string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
             ]) {
             {% endif %}
-              def target_dir="/tmp/${env.JOB_NAME}-${env.BUILD_ID}/target_{{ rust_version }}"
+            {% if rust_version == 'stable'%}
+              // one build must keep the default target directory as Python tests might
+              // depend on binaries under that path
+              def target_dir="target"
+            {% else %}
+              def target_dir="target_{{ rust_version }}"
+            {% endif %}
               sh """\
                 set -e
                 mkdir -p ${target_dir}
