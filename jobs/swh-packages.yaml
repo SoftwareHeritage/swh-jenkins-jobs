@@ -454,6 +454,7 @@
     default_branch_name: master
     gitlab_project_name: swh/devel/swh-digestmap
     timeout: 30
+    precommit_skip_checks: mypy,cargo-check,clippy
     do_rust: true
     crate_names:
       - swh-digestmap
