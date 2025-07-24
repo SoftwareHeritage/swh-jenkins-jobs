@@ -3,7 +3,6 @@
     display-name: "GitLab builds"
     project-type: pipeline
     docker_image: tox
-    cypress_docker_image: cypress
     sphinx_docker_image: sphinx
     full_tox_environment: py311
     sphinx_basepython: py311
