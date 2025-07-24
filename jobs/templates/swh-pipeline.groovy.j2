@@ -105,10 +105,13 @@ pipeline {
     }
 
     {%- if do_rust %}
-    stage('Preparatory steps') {
-      parallel {
+    stage('Rust') {
+      stages {
         {% filter indent(width=8) %}
           {%- include 'includes/stage-rust-build.groovy.j2' -%}
+        {% endfilter %}
+        {% filter indent(width=8) %}
+          {%- include 'includes/stage-rust-tests.groovy.j2' -%}
         {% endfilter %}
       }
     }
@@ -137,12 +140,6 @@ pipeline {
         {%- if do_cypress %}
         {% filter indent(width=8) %}
           {%- include 'includes/stage-cypress-tests.groovy.j2' -%}
-        {% endfilter %}
-        {%- endif %}
-
-        {%- if do_rust %}
-        {% filter indent(width=8) %}
-          {%- include 'includes/stage-rust-tests.groovy.j2' -%}
         {% endfilter %}
         {%- endif %}
 

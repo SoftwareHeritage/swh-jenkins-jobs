@@ -1,4 +1,4 @@
-stage('Build rust artifacts') {
+stage('cargo build') {
   steps {
     script {
       sh "prepare-cargo-cache"
