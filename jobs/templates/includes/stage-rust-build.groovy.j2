@@ -1,8 +1,4 @@
 stage('Build rust artifacts') {
-  {% filter indent(width=2) %}
-    {%- include 'includes/agent-docker.groovy.j2' -%}
-  {% endfilter %}
-
   steps {
     script {
       sh "prepare-cargo-cache"
