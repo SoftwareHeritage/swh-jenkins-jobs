@@ -1,5 +1,5 @@
 - job-template: &rust_gitlab_builds
-    name: "{name}/rust-gitlab-builds"
+    name: "rust/{name}/gitlab-builds"
     display-name: "Rust GitLab builds"
     project-type: pipeline
     docker_image: tox
@@ -40,7 +40,7 @@
     dsl: !include-jinja2: rust-pipeline.groovy.j2
 
 - job-template:
-    name: "{name}/rust-master"
+    name: "rust/{name}/master"
     display-name: "rust master branch"
     triggers: !j2-yaml: |
       {% if production_jenkins %}

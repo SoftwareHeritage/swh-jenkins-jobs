@@ -1,5 +1,5 @@
 - job-template: &rust_incoming_tag
-    name: "{name}/rust-incoming-tag"
+    name: "rust/{name}/incoming-tag"
     display-name: Rust Incoming tag
     project-type: pipeline
     sandbox: true

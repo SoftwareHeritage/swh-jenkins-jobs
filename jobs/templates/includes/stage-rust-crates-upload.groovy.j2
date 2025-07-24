@@ -8,11 +8,11 @@ stage('Build and upload Rust Crates') {
     // The tag is in the right format
     expression { branch ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
     // Job to build images exist
-    expression { jenkinsJobExists('/{{name}}/rust-crates-upload') }
+    expression { jenkinsJobExists('/rust/{{name}}/crates-upload') }
   }
   steps {
     build(
-      job: '/{{name}}/rust-crates-upload',
+      job: '/rust/{{name}}/crates-upload',
       parameters: [
         string(name: 'GIT_TAG', value: tag),
         booleanParam(name: 'DRY_RUN', value: dry_run),

@@ -46,11 +46,6 @@ pipeline {
       {%- include 'includes/stage-rust-crates-upload.groovy.j2' -%}
     {% endfilter %}
 
-    {% if python_module %}
-    {% filter indent(width=4) %}
-      {%- include 'includes/stage-pypi-upload.groovy.j2' -%}
-    {% endfilter %}
-    {% endif %}
   }
   post {
     {% filter indent(width=4) %}

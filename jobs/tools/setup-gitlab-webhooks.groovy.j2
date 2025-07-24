@@ -56,10 +56,10 @@ pipeline {
               def jenkinsFolder = rust_project.get('project').get('name')
               def repoName = rust_project.get('project').get('repo_name')
               def gitlabProjectName = "swh/devel/${repoName}"
-              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-gitlab-builds")
-              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-incoming-tag",
+              setupGitlabWebhook(gitlabProjectName, "rust/${jenkinsFolder}/gitlab-builds")
+              setupGitlabWebhook(gitlabProjectName, "rust/${jenkinsFolder}/incoming-tag",
                                  false, false, true)
-              setupGitlabWebhook(gitlabProjectName, "${jenkinsFolder}/rust-master",
+              setupGitlabWebhook(gitlabProjectName, "rust/${jenkinsFolder}/master",
                                  true, false, false)
             }
           }

@@ -2,18 +2,25 @@
     name: "rust-swh-jobs-{name}"
     gitlab_project_name: "swh/devel/{repo_name}"
     jobs:
-      - "{name}"
-      - "{name}/rust-incoming-tag"
-      - "{name}/rust-crates-upload"
-      - "{name}/rust-gitlab-builds"
-      - "{name}/rust-master"
+      - "rust/{name}"
+      - "rust/{name}/incoming-tag"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
+      - "rust/{name}/master"
+
+- job:
+    name: rust
+    project-type: folder
+
+- job-template:
+    name: rust/{name}
+    display-name: "{repo_name}"
+    project-type: folder
 
 - project:
     name: parquet_aramid
     display-name: rust_parquet_aramid
     repo_name: parquet_aramid-rs
-    # no python defined
-    python_module: false
     default_branch_name: main
     crate_names:
       - parquet_aramid
@@ -24,8 +31,6 @@
     name: ar_row
     display-name: rust_ar_row
     repo_name: ar_row-rs
-    # no python defined
-    python_module: false
     default_branch_name: master
     crate_names:
       - ar_row
@@ -33,26 +38,9 @@
       - "rust-swh-jobs-{name}"
 
 - project:
-    name: swh-digestmap
-    display-name: rust_swh_digestmap
-    repo_name: swh-digestmap
-    python_module: true
-    use_cibuildwheel: true
-    default_branch_name: master
-    gitlab_project_name: swh/devel/swh-digestmap
-    timeout: 30
-    crate_names:
-      - swh-digestmap
-    jobs:
-      - "rust-swh-jobs-{name}"
-      - "{name}/pypi-upload"
-
-- project:
     name: orcxx-rs
     display-name: rust_orcxx
     repo_name: orcxx-rs
-    # no python defined
-    python_module: false
     default_branch_name: master
     crate_names:
       - orcxx
@@ -64,8 +52,6 @@
     name: pthash-rs
     display-name: rust_pthash
     repo_name: pthash-rs
-    # no python defined
-    python_module: false
     default_branch_name: master
     crate_names:
       - pthash

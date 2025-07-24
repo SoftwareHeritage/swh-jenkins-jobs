@@ -15,7 +15,7 @@ pipeline {
       agent none
       steps {
         build(
-          job: '/{{name}}/rust-gitlab-builds',
+          job: '/rust/{{name}}/gitlab-builds',
           parameters: [
             string(name: 'REVISION', value: params.GIT_TAG),
           ],

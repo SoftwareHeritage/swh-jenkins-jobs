@@ -65,8 +65,9 @@
       - rust
     jobs:
       - "swh-jobs-{name}"
-      - "{name}/rust-crates-upload"
-      - "{name}/rust-gitlab-builds"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
 
 - project:
     name: swh-export
@@ -106,8 +107,9 @@
       - rust
     jobs:
       - "swh-jobs-{name}"
-      - "{name}/rust-crates-upload"
-      - "{name}/rust-gitlab-builds"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
 
 - project:
     name: DGQL
@@ -292,8 +294,9 @@
       - rust
     jobs:
       - "swh-jobs-{name}"
-      - "{name}/rust-crates-upload"
-      - "{name}/rust-gitlab-builds"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
 
 - project:
     name: DSEA
@@ -440,3 +443,22 @@
     default_branch_name: main
     jobs:
       - "swh-jobs-{name}"
+
+- project:
+    name: swh-digestmap
+    display-name: swh-digestmap
+    repo_name: swh-digestmap
+    pkg: digestmap
+    python_module: swh.digestmap
+    use_cibuildwheel: true
+    default_branch_name: master
+    gitlab_project_name: swh/devel/swh-digestmap
+    timeout: 30
+    do_rust: true
+    crate_names:
+      - swh-digestmap
+    jobs:
+      - "swh-jobs-{name}"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"

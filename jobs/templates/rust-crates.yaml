@@ -1,5 +1,5 @@
 - job-template: &rust_crates_upload
-    name: "{name}/rust-crates-upload"
+    name: "rust/{name}/crates-upload"
     display-name: "Upload to crates.io"
     docker_image: tox
     project-type: pipeline
