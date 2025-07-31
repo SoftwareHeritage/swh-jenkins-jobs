@@ -189,6 +189,15 @@ pipeline {
         sourceCodeRetention: 'EVERY_BUILD',
         sourceDirectories: [[path: '{{python_module}}'.replace('.', '/')]],
       )
+      publishHTML (
+        target: [allowMissing: false,
+          alwaysLinkToLastBuild: true,
+          keepAll: true,
+          reportDir: 'docs/_build/html',
+          reportFiles: 'index.html',
+          reportName: 'SWH Documentation ({{gitlab_project_name}})',
+          includes: '**/*']
+      )
     }
     cleanup {
       cleanWs()
