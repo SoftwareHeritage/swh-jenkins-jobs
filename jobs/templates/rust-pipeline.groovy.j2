@@ -73,6 +73,12 @@ pipeline {
     }
 
     stage('cargo clippy {{ rust_min_version }}') {
+      {% if production_jenkins %}
+      withCredentials([
+        string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+        string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+      ]) {
+      {% endif %}
       steps {
         sh """\
           set -e
