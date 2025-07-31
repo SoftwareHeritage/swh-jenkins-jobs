@@ -72,6 +72,18 @@ pipeline {
       {% endif %}
     }
 
+    stage('cargo clippy {{ rust_min_version }}') {
+      steps {
+        sh """\
+          set -e
+          mkdir -p target_{{ rust_min_version }}
+          export RUSTC_WRAPPER=sccache
+          export CARGO_INCREMENTAL=0
+          cargo +{{ rust_min_version }} clippy --target-dir target_{{ rust_min_version }} --all-features --locked -- --deny warnings
+          """
+      }
+    }
+
     {% filter indent(width=4) %}
       {%- include 'includes/stage-rust-build.groovy.j2' -%}
     {% endfilter %}
