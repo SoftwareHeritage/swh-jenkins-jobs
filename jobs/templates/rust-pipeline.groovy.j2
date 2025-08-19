@@ -73,21 +73,24 @@ pipeline {
     }
 
     stage('cargo clippy {{ rust_min_version }}') {
-      {% if production_jenkins %}
-      withCredentials([
-        string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
-        string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
-      ]) {
-      {% endif %}
       steps {
-        sh """\
-          set -e
-          mkdir -p target_{{ rust_min_version }}
-          export RUSTC_WRAPPER=sccache
-          export CARGO_INCREMENTAL=0
-          cargo +{{ rust_min_version }} clippy --target-dir target_{{ rust_min_version }} --all-features --locked -- --deny warnings
-          """
+        {% if production_jenkins %}
+        withCredentials([
+          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+        ]) {
+        {% endif %}
+          sh """\
+            set -e
+            mkdir -p target_{{ rust_min_version }}
+            export RUSTC_WRAPPER=sccache
+            export CARGO_INCREMENTAL=0
+            cargo +{{ rust_min_version }} clippy --target-dir target_{{ rust_min_version }} --all-features --locked -- --deny warnings
+            """
+        }
+      {% if production_jenkins %}
       }
+      {% endif %}
     }
 
     {% filter indent(width=4) %}
