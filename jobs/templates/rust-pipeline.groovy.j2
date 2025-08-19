@@ -66,10 +66,10 @@ pipeline {
             ./jenkins/install-non-python-deps.sh
           fi
           '''
+        {% if production_jenkins %}
         }
-      {% if production_jenkins %}
+        {% endif %}
       }
-      {% endif %}
     }
 
     stage('cargo clippy {{ rust_min_version }}') {
