@@ -63,7 +63,7 @@ pipeline {
               tests_dir=$(echo $module | sed 's/-/\\//g')/tests
               if [ -d "$tests_dir" ]; then
                 # enable parallel tests execution except for scanner
-                if [ "$module" != "swh-scanner" ]; then
+                if [ "$module" != "swh-scanner" ] && [ "$module" != "swh-core" ]; then
                   export TESTFLAGS="-n auto"
                 else
                   export TESTFLAGS=
