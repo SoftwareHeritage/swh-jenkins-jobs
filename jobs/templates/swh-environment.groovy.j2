@@ -41,7 +41,7 @@ pipeline {
             source .venv/bin/activate
             # upgrade pip as default installed version is too outdated to properly
             # install all swh dependencies
-            pip install --upgrade pip
+            pip install --upgrade 'pip!=25.2.0'
             # install dependencies
             ./bin/install
             prepare-cargo-cache
