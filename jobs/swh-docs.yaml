@@ -15,7 +15,7 @@
     sphinx_basepython: py311
     properties:
       - build-discarder:
-          days-to-keep: 90
+          days-to-keep: 20
 
     triggers: !j2-yaml: |
       {% if production_jenkins %}
@@ -64,7 +64,7 @@
     sphinx_basepython: py311
     properties:
       - build-discarder:
-          days-to-keep: 90
+          days-to-keep: 20
 
     triggers: !j2-yaml: |
       {% if production_jenkins %}

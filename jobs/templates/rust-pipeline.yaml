@@ -11,7 +11,7 @@
       - rust
     properties:
       - build-discarder:
-          days-to-keep: 90
+          days-to-keep: 20
           artifact-num-to-keep: 20
       - gitlab:
           connection: "{gitlab_connection_name}"

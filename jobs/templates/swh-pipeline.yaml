@@ -10,16 +10,15 @@
     precommit_skip_checks: mypy
     concurrent: true
     sandbox: true
-    properties:
-      - build-discarder:
-          days-to-keep: 90
-          artifact-num-to-keep: 20
     do_cypress: false
     cypress_python_version: "3.11"
     do_rust: false
     timeout: 10
     tox_max_concurrent: 6
     properties:
+      - build-discarder:
+          days-to-keep: 20
+          artifact-num-to-keep: 20
       - gitlab:
           connection: "{gitlab_connection_name}"
       - throttle: !j2-yaml: |
