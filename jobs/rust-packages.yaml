@@ -58,3 +58,12 @@
     jobs:
       - "rust-swh-jobs-{name}"
 
+- project:
+    name: rocksdb-rayon-rs
+    display-name: rust_rocksdb-rayon
+    repo_name: rocksdb-rayon-rs
+    default_branch_name: main
+    crate_names:
+      - rocksdb-rayon
+    jobs:
+      - "rust-swh-jobs-{name}"
