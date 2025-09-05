@@ -422,6 +422,7 @@
     repo_name: swh-py-template
     pkg: py-template
     python_module: swh.foo
+    swh_package_doc_dir: .tox/sphinx/tmp/swh-test/docs
     jobs:
       - "swh-jobs-{name}"
 

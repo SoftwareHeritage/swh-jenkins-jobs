@@ -21,3 +21,4 @@
             max_jobs_per_node: 3
             max_jobs_total: 3
     throttle_categories: []
+    swh_package_doc_dir: docs

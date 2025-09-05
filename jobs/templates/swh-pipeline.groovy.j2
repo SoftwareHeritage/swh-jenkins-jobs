@@ -193,7 +193,7 @@ pipeline {
         target: [allowMissing: false,
           alwaysLinkToLastBuild: true,
           keepAll: true,
-          reportDir: 'docs/_build/html',
+          reportDir: '{{ swh_package_doc_dir }}/_build/html',
           reportFiles: 'index.html',
           reportName: 'SWH Documentation ({{gitlab_project_name}})',
           includes: '**/*']
