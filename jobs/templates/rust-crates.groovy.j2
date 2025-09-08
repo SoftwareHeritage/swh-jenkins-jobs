@@ -61,10 +61,14 @@ pipeline {
         """
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
-          sh """
-          CARGO_REGISTRIES_LOCAL_REGISTRY_TOKEN=foo \
-          cargo publish --locked --registry=local-registry -p {{crate}}
-          """
+          sh '''#!/bin/bash
+          export CARGO_REGISTRIES_LOCAL_REGISTRY_TOKEN=foo
+          crate_version=$(cargo pkgid -p {{crate}} | cut -d@ -f2)
+          if cargo publish --locked --registry=local-registry -p {{crate}}
+          then
+            until cargo info --registry=local-registry {{crate}} | grep "^version: ${crate_version}"; do sleep 10; done
+          fi
+          '''
         {% endfor %}
       }
     }
@@ -87,9 +91,11 @@ pipeline {
             then
               echo "Crate {{crate}} with version ${crate_version} already published, nothing to do."
             else
-              cargo publish --locked -p {{crate}}
-              # ensure crate got published before publishing the next ones
-              until cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""; do sleep 10; done
+              if cargo publish --locked -p {{crate}}
+              then
+                # ensure crate got published before publishing the next ones
+                until cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""; do sleep 10; done
+              fi
             fi
             '''
           {% endfor %}
