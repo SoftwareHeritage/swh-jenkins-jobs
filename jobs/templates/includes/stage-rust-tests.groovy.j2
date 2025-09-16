@@ -1,5 +1,4 @@
-{% for stage in ['test', 'doc']%}
-stage('cargo {{ stage }}') {
+stage('cargo test') {
   steps {
     script {
       parallel([
@@ -18,17 +17,12 @@ stage('cargo {{ stage }}') {
             {% else %}
               def target_dir="target_{{ rust_version }}"
             {% endif %}
-            {% if stage == 'doc' %}
-              def cargo_command = "RUSTDOCFLAGS=\"--deny warnings\" cargo +{{ rust_version }} doc --target-dir ${target_dir} --all-features --locked --no-deps"
-            {% else %}
-              def cargo_command = "cargo +{{ rust_version }} test --target-dir ${target_dir} --all-features --locked"
-            {% endif %}
               sh """\
                 set -e
                 mkdir -p ${target_dir}
                 export RUSTC_WRAPPER=sccache
                 export CARGO_INCREMENTAL=0
-                ${cargo_command}
+                cargo +{{ rust_version }} test --target-dir ${target_dir} --all-features --locked
                 """
             {% if production_jenkins %}
             }
@@ -39,4 +33,25 @@ stage('cargo {{ stage }}') {
     }
   }
 }
-{% endfor %}
+
+stage('cargo doc {{ rust_min_version }}') {
+  steps {
+    {% if production_jenkins %}
+    withCredentials([
+      string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+      string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+    ]) {
+    {% endif %}
+      sh """\
+        set -e
+        mkdir -p target_{{ rust_min_version }}
+        export RUSTC_WRAPPER=sccache
+        export CARGO_INCREMENTAL=0
+        export RUSTDOCFLAGS=\"--deny warnings\"
+        cargo +{{ rust_min_version }} doc --target-dir target_{{ rust_min_version }} --all-features --locked --no-deps
+        """
+    }
+  {% if production_jenkins %}
+  }
+  {% endif %}
+}
