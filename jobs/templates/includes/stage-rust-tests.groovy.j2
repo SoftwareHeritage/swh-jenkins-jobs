@@ -22,6 +22,7 @@ stage('cargo test') {
                 mkdir -p ${target_dir}
                 export RUSTC_WRAPPER=sccache
                 export CARGO_INCREMENTAL=0
+                export RUSTFLAGS=\"-C target-cpu={{ rust_cpu_target }}\"
                 cargo +{{ rust_version }} test --target-dir ${target_dir} --all-features --locked
                 """
             {% if production_jenkins %}
@@ -48,6 +49,7 @@ stage('cargo doc {{ rust_min_version }}') {
         export RUSTC_WRAPPER=sccache
         export CARGO_INCREMENTAL=0
         export RUSTDOCFLAGS=\"--deny warnings\"
+        export RUSTFLAGS=\"-C target-cpu={{ rust_cpu_target }}\"
         cargo +{{ rust_min_version }} doc --target-dir target_{{ rust_min_version }} --all-features --locked --no-deps
         """
     }

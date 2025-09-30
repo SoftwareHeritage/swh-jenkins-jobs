@@ -11,6 +11,7 @@ stage('cargo clippy {{ rust_min_version }}') {
         mkdir -p target_{{ rust_min_version }}
         export RUSTC_WRAPPER=sccache
         export CARGO_INCREMENTAL=0
+        export RUSTFLAGS=\"-C target-cpu={{ rust_cpu_target }}\"
         cargo +{{ rust_min_version }} clippy --target-dir target_{{ rust_min_version }} --all-features --locked -- --deny warnings
         """
     }
@@ -43,6 +44,7 @@ stage('cargo build') {
                   set -e
                   mkdir -p ${target_dir}
                   RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 \
+                  RUSTFLAGS=\"-C target-cpu={{ rust_cpu_target }}\" \
                   cargo +{{ rust_version }} build --target-dir ${target_dir} --all-features --locked
                 """
             {% if production_jenkins %}

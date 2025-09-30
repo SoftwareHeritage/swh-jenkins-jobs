@@ -94,6 +94,7 @@ pipeline {
             prepare-cargo-cache
             export RUSTC_WRAPPER=sccache
             export CARGO_INCREMENTAL=0
+            export RUSTFLAGS="-C target-cpu={{ rust_cpu_target }}"
 
             ./jenkins/install-non-python-deps.sh
           fi
