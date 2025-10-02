@@ -55,6 +55,9 @@ pipeline {
               if [ -f Cargo.toml ]; then
                 # build rust binaries
                 export RUSTFLAGS="-C target-cpu={{ rust_cpu_target }}"
+                if [ "$module" = "swh-datasets" ]; then
+                  export RUSTFLAGS="$RUSTFLAGS -C target-feature=+pclmulqdq"
+                fi
                 RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
                 export PATH=$PWD/target/debug:$PATH
               fi

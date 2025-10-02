@@ -59,6 +59,7 @@
       - swh_graph_aggregate
       - swh_graph_contributions
       - swh_graph_file_names
+    extra_rust_flags: -C target-feature=+pclmulqdq
     timeout: 30
     default_branch_name: main
     throttle_categories:

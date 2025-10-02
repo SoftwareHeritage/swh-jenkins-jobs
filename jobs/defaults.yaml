@@ -16,6 +16,7 @@
     default_tox_environment: py311
     rust_min_version: "1.85"
     rust_cpu_target: "x86-64-v3"
+    extra_rust_flags: ""
     max_concurrent: 0
     throttle_categories_definition:
         rust:
