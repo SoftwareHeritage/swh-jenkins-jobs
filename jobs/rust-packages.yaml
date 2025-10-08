@@ -63,6 +63,7 @@
     display-name: rust_rocksdb-rayon
     repo_name: rocksdb-rayon-rs
     default_branch_name: main
+    extra_rust_flags: -C target-feature=+pclmulqdq
     crate_names:
       - rocksdb-rayon
     jobs:
