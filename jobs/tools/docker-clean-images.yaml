@@ -10,6 +10,7 @@
             - built-in
             - jenkins-docker01.internal.softwareheritage.org
             - jenkins-docker02.internal.softwareheritage.org
+            - jenkins-docker03.internal.softwareheritage.org
 
     properties:
       - build-discarder:
