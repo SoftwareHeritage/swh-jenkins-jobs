@@ -27,6 +27,8 @@
     scm:
       - git:
           url: "{gitlab_url}/{gitlab_project_name}.git"
+          branches:
+            - origin/master
 
     builders:
       - shell: !j2: |
@@ -76,6 +78,8 @@
     scm:
       - git:
           url: "{gitlab_url}/{gitlab_project_name}.git"
+          branches:
+            - origin/master
 
     builders:
       - shell: !j2: |
