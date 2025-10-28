@@ -34,7 +34,7 @@
     repo_name: swh-core
     pkg: core
     python_module: swh.core
-    full_tox_environment: py39,py310,py311,py312,py313,pypy39,pypy310,pypy311
+    full_tox_environment: py39,py310,py311,py312,py313,pypy311
     jobs:
       - "swh-jobs-{name}"
 
@@ -231,7 +231,7 @@
     repo_name: swh-model
     pkg: model
     python_module: swh.model
-    full_tox_environment: py310,py311,py312,py313,pypy310,pypy311
+    full_tox_environment: py310,py311,py312,py313,pypy311
     jobs:
       - "swh-jobs-{name}"
 
@@ -264,7 +264,7 @@
     python_module: swh.shard
     use_cibuildwheel: true
     default_tox_environment: py311,ctests
-    full_tox_environment: py310,py311,py312,py313,pypy310,pypy311,ctests
+    full_tox_environment: py310,py311,py312,py313,pypy311,ctests
     timeout: 20
     jobs:
       - "swh-jobs-{name}"
