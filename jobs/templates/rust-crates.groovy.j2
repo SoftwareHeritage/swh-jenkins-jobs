@@ -63,7 +63,19 @@ pipeline {
         {% for crate in crate_names %}
           sh '''#!/bin/bash
           export CARGO_REGISTRIES_LOCAL_REGISTRY_TOKEN=foo
+          # try to parse version from "path+file://<crate_path>@<crate_version>"
           crate_version=$(cargo pkgid -p {{crate}} | cut -d@ -f2)
+          if [[ ! $crate_version =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]
+          then
+            # try to parse version from "path+file://<crate_path>#<crate_version>"
+            crate_version=$(cargo pkgid -p ar_row | cut -d# -f2)
+          fi
+          if [[ ! $crate_version =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]
+          then
+            # crate version could not be parsed, abort to avoid entering in an infinite loop
+            echo "Could not parse crate version, exiting"
+            exit 1
+          fi
           if cargo publish --locked --registry=local-registry -p {{crate}}
           then
             until cargo info --registry=local-registry {{crate}} | grep "^version: ${crate_version}"; do sleep 10; done
@@ -86,7 +98,19 @@ pipeline {
                  variable: 'CARGO_REGISTRY_TOKEN')]) {
           {% for crate in crate_names %}
             sh '''#!/bin/bash
+            # try to parse version from "path+file://<crate_path>@<crate_version>"
             crate_version=$(cargo pkgid -p {{crate}} | cut -d@ -f2)
+            if [[ ! $crate_version =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]
+            then
+              # try to parse version from "path+file://<crate_path>#<crate_version>"
+              crate_version=$(cargo pkgid -p ar_row | cut -d# -f2)
+            fi
+            if [[ ! $crate_version =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]
+            then
+              # crate version could not be parsed, abort to avoid entering in an infinite loop
+              echo "Could not parse crate version, exiting"
+              exit 1
+            fi
             if cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""
             then
               echo "Crate {{crate}} with version ${crate_version} already published, nothing to do."
