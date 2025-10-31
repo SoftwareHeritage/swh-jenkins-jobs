@@ -34,6 +34,7 @@
     default_branch_name: master
     crate_names:
       - ar_row
+      - ar_row_derive
     jobs:
       - "rust-swh-jobs-{name}"
 
