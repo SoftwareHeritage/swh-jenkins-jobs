@@ -96,8 +96,27 @@
     do_rust: true
     crate_names:
       - swh-graph
-      - swh-graph-stdlib
       - swh-graph-grpc-server
+    timeout: 30
+    precommit_skip_checks: mypy,cargo-check,clippy
+    throttle_categories:
+      - rust
+    jobs:
+      - "swh-jobs-{name}"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
+
+- project:
+    name: DGRPHLIBS
+    display-name: swh-graph-libs
+    repo_name: swh-graph-libs
+    pkg: graph.libs
+    python_module: swh.graph
+    gitlab_project_name: swh/devel/swh-graph-libs
+    do_rust: true
+    crate_names:
+      - swh-graph-stdlib
       - swh_graph_topology
     timeout: 30
     precommit_skip_checks: mypy,cargo-check,clippy
