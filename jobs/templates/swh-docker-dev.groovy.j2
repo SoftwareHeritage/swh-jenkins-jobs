@@ -9,6 +9,11 @@ if (startedByTimer || startedByUser) {
 def dockerBuildOpts = '--pull --no-cache'
 {%- endif %}
 
+{%- if production_jenkins %}
+dockerBuildOpts += ' --secret id=SCCACHE_REDIS_ENDPOINT --secret id=SCCACHE_REDIS_PASSWORD'
+{%- endif %}
+
+
 def branch = "master"
 {%- if gitlab_trigger %}
 if (env.gitlabMergeRequestIid) {
@@ -58,7 +63,18 @@ pipeline {
 
     stage('Build Docker images') {
       steps {
-        sh "docker build $dockerBuildOpts -t swh/stack ."
+        {% if production_jenkins %}
+        withCredentials([
+          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
+          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
+        ]) {
+        {% endif %}
+          sh """
+          docker build $dockerBuildOpts -t swh/stack .
+          """
+        {% if production_jenkins %}
+        }
+        {% endif %}
       }
     }
 
