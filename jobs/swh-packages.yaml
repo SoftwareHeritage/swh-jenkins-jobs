@@ -114,6 +114,7 @@
     pkg: graph.libs
     python_module: swh.graph
     gitlab_project_name: swh/devel/swh-graph-libs
+    default_branch_name: main
     do_rust: true
     crate_names:
       - swh-graph-stdlib
