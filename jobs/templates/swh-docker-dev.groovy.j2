@@ -4,7 +4,7 @@ def dockerBuildOpts = '--pull'
 if (params.NO_DOCKER_CACHE) {
   dockerBuildOpts += ' --no-cache'
 } else {
-  dockerBuildOpts = ' --no-cache-filter install_python_packages'
+  dockerBuildOpts += ' --no-cache-filter install_python_packages'
 }
 
 {%- if production_jenkins %}
