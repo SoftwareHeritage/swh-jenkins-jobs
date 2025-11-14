@@ -34,14 +34,14 @@
 - job-template:
     name: "{name}/docker-tests"
     gitlab_project_name: swh/devel/docker
-    gitlab_trigger: true
     description: >
       Build the swh/stack:latest image and run tests.
 
-      Note that when triggered by gitlab, this will run the docker image build
-      step WITHOUT the '--no-cache' option. So if you need to enforce
-      rebuilding the image from scratch, trigger the job by hand from jenkins
-      (or wait for the daily build to run).
+      Note that this will run the docker image build step WITHOUT the '--no-cache'
+      option. Nevertheless, the build stage installing Software Heritage Python 
+      packages is never cached. If you need to enforce rebuilding the image from 
+      scratch, trigger the job by hand from jenkins by setting the NO_DOCKER_CACHE 
+      parameter to true.
 
     project-type: pipeline
     docker_image: tox
@@ -72,6 +72,13 @@
           cancel-pending-builds-on-update: true
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw-verbatim: templates/jenkins-token
+    parameters:
+      - bool:
+          name: NO_DOCKER_CACHE
+          default: false
+          description: |
+            Force the full rebuild of the swh/stack docker image by
+            using the --no-cache option of "docker build"
 
     dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2
 

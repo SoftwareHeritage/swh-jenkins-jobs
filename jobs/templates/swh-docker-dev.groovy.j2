@@ -1,27 +1,22 @@
-{%- if gitlab_trigger %}
 def startedByTimer = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause')
 def startedByUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 def dockerBuildOpts = '--pull'
-if (startedByTimer || startedByUser) {
+if (params.NO_DOCKER_CACHE) {
   dockerBuildOpts += ' --no-cache'
+} else {
+  dockerBuildOpts = ' --no-cache-filter install_python_packages'
 }
-{%- else %}
-def dockerBuildOpts = '--pull --no-cache'
-{%- endif %}
 
 {%- if production_jenkins %}
 dockerBuildOpts += ' --secret id=SCCACHE_REDIS_ENDPOINT --secret id=SCCACHE_REDIS_PASSWORD'
 {%- endif %}
 
-
 def branch = "master"
-{%- if gitlab_trigger %}
 if (env.gitlabMergeRequestIid) {
   branch = "merge-requests/${env.gitlabMergeRequestIid}"
 } else if (env.gitlabSourceBranch) {
   branch = env.gitlabSourceBranch
 }
-{%- endif %}
 
 pipeline {
   {% filter indent(width=2) %}
@@ -36,9 +31,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        {%- if gitlab_trigger %}
         updateGitlabCommitStatus name: 'jenkins', state: 'running'
-        {%- endif %}
         checkout([
           $class: 'GitSCM',
           userRemoteConfigs: [[
@@ -90,11 +83,9 @@ pipeline {
   }
 
   post {
-    {%- if gitlab_trigger %}
     {% filter indent(width=4) %}
       {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
     {% endfilter %}
-    {%- endif %}
     always {
       archiveArtifacts(
         allowEmptyArchive: true,
