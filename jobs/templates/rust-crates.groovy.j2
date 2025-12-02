@@ -79,6 +79,8 @@ pipeline {
           if cargo publish --locked --registry=local-registry -p {{crate}}
           then
             until cargo info --registry=local-registry {{crate}} | grep "^version: ${crate_version}"; do sleep 10; done
+          else
+            exit 1
           fi
           '''
         {% endfor %}
@@ -119,6 +121,8 @@ pipeline {
               then
                 # ensure crate got published before publishing the next ones
                 until cargo search {{crate}} | grep "^{{crate}} = \\\"${crate_version}\\\""; do sleep 10; done
+              else
+                exit 1
               fi
             fi
             '''
