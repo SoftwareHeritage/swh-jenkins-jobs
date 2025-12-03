@@ -53,11 +53,24 @@ pipeline {
       steps {
         // Use a local cargo registry to publish crates
         sh """#!/bin/bash
-        cargo install cargo-http-registry
+        cargo install cargo-local-registry cargo-http-registry
+        # copy all dependencies to a local cargo registry
+        cargo local-registry --sync Cargo.lock /tmp/cargo-registry/
+        # execute service in background for publishing to local registry
         cargo-http-registry /tmp/cargo-registry &
+        # update cargo config to replace crates.io registry by the local one
         mkdir -p .cargo
-        echo -e '[registries]\nlocal-registry = {index = "file:///tmp/cargo-registry"}\n' \
-          > .cargo/config.toml
+        cat > .cargo/config.toml <<EOL
+[registries]
+local-registry = { index = 'file:////tmp/cargo-registry' }
+
+[source.crates-io]
+registry = 'sparse+https://index.crates.io/'
+replace-with = 'local-registry'
+
+[source.local-registry]
+local-registry = '/tmp/cargo-registry/'
+EOL
         """
         // Check whether all crates from the repositories are crate compliant
         {% for crate in crate_names %}
@@ -78,12 +91,17 @@ pipeline {
           fi
           if cargo publish --locked --registry=local-registry -p {{crate}}
           then
+            # update local registry index to include freshly built crate
+            mv /tmp/cargo-registry/$(echo {{crate}} | cut -c1-2) /tmp/cargo-registry/index
+            # check freshly built crate is available in index
             until cargo info --registry=local-registry {{crate}} | grep "^version: ${crate_version}"; do sleep 10; done
           else
             exit 1
           fi
           '''
         {% endfor %}
+        // remove custom cargo config
+        sh "rm .cargo/config.toml"
       }
     }
 
