@@ -44,6 +44,7 @@ pipeline {
       {% endfilter %}
     {%- endif %}
 
+    {% if production_jenkins %}
     stage('Build Docker Image(s) depending on new release') {
       when {
         // The tag is in the right format
@@ -85,6 +86,7 @@ pipeline {
         )
       }
     }
+    {% endif %}
   }
 
   post {
