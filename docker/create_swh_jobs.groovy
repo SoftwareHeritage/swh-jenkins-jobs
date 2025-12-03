@@ -7,6 +7,7 @@ import hudson.model.Queue
 import jenkins.model.Jenkins
 import com.cloudbees.hudson.plugins.folder.*
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
+import jenkins.model.JenkinsLocationConfiguration
 
 def folderName = 'jenkins-tools'
 def jobName = 'jenkins-jobs-builder'
@@ -78,8 +79,12 @@ Queue.instance.schedule(job, 0)
 
 def scriptApproval = ScriptApproval.get()
 
+// Approve some groovy function signatures used in custom scripts
 String[] signatures = [
   "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods toUnique java.util.List",
+  "staticMethod jenkins.model.Jenkins getInstance",
+  "method jenkins.model.Jenkins getItemByFullName java.lang.String",
+  "staticMethod java.net.URLEncoder encode java.lang.String",
 ]
 
 for (String signature : signatures) {
@@ -87,3 +92,8 @@ for (String signature : signatures) {
 }
 
 scriptApproval.save()
+
+// Ensure setting of the BUILD_URL Jenkins environment variable
+jlc = JenkinsLocationConfiguration.get()
+jlc.setUrl("http://localhost:8080/")
+jlc.save()

@@ -1,0 +1,48 @@
+// build step wrapper displaying link to Blue Ocean UI when triggering
+// a build from a Jenkins pipeline, inspired from
+// https://github.com/jenkinsci/blueocean-plugin/issues/3261#issuecomment-3595650185
+
+def getBlueOceanLink(obj, jobName) {
+  def buildNumber
+
+  if (obj instanceof Exception) {
+    obj.toString().split(' ').each {
+      if (it.contains('#')) {
+        buildNumber = it.substring(1)
+      }
+    }
+  } else if (obj instanceof org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper) {
+    buildNumber = obj.getNumber()
+  } else {
+    return 'Cannot determine Blue Ocean link !!!'
+  }
+
+  def host = env.BUILD_URL.split('/')[2]
+  def encodedJobName = java.net.URLEncoder.encode(jobName.replaceAll("^/", ""))
+  return "Blue Ocean link: http://${host}/blue/organizations/jenkins/${encodedJobName}" +
+         "/detail/${jobName.split('/').last()}/${buildNumber}/pipeline"
+}
+
+def triggerBuild(Map args) {
+  def buildInfo
+  try {
+    buildInfo = build(
+      job: args.job,
+      parameters: args.parameters,
+      wait: false,
+      propagate: args.get("propagate", true),
+      quietPeriod: args.get("quietPeriod", null),
+      waitForStart: true
+    )
+  } catch (Exception e) {
+    println getBlueOceanLink(e, args.job)
+    throw e
+  }
+  println getBlueOceanLink(buildInfo, args.job)
+  if (args.get("wait", true)) {
+    waitForBuild(
+      runId: buildInfo.getExternalizableId(),
+      propagate: args.get("propagate", true)
+    )
+  }
+}

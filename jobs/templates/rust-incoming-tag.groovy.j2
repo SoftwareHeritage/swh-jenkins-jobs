@@ -10,6 +10,8 @@ def dry_run = params.DRY_RUN
 
 {% include 'includes/jenkins-job-exists.groovy.j2' %}
 
+{% include 'includes/trigger-build.groovy.j2' %}
+
 pipeline {
   agent none
   stages {

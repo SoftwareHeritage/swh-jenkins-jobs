@@ -1,6 +1,8 @@
 // Whether we do the publication step
 def publish_ok = not params.dry_run
 
+{% include 'includes/trigger-build.groovy.j2' %}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'includes/agent-docker.groovy.j2' -%}
@@ -20,7 +22,7 @@ pipeline {
       }
       agent none
       steps {
-        build(
+        triggerBuild(
           job: '/rust/{{name}}/gitlab-builds',
           parameters: [
             string(name: 'REVISION', value: params.GIT_TAG),

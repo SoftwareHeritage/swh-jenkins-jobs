@@ -71,20 +71,16 @@ pipeline {
         expression { rebuild_base_image }
       }
       steps {
-        script {
-            build job: 'build-docker-image',
-                  parameters: [
-                    string(name: 'APPLICATION', value: 'swh-base'),
-                    booleanParam(name: 'DRY_RUN', value: dry_run),
-                    booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
-                  ],
-                  // period before building
-                  quietPeriod: 1,
-                  // result of this step will be the result of the downstream job
-                  propagate: true,
-                  // make pipeline wait for result of the job
-                  wait: true
-        }
+        triggerBuild(
+          job: '/{{name}}/build-docker-image',
+          parameters: [
+            string(name: 'APPLICATION', value: 'swh-base'),
+            booleanParam(name: 'DRY_RUN', value: dry_run),
+            booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
+          ],
+          // period before building
+          quietPeriod: 1,
+        )
       }
     }
 
@@ -105,19 +101,17 @@ pipeline {
           impacted_images = readFile("$WORKSPACE_TMP/impacted-images").readLines()
           impacted_images.each { image, closure ->
             images["build-image-${image}"] = {
-              build job: 'build-docker-image',
-              parameters: [
-                // run(name: "build-docker-image-${image}"),
-                string(name: 'APPLICATION', value: image),
-                booleanParam(name: 'DRY_RUN', value: dry_run),
-                booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
-              ],
-              // period before building
-              quietPeriod: 1,
-              // result of this step will be the result of the downstream job
-              propagate: true,
-              // make pipeline wait for result of the job
-              wait: true
+              triggerBuild(
+                job: '/{{name}}/build-docker-image',
+                parameters: [
+                  // run(name: "build-docker-image-${image}"),
+                  string(name: 'APPLICATION', value: image),
+                  booleanParam(name: 'DRY_RUN', value: dry_run),
+                  booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
+                ],
+                // period before building
+                quietPeriod: 1,
+              )
             }
           }
 
@@ -245,3 +239,5 @@ pipeline {
     }
   }
 }
+
+{% include 'templates/includes/trigger-build.groovy.j2' %}

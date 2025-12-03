@@ -52,7 +52,7 @@ pipeline {
         expression { jenkinsJobExists('/swh-apps/build-docker-images') }
       }
       steps {
-        build(
+        triggerBuild(
           job: '/swh-apps/build-docker-images',
           parameters: [
             string(name: 'MODULE', value: '{{python_module}}'),
@@ -76,7 +76,7 @@ pipeline {
         expression { "${env.gitlabSourceBranch}" ==~ /refs\/tags\/v\d+(:?\.\d+)+(:?(:?a|b|rc)\d+)?/ }
       }
       steps {
-        build(
+        triggerBuild(
           job: '/DDOC/publish',
           // Ignore result the remaining parts of the pipeline
           propagate: false,
@@ -94,4 +94,7 @@ pipeline {
   }
 }
 
+
 {% include 'includes/jenkins-job-exists.groovy.j2' %}
+
+{% include 'includes/trigger-build.groovy.j2' %}

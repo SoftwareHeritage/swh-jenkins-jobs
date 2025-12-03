@@ -11,13 +11,14 @@ stage('Build and upload Rust Crates') {
     expression { jenkinsJobExists('/rust/{{name}}/crates-upload') }
   }
   steps {
-    build(
-      job: '/rust/{{name}}/crates-upload',
-      parameters: [
-        string(name: 'GIT_TAG', value: tag),
-        booleanParam(name: 'DRY_RUN', value: dry_run),
-      ],
-      wait: true,
-    )
+    script {
+      triggerBuild(
+        job: '/rust/{{name}}/crates-upload',
+        parameters: [
+          string(name: 'GIT_TAG', value: tag),
+          booleanParam(name: 'DRY_RUN', value: dry_run),
+        ],
+      )
+    }
   }
 }

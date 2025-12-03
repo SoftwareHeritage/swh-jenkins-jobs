@@ -1,3 +1,5 @@
+{% include 'templates/includes/trigger-build.groovy.j2' %}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
@@ -63,7 +65,7 @@ pipeline {
       {% endfilter %}
       script {
         if (env.gitlabSourceBranch == 'master' || env.gitlabSourceBranch == "main") {
-          build(
+          triggerBuild(
             job: '/DDOC/publish',
             propagate: false,
             wait: false,
