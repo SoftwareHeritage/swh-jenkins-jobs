@@ -38,7 +38,7 @@ pipeline {
       {%- include 'includes/stage-pypi-upload.groovy.j2' -%}
     {% endfilter %}
 
-    {%- if do_rust %}
+    {%- if do_rust and crate_names %}
       {% filter indent(width=4) %}
         {%- include 'includes/stage-rust-crates-upload.groovy.j2' -%}
       {% endfilter %}
