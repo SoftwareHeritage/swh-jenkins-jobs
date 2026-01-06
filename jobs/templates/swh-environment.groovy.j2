@@ -42,6 +42,8 @@ pipeline {
             # upgrade pip as default installed version is too outdated to properly
             # install all swh dependencies
             pip install --upgrade 'pip!=25.2.0'
+            # use minimum supported rust version
+            rustup default {{ rust_min_version }}
             # install dependencies
             ./bin/install
             prepare-cargo-cache
