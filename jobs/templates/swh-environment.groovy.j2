@@ -61,9 +61,15 @@ pipeline {
                 RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
                 export PATH=$PWD/target/debug:$PATH
               fi
-              echo Executing $module checks and tests
+              echo
+              echo ==========================================================================
+              echo ==========================================================================
+              echo -e Executing $module checks and tests
               echo Latest commit in $module is:
-              git show --summary
+              git show --summary --oneline
+              echo ==========================================================================
+              echo ==========================================================================
+              echo
               tests_dir=$(echo $module | sed 's/-/\\//g')/tests
               if [ -d "$tests_dir" ]; then
                 # enable parallel tests execution except for scanner
