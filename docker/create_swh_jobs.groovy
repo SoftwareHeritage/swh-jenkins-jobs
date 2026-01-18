@@ -93,7 +93,7 @@ for (String signature : signatures) {
 
 scriptApproval.save()
 
-// Ensure setting of the BUILD_URL Jenkins environment variable
+// Ensure setting of the JOB_URL/BUILD_URL Jenkins environment variables
 jlc = JenkinsLocationConfiguration.get()
 jlc.setUrl("http://localhost:8080/")
 jlc.save()
