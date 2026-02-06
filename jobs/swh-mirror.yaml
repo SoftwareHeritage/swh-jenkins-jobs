@@ -40,5 +40,9 @@
           name: TOX_ENVIRONMENT
           description: tox environment to use for the main tox run
           default: "{default_tox_environment}"
+      - bool:
+          name: BUILD_IMAGE
+          description: Rebuild the docker image before running the integration tests. If False, use the published docker image.
+          default: true
 
     dsl: !include-jinja2: templates/swh-mirror-run-tests.groovy.j2

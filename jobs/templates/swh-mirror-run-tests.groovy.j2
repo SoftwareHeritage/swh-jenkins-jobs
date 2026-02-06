@@ -36,6 +36,7 @@ pipeline {
     }
 
     stage('Build Docker test images') {
+      when { expression { return params.BUILD_IMAGE } }
       steps {
         dir('images') {
           sh ' ./build_images.sh --write-env-file=image-tag.env'
@@ -52,7 +53,13 @@ pipeline {
       }
 
       steps {
-        unstash 'image-tag-env'
+        script {
+          if ( params.BUILD_IMAGE ) {
+              unstash 'image-tag-env'
+          } else {
+              sh 'echo > image-tag.env'
+          }
+        }
         withCredentials([
           usernamePassword(credentialsId: 'swh-mirror-test-kafka',
                            usernameVariable: 'SWH_MIRROR_TEST_KAFKA_USERNAME',
