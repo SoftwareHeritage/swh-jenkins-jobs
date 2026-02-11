@@ -474,3 +474,12 @@
       - "rust/{name}"
       - "rust/{name}/crates-upload"
       - "rust/{name}/gitlab-builds"
+
+- project:
+    name: swh-dataportal
+    display-name: swh-dataportal
+    repo_name: swh-dataportal
+    pkg: dataportal
+    python_module: swh.dataportal
+    jobs:
+      - "swh-jobs-{name}"
