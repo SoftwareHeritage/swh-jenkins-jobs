@@ -101,7 +101,6 @@
     precommit_skip_checks: mypy,cargo-check,clippy
     throttle_categories:
       - rust
-    full_tox_environment: py312  # does not support Python 3.11
     jobs:
       - "swh-jobs-{name}"
       - "rust/{name}"
