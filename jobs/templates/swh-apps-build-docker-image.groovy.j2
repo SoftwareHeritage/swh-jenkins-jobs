@@ -194,7 +194,7 @@ pipeline {
     stage('Git tag & push') {
       steps {
         script {
-          if ( ! dry_run ) {
+          if ( ! dry_run && dockerfile_exists ) {
             sshagent (credentials: ['gitlab-public-ci-ssh']) {
               sh "./scripts/git_tag_and_push.sh ${application_tag}"
             }
