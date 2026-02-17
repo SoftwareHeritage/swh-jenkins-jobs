@@ -295,8 +295,8 @@
     gitlab_project_name: swh/devel/swh-provenance
     do_rust: true
     crate_names:
-      - swh-provenance
       - swh-provenance-db-build
+      - swh-provenance
     timeout: 30
     default_branch_name: main
     throttle_categories:
