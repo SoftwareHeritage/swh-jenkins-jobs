@@ -3,14 +3,20 @@ stage('Cypress tests') {
     script {
 
       // run cypress tests into dedicated container with mounted yarn cache
-      def cypressImage = docker.image('{{docker_registry}}/cypress:latest')
+      def cypressImage = docker.image('cypress/base')
       cypressImage.pull()
-      cypressImage.inside("--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
+      cypressImage.inside("-u root --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
         script {
           sh '''
+          apt update && apt install -y python3-pip python3-venv libpq-dev libmagic-dev wait-for-it
+
+          python{{cypress_python_version}} -m venv /tmp/venv
+
+          . /tmp/venv/bin/activate
+
           # install swh-web python requirements
-          python{{cypress_python_version}} -m pip install --user -e .[testing]
+          python{{cypress_python_version}} -m pip install -e .[testing]
 
           # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
           rm -f swh-web-test*.sqlite3*
@@ -43,6 +49,9 @@ stage('Cypress tests') {
             {% for n in range(1, nb_cypress_runners + 1) %}
             'Cypress runner {{ n }}': {
               sh '''
+                # activate virtual environment with swh packages installed
+                . /tmp/venv/bin/activate
+
                 # export cypress parallel build id (used internally by swh-web to setup cypress parallel tests)
                 export CYPRESS_PARALLEL_BUILD_ID={{ n }}
                 export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache

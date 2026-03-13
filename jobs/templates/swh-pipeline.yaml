@@ -11,7 +11,7 @@
     concurrent: true
     sandbox: true
     do_cypress: false
-    cypress_python_version: "3.11"
+    cypress_python_version: "3.13"
     do_rust: false
     timeout: 10
     tox_max_concurrent: 6
