@@ -34,10 +34,10 @@ stage('Cypress tests') {
           yarn build-test
 
           # create needed folders for code coverage outputs
-          mkdir -p cypress/coverage
-          mkdir -p cypress/coverage_output
-          mkdir .nyc_output
-          mkdir .nyc_outputs
+          mkdir -m 777 -p cypress/coverage
+          mkdir -m 777 -p cypress/coverage_output
+          mkdir -m 777 .nyc_output
+          mkdir -m 777 .nyc_outputs
 
           # create dedicated X11 server manually for cypress tests (recommended for parallel mode)
           # https://docs.cypress.io/guides/continuous-integration/introduction#Xvfb
@@ -74,7 +74,9 @@ stage('Cypress tests') {
 
                 # copy nyc coverage outputs to dedicated merge folders for later processing
                 cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
+                chmod a+rw cypress/coverage_output/coverage-final{{ n }}.json
                 cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
+                chmod a+rw .nyc_outputs/out{{ n }}.json
               '''
             },
             {% endfor %}
@@ -99,9 +101,6 @@ stage('Cypress tests') {
         # generate coverage reports
         yarn run nyc report --reporter=lcov || true
         yarn run nyc report --reporter=cobertura || true
-
-        # remove node_modules folder
-        rm -rf node_modules
       '''
 
       publishHTML (target: [
