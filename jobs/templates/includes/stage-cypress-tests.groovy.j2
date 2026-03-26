@@ -15,6 +15,9 @@ stage('Cypress tests') {
 
           . /tmp/venv/bin/activate
 
+          # ensure setuptools-scm can read version from git repo
+          git config --global --add safe.directory $PWD
+
           # install swh-web python requirements
           python{{cypress_python_version}} -m pip install -e .[testing]
 
