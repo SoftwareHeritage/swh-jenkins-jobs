@@ -482,3 +482,22 @@
     python_module: swh.dataportal
     jobs:
       - "swh-jobs-{name}"
+
+- project:
+    name: swh-mosaic
+    display-name: swh-mosaic
+    repo_name: swh-mosaic
+    pkg: mosaic
+    python_module: swh.mosaic
+    use_cibuildwheel: true
+    default_branch_name: main
+    gitlab_project_name: swh/devel/swh-mosaic
+    precommit_skip_checks: mypy,cargo-check,clippy
+    do_rust: true
+    crate_names:
+      - swh-mosaic
+    jobs:
+      - "swh-jobs-{name}"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
