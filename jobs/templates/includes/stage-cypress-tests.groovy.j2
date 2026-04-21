@@ -69,17 +69,21 @@ stage('Cypress tests') {
                 cp swh-web-test.sqlite3 swh-web-test{{ n }}.sqlite3
 
                 # run django server on a dedicated port for that test runner and wait for it to be up
-                python{{cypress_python_version}} swh/web/manage.py runserver --nostatic --settings=${DJANGO_SETTINGS_MODULE:-swh.web.settings.cypress} 0.0.0.0:500{{ n }}&
+                python{{cypress_python_version}} swh/web/manage.py runserver \
+                  --nostatic --settings=${DJANGO_SETTINGS_MODULE:-swh.web.settings.cypress} 0.0.0.0:500{{ n }}&
                 wait-for-it -t 90 localhost:500{{ n }}
 
                 # execute cypress tests
-                CYPRESS_NO_COMMAND_LOG=1 yarn run cypress run --env split={{ nb_cypress_runners }},splitIndex1={{ n }} --config baseUrl=http://127.0.0.1:500{{ n }}
+                ELECTRON_ENABLE_LOGGING=1 CYPRESS_NO_COMMAND_LOG=1 yarn run cypress run \
+                  --env split={{ nb_cypress_runners }},splitIndex1={{ n }} --config baseUrl=http://127.0.0.1:500{{ n }}
 
                 # copy nyc coverage outputs to dedicated merge folders for later processing
                 cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
                 chmod a+rw cypress/coverage_output/coverage-final{{ n }}.json
+
                 cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
                 chmod a+rw .nyc_outputs/out{{ n }}.json
+
               '''
             },
             {% endfor %}
