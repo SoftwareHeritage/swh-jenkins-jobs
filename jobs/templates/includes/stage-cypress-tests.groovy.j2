@@ -78,12 +78,14 @@ stage('Cypress tests') {
                   --env split={{ nb_cypress_runners }},splitIndex1={{ n }} --config baseUrl=http://127.0.0.1:500{{ n }}
 
                 # copy nyc coverage outputs to dedicated merge folders for later processing
-                cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
-                chmod a+rw cypress/coverage_output/coverage-final{{ n }}.json
-
-                cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
-                chmod a+rw .nyc_outputs/out{{ n }}.json
-
+                if [ -f cypress/coverage{{ n }}/coverage-final.json ]; then
+                  cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
+                  chmod a+rw cypress/coverage_output/coverage-final{{ n }}.json
+                fi
+                if [ -f .nyc_output{{ n }}/out.json ]; then
+                  cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
+                  chmod a+rw .nyc_outputs/out{{ n }}.json
+                fi
               '''
             },
             {% endfor %}
