@@ -1,3 +1,5 @@
+env.SWH_MERGE_REQUESTS = params.APPLY_MERGE_REQUESTS.split("\n").join(",")
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
@@ -36,6 +38,19 @@ pipeline {
             sed -i 's/git clone/git clone --single-branch/g' .mrconfig
             # fetch swh repositories
             mr -j 4 -t update
+            # apply merge requests
+            IFS=',' read -ra MR_URLS <<< "$SWH_MERGE_REQUESTS"
+            for mr_url in "${MR_URLS[@]}"; do
+              if echo $mr_url | grep "https://gitlab.softwareheritage.org/swh/devel/.\\+/-/merge_requests/[0-9]\\+"; then
+                swh_package=$(echo $mr_url | awk -F[/:] '{print $7}')
+                mr_id=$(echo $mr_url | awk -F[/:] '{print $10}')
+                cd $swh_package
+                echo "Applying merge request $mr_id to $swh_package"
+                git fetch origin merge-requests/$mr_id/head:mr-$mr_id
+                git checkout mr-$mr_id
+                cd ..
+              fi
+            done
             # setup a virtualenv
             python{{python_version}} -m venv .venv
             source .venv/bin/activate

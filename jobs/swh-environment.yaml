@@ -28,6 +28,13 @@
       {% else %}
       []
       {% endif %}
+    parameters:
+      - text:
+          name: APPLY_MERGE_REQUESTS
+          default:
+          description: |
+            Apply merge requests to SWH packages before running tests.
+            Add one merge request URL per line in that text parameter to apply them.
 
     dsl: !include-jinja2: templates/swh-environment.groovy.j2
 
