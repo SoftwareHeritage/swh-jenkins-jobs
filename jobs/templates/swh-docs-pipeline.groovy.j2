@@ -28,6 +28,7 @@ pipeline {
           crudini --del .mrconfig swh-py-template
           # only fetch the HEAD branch instead of all (potentially large) branches
           sed -i '/swh-docs/!s/git clone/git clone --single-branch/g' .mrconfig
+          pip install pre-commit
           mr -j 4 -t update
           '''
         }
@@ -45,6 +46,8 @@ pipeline {
               sh "git checkout ${env.gitlabSourceBranch}"
             }
             sh '''#!/bin/bash
+            # check for possible typos by running codespell pre-commit hook
+            SKIP=mypy pre-commit run --all-files --show-diff-on-failure
             SPHINXOPTS='-W -T --jobs auto --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -vv run -e sphinx-dev -x testenv:sphinx-dev.basepython={{sphinx_basepython}}
             '''
           }
