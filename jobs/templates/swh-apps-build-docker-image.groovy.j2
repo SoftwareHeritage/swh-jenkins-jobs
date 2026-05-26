@@ -230,6 +230,30 @@ pipeline {
     cleanup {
       cleanWs()
     }
+    failure {
+      if ( ! dry_run ) {
+        sshagent (credentials: ['gitlab-public-ci-ssh']) {
+          sh """
+            git pull
+            # Drop tag reference since something went wrong during the build
+            git tag -d ${application_tag}
+            git push origin :refs/tags/${application_tag}
+          """
+        }
+      }
+    }
+    aborted {
+      if ( ! dry_run ) {
+        sshagent (credentials: ['gitlab-public-ci-ssh']) {
+          sh """
+            git pull
+            # Drop tag reference since something went wrong during the build
+            git tag -d ${application_tag}
+            git push origin :refs/tags/${application_tag}
+          """
+        }
+      }
+    }
     always {
       script {
         if ( dockerfile_exists && cleanup_image ) {
