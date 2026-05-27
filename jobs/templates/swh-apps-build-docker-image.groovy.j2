@@ -12,6 +12,9 @@ def label_node = 'docker'
 def requirement_filepath = "apps/${application}/requirements.txt"
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
 def dockerfile_filepath = "apps/${application}/Dockerfile"
+// This will be changed during the build
+def dockerfile_exists = false
+def requirement_exists = false
 
 // The following is configured in jenkins manually:
 // > Manage Jenkins > Configure System > Declarative pipeline (Docker)
@@ -120,18 +123,6 @@ pipeline {
             script: "docker run --rm -v `pwd`:/src app-manager tag next '${application}'",
             returnStdout: true
           ).trim()
-          if ( ! dry_run ) {
-            sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh """
-                git pull
-                # Pushes an empty tag in the repository. If any concurrent build happens
-                # around the same time, they will then take the next version. Thus
-                # avoiding any writing concurrent issue down the (pipe)line.
-                git tag -a ${application_tag} -m "Empty tag to be overwritten"
-                git push origin ${application_tag}
-              """
-            }
-          }
           echo """
             application tag: ${application_tag}
             next tag for ${application}: ${application_tag}
@@ -191,20 +182,6 @@ pipeline {
       }
     }
 
-    stage('Git tag & push') {
-      steps {
-        script {
-          if ( ! dry_run && dockerfile_exists ) {
-            sshagent (credentials: ['gitlab-public-ci-ssh']) {
-              sh "./scripts/git_tag_and_push.sh ${application_tag}"
-            }
-          } else {
-            echo "Skipping `git push`."
-          }
-        }
-      }
-    }
-
     // TODO: Determine how to and trigger tests on built image
     // stage('Test docker image') {}
 
@@ -224,35 +201,28 @@ pipeline {
         }
       }
     }
+
+    // Push tag to the repository only once the image got successfully pushed to the
+    // gitlab registry (previous stage)
+    stage('Git tag & push') {
+      steps {
+        script {
+          if ( ! dry_run && dockerfile_exists ) {
+            sshagent (credentials: ['gitlab-public-ci-ssh']) {
+              sh "./scripts/git_tag_and_push.sh ${application_tag}"
+            }
+          } else {
+            echo "Skipping `git push`."
+          }
+        }
+      }
+    }
+
   }
 
   post {
     cleanup {
       cleanWs()
-    }
-    failure {
-      if ( ! dry_run ) {
-        sshagent (credentials: ['gitlab-public-ci-ssh']) {
-          sh """
-            git pull
-            # Drop tag reference since something went wrong during the build
-            git tag -d ${application_tag}
-            git push origin :refs/tags/${application_tag}
-          """
-        }
-      }
-    }
-    aborted {
-      if ( ! dry_run ) {
-        sshagent (credentials: ['gitlab-public-ci-ssh']) {
-          sh """
-            git pull
-            # Drop tag reference since something went wrong during the build
-            git tag -d ${application_tag}
-            git push origin :refs/tags/${application_tag}
-          """
-        }
-      }
     }
     always {
       script {
