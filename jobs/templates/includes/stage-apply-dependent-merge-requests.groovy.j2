@@ -1,0 +1,41 @@
+stage('Apply dependent merge requests on required swh packages') {
+  when {
+    expression { return dependentMrs }
+  }
+  steps {
+    script {
+      // list requirements-* files
+      def requirementsFiles = sh(
+        script: "ls requirements-*.txt",
+        returnStdout: true
+      ).trim().split("\n")
+      // iterate on requirements files
+      for (requirementFile in requirementsFiles) {
+        // iterate on merge requests to apply
+        for (dependentMr in dependentMrs) {
+          def requirement = sh(
+            script: "cat $requirementFile",
+            returnStdout: true
+          ).trim()
+          def packageName = dependentMr[0]
+          def packageNameDot = packageName.replace("-", ".")
+          def mrId = dependentMr[1]
+          if ((requirement =~ /(?m)^${packageNameDot}/).count) {
+            // if a requirement file contain a package with a merge request to apply
+            def swhPackage = packageNameDot
+            def extraMatch = requirement =~ /(?m)^${packageNameDot}(\[[^\]]+\])/
+            if (extraMatch.count) {
+              // get extra deps for the package
+              swhPackage += extraMatch[0][1]
+            }
+            // need to reset Matcher or jenkins will try to serialize it when leaving scope and crash
+            extraMatch = null
+            def mrRefUrl = "git\\+https://gitlab.softwareheritage.org/swh/devel/${packageName}.git@refs/merge-requests/$mrId/head"
+            // replace package requirement to target merge request changes
+            sh "sed -i 's+^${packageNameDot}.*\$+${swhPackage}@${mrRefUrl}+' $requirementFile"
+          }
+        }
+      }
+    }
+  }
+}

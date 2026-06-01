@@ -18,6 +18,8 @@ if (env.gitlabMergeRequestIid) {
   branch = env.gitlabSourceBranch
 }
 
+{% include 'templates/includes/parse-merge-requests-to-apply.groovy.j2' %}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
@@ -53,6 +55,10 @@ pipeline {
         ])
       }
     }
+
+    {% filter indent(width=4) %}
+      {%- include 'templates/includes/stage-apply-dependent-merge-requests.groovy.j2' -%}
+    {% endfilter %}
 
     stage('Build Docker images') {
       steps {

@@ -1,0 +1,9 @@
+def depMrRegexp = /(?m)^[D|d]epends[-| ]on:?[ ]*https:\/\/gitlab.softwareheritage.org\/swh\/devel\/(.+)\/-\/merge_requests\/([0-9]+)\/?/
+def List<String[]> dependentMrs = []
+
+if (env.gitlabMergeRequestDescription) {
+  def dependentMrsMatch = env.gitlabMergeRequestDescription =~ depMrRegexp
+  for (dependentMrMatch in dependentMrsMatch) {
+    dependentMrs.add([dependentMrMatch[1], dependentMrMatch[2]])
+  }
+}
