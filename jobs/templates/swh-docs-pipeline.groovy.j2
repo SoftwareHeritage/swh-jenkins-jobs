@@ -28,7 +28,7 @@ pipeline {
           crudini --del .mrconfig swh-py-template
           # only fetch the HEAD branch instead of all (potentially large) branches
           sed -i '/swh-docs/!s/git clone/git clone --single-branch/g' .mrconfig
-          pip install pre-commit
+          pip3.11 install pre-commit
           mr -j 4 -t update
           '''
         }
