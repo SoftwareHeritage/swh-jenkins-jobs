@@ -21,6 +21,6 @@
     throttle_categories_definition:
         rust:
             max_jobs_per_node: 3
-            max_jobs_total: 3
+            max_jobs_total: 0
     throttle_categories: []
     swh_package_doc_dir: docs

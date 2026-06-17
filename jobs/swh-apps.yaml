@@ -9,7 +9,7 @@
         - throttle:
               option: project
               max-per-node: "{max_concurrent}"
-              max-total: "{max_concurrent}"
+              max-total: 0
     parameters:
     - choice:
         name: "TARGET_BRANCH"
@@ -52,7 +52,7 @@
         - throttle:
               option: project
               max-per-node: "{max_concurrent}"
-              max-total: "{max_concurrent}"
+              max-total: 0
     parameters:
     - string:
         name: "APPLICATION"

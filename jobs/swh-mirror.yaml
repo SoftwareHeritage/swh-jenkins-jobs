@@ -19,7 +19,7 @@
       - throttle:
           option: project
           max-per-node: "{max_concurrent}"
-          max-total: "{max_concurrent}"
+          max-total: 0
     triggers: !j2-yaml: |
       {% if production_jenkins %}
       - timed: "0 4 * * *"

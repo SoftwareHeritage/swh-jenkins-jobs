@@ -28,7 +28,7 @@
           {% else %}
           option: project
           max-per-node: {{ max_concurrent }}
-          max-total: {{ max_concurrent }}
+          max-total: 0
           {% endif %}
     triggers:
       - gitlab:
