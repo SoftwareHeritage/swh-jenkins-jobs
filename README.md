@@ -22,25 +22,71 @@ server.
 
 Jenkins jobs configuration can be tested on a local temporary Jenkins instance executed
 in a docker container. The local ``swh-jenkins-jobs`` repository will be mounted as a
-volume and cloned by Jenkins so do not forget to commit the changes you want to test.
+volume and copied by Jenkins before calling `tox` in it to setup the jobs.
 
-- Launch jenkins
+Jenkins can be executed using two configurations:
+- one using a single built-in node
+- the other using a single built-in node plus two docker swarm nodes
 
-Executing the following script located in the root directory of that repository will automatically configure the docker image build and start the compose session.
+## Start Jenkins
+
+### Single node
+
+Execute the following script located in the root directory of that repository to
+automatically configure the docker image build and start the compose session spawning
+a local Jenkins instance with a single built-in node.
+
 ```
 ./start-docker-jenkins.sh
 ```
 
-Jenkins jobs for Software Heritage should be automatically registered when the jenkins service is starting.
+### Multiple nodes
 
-If the jobs did not get automatically registered, you can trigger their creation by following these instructions:
+Execute the following script located in the root directory of that repository to
+automatically configure the docker image build and start the compose session spawning
+a Jenkins instance with three nodes: the built-in node and two docker swarm nodes.
+```
+./start-docker-jenkins-multi-nodes.sh
+```
+
+## Stop Jenkins
+
+### Single node
+
+Execute the following script located in the root directory of that repository to stop
+the compose session that spawned a local Jenkins instance with a single built-in node.
+```
+./stop-docker-jenkins.sh
+```
+
+### Multiple nodes
+
+Execute the following script located in the root directory of that repository to stop
+the compose session that spawned a local Jenkins instance with three nodes.
+```
+./stop-docker-jenkins-multi-nodes.sh
+```
+
+## Authentication
+
+For the single node case, no authentication is required for commodity of use.
+
+For the multiple nodes case, an administration account is required or docker swarm nodes
+cannot connect to the Jenkins instance, credentials to use are **admin/admin**.
+
+## SWH jobs registration
+
+Jenkins jobs for Software Heritage should be automatically registered when the jenkins
+service is starting.
+
+If the jobs did not get automatically registered, you can trigger their creation by
+following these instructions:
 
 - Connect to localhost:8080, then within the jenkins ui:
 - Create a jenkins folder `jenkins-tools`
 - Create a new `free-style` job named `job-builder` inside the `jenkins-tools`
 - Add a `build` step `Execute shell` with this content
 ```
-git config --global --add safe.directory /opt/swh-jenkins-jobs/.git
 mkdir -p swh-jenkins-jobs
 cp -rf /opt/swh-jenkins-jobs/* swh-jenkins-jobs/
 cd swh-jenkins-jobs
@@ -49,6 +95,4 @@ tox -- update --delete-old --jobs-only
 - Save your build configuration
 - Trigger a build \o/
 
-This will install the jobs in your local jenkins. Jobs that can be run directly on the
-built-in node can be executed. Other jobs that may need to run docker needs the docker
-agent to be configured.
+This will configure the jobs in your local Jenkins instance.

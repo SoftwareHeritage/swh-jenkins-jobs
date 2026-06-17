@@ -6,6 +6,7 @@ services:
   jenkins:
     image: swh-jenkins:latest
     build: ./docker
+    tty: true
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -24,3 +25,7 @@ services:
     ports:
       - 8080:8080
     entrypoint: /docker/entrypoint.sh
+    healthcheck:
+      test: curl http://localhost:8080
+      retries: 30
+      interval: 2s

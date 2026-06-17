@@ -146,15 +146,15 @@ scm-api
 script-security
 shiningpanda
 snakeyaml-api
-sse-gateway
 ssh-agent
 ssh-credentials
 ssh-slaves
 sshd
 structs
 subversion
-throttle-concurrents
+swarm
 timestamper
+throttle-concurrents
 token-macro
 trilead-api
 variant

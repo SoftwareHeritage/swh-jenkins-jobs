@@ -1,0 +1,76 @@
+volumes:
+  jenkins_node_01_data:
+  jenkins_node_02_data:
+
+services:
+  jenkins:
+    environment:
+      - JENKINS_USER=admin
+      - JENKINS_PASS=admin
+    volumes:
+      - ./docker/admin-user.groovy:/usr/share/jenkins/ref/init.groovy.d/admin-user.groovy
+  jenkins-node-1:
+    image: jc21/jenkins-node:latest
+    restart: unless-stopped
+    depends_on:
+      jenkins:
+        condition: service_healthy
+    environment:
+      - PUID=115
+      - PGID=120
+      - JENKINS_DATA=/var/lib/jenkins-node
+      # Space delimiters labels for this node. This will be automatically appended on start
+      - LABELS=docker
+      # Jenkins Host to connect to
+      - MASTER=http://jenkins:8080
+      # Mode for this node: normal|exclusive. Default: normal
+      - MODE=normal
+      # Number of executors
+      - EXECUTORS=6
+      # Name of this jenkins node, default is the docker container hostname
+      - NAME=docker-node-01
+      # Description of this node, defaults to something not very useful
+      - DESCRIPTION=Docker node 01
+      # The Jenkins username for authentication.
+      - USERNAME=admin
+      # The Jenkins user API token or password
+      - PASSWORD=admin
+    volumes:
+      # This is required for docker control
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      # This mount should be the same inside and out
+      # and should be the same as JENKINS_DATA above
+      - 'jenkins_node_01_data:/var/lib/jenkins-node'
+
+  jenkins-node-2:
+    image: jc21/jenkins-node:latest
+    restart: unless-stopped
+    depends_on:
+      jenkins:
+        condition: service_healthy
+    environment:
+      - PUID=115
+      - PGID=120
+      - JENKINS_DATA=/var/lib/jenkins-node
+      # Space delimiters labels for this node. This will be automatically appended on start
+      - LABELS=docker
+      # Jenkins Host to connect to
+      - MASTER=http://jenkins:8080
+      # Mode for this node: normal|exclusive. Default: normal
+      - MODE=normal
+      # Number of executors
+      - EXECUTORS=6
+      # Name of this jenkins node, default is the docker container hostname
+      - NAME=docker-node-02
+      # Description of this node, defaults to something not very useful
+      - DESCRIPTION=Docker node 02
+      # The Jenkins username for authentication.
+      - USERNAME=admin
+      # The Jenkins user API token or password
+      - PASSWORD=admin
+    volumes:
+      # This is required for docker control
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      # This mount should be the same inside and out
+      # and should be the same as JENKINS_DATA above
+      - 'jenkins_node_02_data:/var/lib/jenkins-node'
