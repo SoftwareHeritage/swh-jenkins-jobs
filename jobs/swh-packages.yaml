@@ -56,7 +56,7 @@
     do_rust: true
     gitlab_project_name: swh/devel/swh-datasets
     crate_names: []
-    extra_rust_flags: -C target-feature=+pclmulqdq
+    extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
     timeout: 30
     default_branch_name: main
     throttle_categories:

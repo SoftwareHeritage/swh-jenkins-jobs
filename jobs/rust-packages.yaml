@@ -64,8 +64,19 @@
     display-name: rust_rocksdb-rayon
     repo_name: rocksdb-rayon-rs
     default_branch_name: main
-    extra_rust_flags: -C target-feature=+pclmulqdq
+    extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
     crate_names:
       - rocksdb-rayon
+    jobs:
+      - "rust-swh-jobs-{name}"
+
+- project:
+    name: swh-contents-rs
+    display-name: swh-contents-rs
+    repo_name: swh-contents-rs
+    default_branch_name: main
+    extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
+    crate_names:
+      - swh-contents
     jobs:
       - "rust-swh-jobs-{name}"
