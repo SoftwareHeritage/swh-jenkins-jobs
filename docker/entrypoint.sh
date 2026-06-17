@@ -1,21 +1,17 @@
 #!/bin/bash -x
 
-# turn on bash's job control
 set -m
 
-PLUGINS_FILE=/docker/plugins.txt
+cleanup() {
+    echo "Jenkins is shutting down, removing all running job containers ..."
+    curl --retry 7 --user admin:admin --data-urlencode \
+        "script=$(< /docker/cancel_all_builds.groovy)" \
+        http://localhost:8080/scriptText
+    containers_to_kill=$(docker ps | grep swh-jenkins-dockerfiles | cut -d' ' -f1)
+    docker rm -f $containers_to_kill
+}
 
-if [ -f "$PLUGINS_FILE" ]; then
-    echo "Installing plugins from $PLUGINS_FILE ..."
-    jenkins-plugin-cli -f $PLUGINS_FILE
-fi
+# ensure to not leak containers executing jobs when compose session is shutting down
+trap cleanup EXIT
 
-/usr/bin/tini -- /usr/local/bin/jenkins.sh&
-
-# create swh CI jobs in jenkins
-wait-for-it localhost:8080 -s --timeout=0
-curl --retry 7 --user admin:admin --data-urlencode \
-    "script=$(< /docker/create_swh_jobs.groovy)" \
-    http://localhost:8080/scriptText
-
-fg %1
+/usr/bin/tini -s -- /docker/start_jenkins.sh
