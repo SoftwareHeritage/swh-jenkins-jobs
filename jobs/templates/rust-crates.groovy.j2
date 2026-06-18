@@ -74,8 +74,8 @@ pipeline {
         # execute service in background for publishing to local registry
         cargo-http-registry /tmp/cargo-registry &
         # update cargo config to replace crates.io registry by the local one
-        mkdir -p .cargo
-        cat > .cargo/config.toml <<EOL
+        mkdir -p ../.cargo
+        cat > ../.cargo/config.toml <<EOL
 [registries]
 local-registry = { index = 'file:////tmp/cargo-registry' }
 
@@ -116,7 +116,7 @@ EOL
           '''
         {% endfor %}
         // remove custom cargo config
-        sh "rm .cargo/config.toml"
+        sh "rm ../.cargo/config.toml"
         {% if production_jenkins %}
         }
         {% endif %}
