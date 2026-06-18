@@ -37,10 +37,10 @@ stage('Cypress tests') {
           yarn build-test
 
           # create needed folders for code coverage outputs
-          mkdir -m 777 -p cypress/coverage
-          mkdir -m 777 -p cypress/coverage_output
-          mkdir -m 777 .nyc_output
-          mkdir -m 777 .nyc_outputs
+          mkdir -p cypress/coverage
+          mkdir -p cypress/coverage_output
+          mkdir .nyc_output
+          mkdir .nyc_outputs
 
           # create dedicated X11 server manually for cypress tests (recommended for parallel mode)
           # https://docs.cypress.io/guides/continuous-integration/introduction#Xvfb
@@ -80,16 +80,20 @@ stage('Cypress tests') {
                 # copy nyc coverage outputs to dedicated merge folders for later processing
                 if [ -f cypress/coverage{{ n }}/coverage-final.json ]; then
                   cp cypress/coverage{{ n }}/coverage-final.json cypress/coverage_output/coverage-final{{ n }}.json
-                  chmod a+rw cypress/coverage_output/coverage-final{{ n }}.json
                 fi
                 if [ -f .nyc_output{{ n }}/out.json ]; then
                   cp .nyc_output{{ n }}/out.json .nyc_outputs/out{{ n }}.json
-                  chmod a+rw .nyc_outputs/out{{ n }}.json
                 fi
               '''
             },
             {% endfor %}
           ])
+          sh '''
+          # fix permissions of files created by root user in the cypress container
+          # so jenkins can remove them when cleaning up workspace
+          find . -type d -exec chmod a+rwx {} \\;
+          find . -type f -exec chmod a+rw {} \\;
+          '''
         }
       }
 
