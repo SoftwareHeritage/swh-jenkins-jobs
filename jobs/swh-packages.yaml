@@ -392,6 +392,26 @@
       - "swh-jobs-{name}"
 
 - project:
+    name: DVULN
+    display-name: swh-vulns
+    repo_name: swh-vulns
+    pkg: vulns
+    python_module: swh.vulns
+    gitlab_project_name: swh/devel/swh-vulns
+    do_rust: true
+    crate_names:
+      - swh-vulns-grpc-server
+    timeout: 30
+    default_branch_name: main
+    throttle_categories:
+      - rust
+    jobs:
+      - "swh-jobs-{name}"
+      - "rust/{name}"
+      - "rust/{name}/crates-upload"
+      - "rust/{name}/gitlab-builds"
+
+- project:
     name: DWAPPS
     display-name: swh-web
     repo_name: swh-web
