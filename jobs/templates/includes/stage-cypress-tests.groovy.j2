@@ -9,7 +9,8 @@ stage('Cypress tests') {
 
         script {
           sh '''
-          apt update && apt install -y python3-pip python3-venv libpq-dev libmagic-dev wait-for-it
+          apt update && apt install -y python3-pip python3-venv libpq-dev libmagic-dev \
+            wait-for-it pkg-config libsystemd-dev libleveldb-dev
 
           python{{cypress_python_version}} -m venv /tmp/venv
 
