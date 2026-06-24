@@ -106,6 +106,7 @@ pipeline {
                 fi
                 # script must be exited with error when a test suite failed
                 exit_code=$(( tests_status > exit_code ? tests_status : exit_code ))
+                rm -rf /tmp/pytest-of-jenkins
               fi
             done
 
