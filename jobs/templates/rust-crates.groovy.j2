@@ -11,7 +11,7 @@ pipeline {
   environment {
     RUSTC_WRAPPER = 'sccache'
     CARGO_INCREMENTAL = '0'
-    RUSTFLAGS = "-C target-cpu={{ rust_cpu_target }}"
+    RUSTFLAGS = "-C target-cpu={{ rust_cpu_target }} {{ extra_rust_flags }}"
   }
 
   stages {
