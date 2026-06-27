@@ -102,6 +102,12 @@ stage('Cypress tests') {
   }
   post {
     always {
+      archiveArtifacts(
+        allowEmptyArchive: true,
+        artifacts: 'cypress/screenshots/*.cy.js/*.png',
+        fingerprint: true,
+      )
+
       junit(
         allowEmptyResults: true,
         testResults: 'cypress/junit/results/*.xml',
