@@ -1,16 +1,15 @@
 def target_branch = params.TARGET_BRANCH
 def module = params.MODULE
 def module_version = params.VERSION
+{% if production_jenkins %}
 def dry_run = params.DRY_RUN
+{% else %}
+def dry_run = true
+{% endif %}
 def cleanup_image = params.CLEANUP_IMAGE
 def trigger_in_parallel = params.PARALLEL
 def rebuild_base_image = params.REBUILD_BASE_IMAGE
 // For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
-{% if production_jenkins %}
-def label_node = 'built-in'
-{% else %}
-def label_node = 'docker'
-{% endif %}
 
 def repository_prefix_url
 
@@ -24,7 +23,8 @@ def images = [:]
 def source_branch = "swh-next-version"
 
 pipeline {
-  agent { label label_node }
+
+  agent { label 'built-in' }
 
   stages {
     stage('Checkout swh-apps repository') {
@@ -36,7 +36,9 @@ pipeline {
           checkout([
             $class: 'GitSCM',
             userRemoteConfigs: [[
+              {% if production_jenkins %}
               credentialsId: 'gitlab-public-ci-ssh',
+              {% endif %}
               name: 'origin',
               url: "${repository_prefix_url}{{gitlab_project_name}}.git",
             ]],
@@ -131,7 +133,9 @@ pipeline {
 
     stage('Refresh swh-apps repository with latest build commits') {
       steps {
+        {% if production_jenkins %}
         sshagent (credentials: ['gitlab-public-ci-ssh']) {
+        {% endif %}
           dir ("$WORKSPACE/swh-apps") {
             sh """#!/bin/bash
             set -x
@@ -141,7 +145,9 @@ pipeline {
               > $WORKSPACE_TMP/git-log-summary
             """
           }
+        {% if production_jenkins %}
         }
+        {% endif %}
       }
     }
 
@@ -151,7 +157,9 @@ pipeline {
           checkout([
             $class: 'GitSCM',
             userRemoteConfigs: [[
+              {% if production_jenkins %}
               credentialsId: 'gitlab-public-ci-ssh',
+              {% endif %}
               name: 'origin',
               url: "${repository_prefix_url}swh/infra/ci-cd/swh-charts.git",
               refspec: '+refs/heads/*:refs/remotes/origin/*',
