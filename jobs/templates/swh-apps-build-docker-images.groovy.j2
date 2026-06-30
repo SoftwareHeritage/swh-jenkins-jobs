@@ -86,6 +86,16 @@ pipeline {
       }
     }
 
+    stage('Wait for swh package to be publicly available on PyPI') {
+      steps {
+        sh """#!/bin/bash
+        set -x
+        until [ "\$(curl -s -L --retry 5 https://pypi.org/pypi/${module}/json | \
+          jq -r .info.version)" = "\$(echo ${module_version} | cut -c2-)" ]; do sleep 1; done
+        """
+      }
+    }
+
     stage('Search impacted application images to rebuild') {
       steps {
         sh """#!/bin/bash
