@@ -423,7 +423,6 @@
     crate_names:
       - swh-vulns-grpc-server
     timeout: 30
-    default_branch_name: main
     throttle_categories:
       - rust
     jobs:
