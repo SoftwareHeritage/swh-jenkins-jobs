@@ -298,7 +298,6 @@
       - swh-osv
     extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
     timeout: 30
-    default_branch_name: main
     throttle_categories:
       - rust
     jobs:
