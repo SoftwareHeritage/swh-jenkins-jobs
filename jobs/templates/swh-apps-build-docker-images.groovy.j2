@@ -90,8 +90,9 @@ pipeline {
       steps {
         sh """#!/bin/bash
         set -x
-        until [ "\$(curl -s -L --retry 5 https://pypi.org/pypi/${module}/json | \
-          jq -r .info.version)" = "\$(echo ${module_version} | cut -c2-)" ]; do sleep 1; done
+        timeout 5m bash -c "\
+        until curl -s -L --retry 5 https://pypi.org/pypi/${module}/json | \
+          jq -e '.releases | has(\\"\$(echo ${module_version} | cut -c2-)\\")'; do sleep 1; done"
         """
       }
     }
