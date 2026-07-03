@@ -112,7 +112,7 @@
     display-name: swh-graph-libs
     repo_name: swh-graph-libs
     pkg: graph.libs
-    python_module: swh.graph
+    python_module: swh.graph.libs
     gitlab_project_name: swh/devel/swh-graph-libs
     default_branch_name: main
     do_rust: true
