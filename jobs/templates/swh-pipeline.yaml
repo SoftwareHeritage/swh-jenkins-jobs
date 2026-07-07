@@ -4,7 +4,7 @@
     project-type: pipeline
     docker_image: tox
     sphinx_docker_image: sphinx
-    full_tox_environment: py311
+    full_tox_environment: py311,py313
     sphinx_basepython: py311
     default_branch_name: master
     precommit_skip_checks: mypy
