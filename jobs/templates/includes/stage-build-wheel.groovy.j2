@@ -5,7 +5,9 @@ stage('Build wheel') {
     # remove directories that can contain shared libraries so cibuildwheel
     # will not copy them into the docker container building wheels or
     # wheel repair step can fail otherwise
-    rm -rf target .tox*
+    rm -rf target* .tox*
+    # also remove compiled extension modules produced by tests
+    find swh -name *.so | xargs rm -f
     $SWH_PYTHON_FOR_GLOBAL_TOOLS -m cibuildwheel --platform linux --output-dir dist/
     '''
   {%- else %}
