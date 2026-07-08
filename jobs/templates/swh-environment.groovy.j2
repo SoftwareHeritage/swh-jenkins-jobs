@@ -72,7 +72,7 @@ pipeline {
               if [ -f Cargo.toml ]; then
                 # build rust binaries
                 export RUSTFLAGS="-C target-cpu={{ rust_cpu_target }}"
-                if [ "$module" = "swh-datasets" ]; then
+                if [ "$module" = "swh-osv" ]; then
                   export RUSTFLAGS="$RUSTFLAGS -C target-feature=+pclmulqdq"  # for rocksdb
                 fi
                 RUSTC_WRAPPER=sccache CARGO_INCREMENTAL=0 cargo build --all-features --locked
