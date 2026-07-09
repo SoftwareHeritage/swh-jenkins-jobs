@@ -81,8 +81,7 @@ pipeline {
         sh """#!/bin/bash
         set -x
         timeout 5m bash -c "\
-        until curl -s -L --retry 5 https://pypi.org/pypi/${module}/json | \
-          jq -e '.releases | has(\\"\$(echo ${module_version} | cut -c2-)\\")'; do sleep 1; done"
+        until pip index versions ${module} | grep \$(echo ${module_version} | cut -c2-); do sleep 1; done"
         """
       }
     }
