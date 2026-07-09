@@ -4,13 +4,12 @@ def module_version = params.VERSION
 {% if production_jenkins %}
 def dry_run = params.DRY_RUN
 {% else %}
+// when testing job execution locally do not attempt to git push
 def dry_run = true
 {% endif %}
 def cleanup_image = params.CLEANUP_IMAGE
 def trigger_in_parallel = params.PARALLEL
 def rebuild_base_image = params.REBUILD_BASE_IMAGE
-// For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
-
 def repository_prefix_url
 
 // List of impacted images
@@ -24,7 +23,9 @@ def source_branch = "swh-next-version"
 
 pipeline {
 
-  agent { label 'built-in' }
+  {% filter indent(width=2) %}
+    {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
 
   stages {
     stage('Checkout swh-apps repository') {
@@ -51,20 +52,9 @@ pipeline {
           ])
           // FIXME: Determine the proper way to declare this directly with gitscm above
           sh "git branch --set-upstream-to=origin/master"
+          // install dependencies to run app_manager.py script
+          sh "uv pip install --system -r scripts/requirements.txt"
         }
-      }
-    }
-
-    // FIXME: Build and push directly this image in the registry (built daily) and us it
-    // directly here
-    stage('Build/Reuse "app-manager" image') {
-      steps {
-        sh """#!/bin/bash
-        set -x
-        docker build --pull --build-arg userid=`id -u` \
-                            --build-arg groupid=`id -g` \
-                            -t app-manager $WORKSPACE/swh-apps/scripts/
-        """
       }
     }
 
@@ -101,7 +91,7 @@ pipeline {
       steps {
         sh """#!/bin/bash
         set -x
-        docker run --rm -v $WORKSPACE/swh-apps:/src app-manager list-dependent-apps \
+        ./swh-apps/scripts/app_manager.py list-dependent-apps \
           --application ${module} \
           --version ${module_version} &> $WORKSPACE_TMP/impacted-images
         """
@@ -117,7 +107,6 @@ pipeline {
               triggerBuild(
                 job: '/{{name}}/build-docker-image',
                 parameters: [
-                  // run(name: "build-docker-image-${image}"),
                   string(name: 'APPLICATION', value: image),
                   booleanParam(name: 'DRY_RUN', value: dry_run),
                   booleanParam(name: 'CLEANUP_IMAGE', value: cleanup_image),
@@ -204,12 +193,10 @@ pipeline {
           sh """#!/bin/bash
           set -x
           # Trigger swh-charts:/values-swh-application-versions.yaml version updates
-          docker run --rm \
-            --volume $WORKSPACE/swh-apps:/src \
-            --volume $WORKSPACE/swh-charts:/tmp/swh-charts \
-              app-manager update-versions \
-                --applications-filepath /tmp/swh-charts/values-swh-application-versions.yaml \
-                --chart-filepath /tmp/swh-charts/swh/Chart.yaml
+
+          ./swh-apps/scripts/app_manager.py update-versions \
+            --applications-filepath $WORKSPACE/swh-charts/values-swh-application-versions.yaml \
+            --chart-filepath $WORKSPACE/swh-charts/swh/Chart.yaml
           set +x
           # Commit the changes
           cd swh-charts

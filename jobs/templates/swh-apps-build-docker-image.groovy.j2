@@ -1,13 +1,12 @@
 def application = params.APPLICATION
+{% if production_jenkins %}
 def dry_run = params.DRY_RUN
+{% else %}
+// when testing job execution locally do not attempt to push docker image or git tag
+def dry_run = true
+{% endif %}
 def cleanup_image = params.CLEANUP_IMAGE
 def graph_source_version = params.GRAPH_SOURCE_VERSION
-// For local build, use 'docker' label, else 'built-in' (the default, e.g. for prod)
-{% if production_jenkins %}
-def label_node = 'built-in'
-{% else %}
-def label_node = 'docker'
-{% endif %}
 
 def requirement_filepath = "apps/${application}/requirements.txt"
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
@@ -46,7 +45,9 @@ def repository_prefix_url
 
 pipeline {
   // Where to make the job run
-  agent { label label_node }
+  {% filter indent(width=2) %}
+    {%- include 'templates/includes/agent-docker.groovy.j2' -%}
+  {% endfilter %}
 
   stages {
     stage('Checkout swh-apps repository') {
@@ -70,14 +71,8 @@ pipeline {
         ])
         // FIXME: Determine the proper way to declare this directly with gitscm above
         sh "git branch --set-upstream-to=origin/master"
-      }
-    }
-
-    // FIXME: Build and push directly this image in the registry (built daily) and use
-    // it directly here
-    stage('Build/Reuse "app-manager" image') {
-      steps {
-        sh 'docker build --pull --build-arg userid=`id -u` --build-arg groupid=`id -g` -t app-manager scripts/'
+        // install dependencies to run app_manager.py script
+        sh "uv pip install --system -r scripts/requirements.txt"
       }
     }
 
@@ -91,7 +86,7 @@ pipeline {
               git status
               git diff
             """
-            sh "docker run --rm -v `pwd`:/src app-manager generate-frozen-requirements ${application}"
+            sh "./scripts/app_manager.py generate-frozen-requirements ${application}"
 
             sh """
               echo "Before stash instruction"
@@ -120,7 +115,7 @@ pipeline {
             // Retrieve the next version from the latest tag on that application starts
             // at $(today).1, then increments to $(today).2, .3, ... if any other builds
             // happen the same day.
-            script: "docker run --rm -v `pwd`:/src app-manager tag next '${application}'",
+            script: "./scripts/app_manager.py tag next '${application}'",
             returnStdout: true
           ).trim()
           echo """

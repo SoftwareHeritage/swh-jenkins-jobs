@@ -4,6 +4,7 @@
     concurrent: false
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
+    docker_image: tox
     max_concurrent: 1
     properties:
         - throttle:
@@ -48,6 +49,7 @@
     project-type: pipeline
     concurrent: true
     max_concurrent: 3
+    docker_image: tox
     properties:
         - throttle:
               option: project
