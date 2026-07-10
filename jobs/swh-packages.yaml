@@ -485,6 +485,7 @@
     pkg: digestmap
     python_module: swh.digestmap
     use_cibuildwheel: true
+    wheels_abi3: true
     default_branch_name: master
     gitlab_project_name: swh/devel/swh-digestmap
     timeout: 30
@@ -514,6 +515,7 @@
     pkg: mosaic
     python_module: swh.mosaic
     use_cibuildwheel: true
+    wheels_abi3: true
     default_branch_name: main
     gitlab_project_name: swh/devel/swh-mosaic
     precommit_skip_checks: mypy,cargo-check,clippy

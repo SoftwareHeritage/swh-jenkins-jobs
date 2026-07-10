@@ -33,7 +33,7 @@ env.TOX_ENVIRONMENT = tox_envs.join(',')
 
 {% include 'includes/parse-merge-requests-to-apply.groovy.j2' %}
 
-{%- if use_cibuildwheel %}
+{%- if use_cibuildwheel and not wheels_abi3 %}
 // as this job is not dedicated to release builds, restrict build of
 // binary wheels by cibuildwheel to Python versions used in tox
 // environments and build only for x86_64 arch
