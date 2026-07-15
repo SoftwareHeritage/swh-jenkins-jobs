@@ -4,7 +4,11 @@ stage('Cypress tests') {
 
       // run cypress tests into dedicated container with mounted yarn cache
       def cypressImage = docker.image('cypress/base')
-      cypressImage.pull()
+      try {
+        cypressImage.pull()
+      } catch (Exception err) {
+        println "Failed to pull cypress/base docker image: " + err.toString()
+      }
       cypressImage.inside("-u root --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
         script {
