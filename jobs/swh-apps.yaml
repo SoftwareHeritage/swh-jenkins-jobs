@@ -74,6 +74,11 @@
           default), the latest swh-graph's git repository default branch or from a
           specific commit.
         default: tag
+    - string:
+        name: DOCKER_BUILD_EXTRA_ARGS
+        description: |
+            Optional parameter to provide extra arguments to the "docker build" command,
+            for instance to set a build-time variable: "--build-arg var=value"
     dsl: !include-jinja2: templates/swh-apps-build-docker-image.groovy.j2
 
 # pipeline to define the swh-apps image(s) build jobs

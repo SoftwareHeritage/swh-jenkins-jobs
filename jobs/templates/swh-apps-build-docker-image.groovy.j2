@@ -7,6 +7,7 @@ def dry_run = true
 {% endif %}
 def cleanup_image = params.CLEANUP_IMAGE
 def graph_source_version = params.GRAPH_SOURCE_VERSION
+def docker_build_extra_args = params.DOCKER_BUILD_EXTRA_ARGS
 
 def requirement_filepath = "apps/${application}/requirements.txt"
 def frozen_set_filepath = "apps/${application}/requirements-frozen.txt"
@@ -159,6 +160,7 @@ pipeline {
             latest_image_version = "${registry_domain}/${image_name}:latest"
             echo "full image version: ${full_image_version}"
             sh """
+              set -x
               if [ "${image_name}" = "graph" ]; then
                 # Build specific command for the graph
                 docker build --pull --tag ${full_image_version} \
@@ -167,6 +169,7 @@ pipeline {
               else
                 # Build image as usual with the versioned tag
                 docker build --pull --tag ${full_image_version} \
+                  ${docker_build_extra_args} \
                   apps/${application}
               fi
               # Build image with latest tag
