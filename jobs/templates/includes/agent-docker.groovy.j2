@@ -8,6 +8,6 @@ agent {
          '-v /usr/libexec/docker:/usr/libexec/docker ' +
          '-u {{jenkins_docker_uid}}:{{jenkins_docker_gid}} ' +
          '--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache ' +
-         '{{docker_options if docker_options is defined}}'
+         '{{docker_options if docker_options is defined and docker_options}}'
   }
 }

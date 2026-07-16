@@ -5,6 +5,11 @@
     gitlab_project_name: swh/infra/swh-apps
     project-type: pipeline
     docker_image: tox
+    docker_options: !j2-yaml: >-
+        {% if production_jenkins %}
+        -v /var/lib/jenkins/.ssh:/home/jenkins/.ssh
+        -v /var/lib/jenkins/.gitconfig:/home/jenkins/.gitconfig
+        {% endif %}
     max_concurrent: 1
     properties:
         - throttle:
@@ -50,6 +55,11 @@
     concurrent: true
     max_concurrent: 3
     docker_image: tox
+    docker_options: !j2-yaml: >-
+        {% if production_jenkins %}
+        -v /var/lib/jenkins/.ssh:/home/jenkins/.ssh
+        -v /var/lib/jenkins/.gitconfig:/home/jenkins/.gitconfig
+        {% endif %}
     properties:
         - throttle:
               option: project
