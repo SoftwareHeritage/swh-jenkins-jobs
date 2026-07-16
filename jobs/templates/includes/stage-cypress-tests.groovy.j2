@@ -41,7 +41,7 @@ stage('Cypress tests') {
 
           # build swh-web static assets in test mode (for code coverage)
           yarn install --frozen-lockfile
-          yarn build-test
+          yarn build-dev
 
           # create needed folders for code coverage outputs
           mkdir -p cypress/coverage
