@@ -1,3 +1,6 @@
+import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
+import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.PendingScript
+
 def branch = "master"
 if (env.gitlabMergeRequestIid) {
   branch = "merge-requests/${env.gitlabMergeRequestIid}"
@@ -45,6 +48,16 @@ pipeline {
       steps {
         script {
           sh('tox -- update --delete-old --jobs-only')
+          // automatically approve updated groovy scripts so jobs can be immediately
+          // executed without manual validations using Jenkins UI
+          def scriptApproval = ScriptApproval.get()
+          for (PendingScript script : scriptApproval.getPendingScripts().clone()) {
+            scriptApproval.approveScript(script.getHash())
+          }
+          scriptApproval.save()
+          // need to reset scriptApproval or jenkins will try to serialize it
+          // after script execution and crash
+          scriptApproval = null
           build(
             job: '/jenkins-tools/setup-throttle-categories'
           )
