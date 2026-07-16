@@ -23,6 +23,9 @@ stage('Cypress tests') {
           # ensure setuptools-scm can read version from git repo
           git config --global --add safe.directory $PWD
 
+          # modify location of cypress cache
+          export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
+
           # install swh-web python requirements
           python{{cypress_python_version}} -m pip install -e .[testing]
 
@@ -37,7 +40,6 @@ stage('Cypress tests') {
           done
 
           # build swh-web static assets in test mode (for code coverage)
-          export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
           yarn install --frozen-lockfile
           yarn build-test
 
