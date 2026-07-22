@@ -33,10 +33,6 @@ stage('Cypress tests') {
             cat $create_users_script | python{{cypress_python_version}} swh/web/manage.py shell --settings=${DJANGO_SETTINGS_MODULE:-swh.web.settings.cypress}
           done
 
-          # build swh-web static assets in test mode (for code coverage)
-          yarn install --frozen-lockfile
-          yarn build-dev
-
           # create needed folders for code coverage outputs
           mkdir -p cypress/coverage
           mkdir -p cypress/coverage_output
