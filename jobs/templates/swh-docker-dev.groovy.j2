@@ -56,6 +56,21 @@ pipeline {
       }
     }
 
+    stage('Ensure to install SWH packages from their current git repositories heads') {
+      when {
+        expression { return params.USE_SWH_PACKAGES_DEV_VERSIONS }
+      }
+      steps {
+        script {
+          def urlPrefix='git+https:\\/\\/gitlab.softwareheritage.org\\/swh\\/devel\\/'
+          sh """
+          sed -i -E 's/(swh-[a-z-]+)(.*)/\\1\\2 @ ${urlPrefix}\\1.git/' requirements-swh.txt
+          cat requirements-swh.txt
+          """
+        }
+      }
+    }
+
     {% filter indent(width=4) %}
       {%- include 'templates/includes/stage-apply-dependent-merge-requests.groovy.j2' -%}
     {% endfilter %}

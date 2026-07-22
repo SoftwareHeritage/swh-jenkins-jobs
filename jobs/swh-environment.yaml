@@ -87,6 +87,13 @@
           description: |
             Force the full rebuild of the swh/stack docker image by
             using the --no-cache option of "docker build"
+      - bool:
+          name: USE_SWH_PACKAGES_DEV_VERSIONS
+          default: false
+          description: |
+            Use current heads of their git repositories to install SWH
+            packages instead of installing them from their latest releases
+            available on PyPI.
 
     dsl: !include-jinja2: templates/swh-docker-dev.groovy.j2
 
