@@ -16,7 +16,8 @@
     python_version: "3.11"
     sandbox: true
     timeout: 120
-    max_concurrent: 2
+    concurrent: true
+    max_concurrent: 1
     properties:
       - throttle:
           option: project
@@ -54,7 +55,8 @@
     docker_image: tox
     docker_options: -v /tmp:/tmp
     sandbox: true
-    max_concurrent: 2
+    concurrent: true
+    max_concurrent: 1
     properties:
       - build-discarder:
           days-to-keep: 20
