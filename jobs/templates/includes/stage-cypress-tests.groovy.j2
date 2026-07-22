@@ -3,25 +3,19 @@ stage('Cypress tests') {
     script {
 
       // run cypress tests into dedicated container with mounted yarn cache
-      def cypressImage = docker.image('cypress/base')
+      def cypressImage = docker.image('{{docker_registry}}/cypress:latest')
       try {
         cypressImage.pull()
       } catch (Exception err) {
-        println "Failed to pull cypress/base docker image: " + err.toString()
+        println "Failed to pull cypress docker image: " + err.toString()
       }
-      cypressImage.inside("-u root --mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
+      cypressImage.inside("--mount type=volume,src=shared-jenkins-cachedir,dst=/home/jenkins/.cache") {
 
         script {
           sh '''
-          apt update && apt install -y python3-pip python3-venv libpq-dev libmagic-dev \
-            wait-for-it pkg-config libsystemd-dev libleveldb-dev
-
           python{{cypress_python_version}} -m venv /tmp/venv
 
           . /tmp/venv/bin/activate
-
-          # ensure setuptools-scm can read version from git repo
-          git config --global --add safe.directory $PWD
 
           # modify location of cypress cache
           export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
@@ -95,12 +89,6 @@ stage('Cypress tests') {
             },
             {% endfor %}
           ])
-          sh '''
-          # fix permissions of files created by root user in the cypress container
-          # so jenkins can remove them when cleaning up workspace
-          find . -type d -exec chmod a+rwx {} \\;
-          find . -type f -exec chmod a+rw {} \\;
-          '''
         }
       }
 
