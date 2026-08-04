@@ -26,6 +26,10 @@ stage('Cypress tests') {
           # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
           rm -f swh-web-test*.sqlite3*
 
+          # ensure django migrations are correct
+          python{{cypress_python_version}} swh/web/manage.py makemigrations --settings=${DJANGO_SETTINGS_MODULE:-swh.web.settings.cypress} \
+            --no-input --check --dry-run --verbosity 3 --no-header
+
           # apply django migrations and create users (will produce swh-web-test.sqlite3 file)
           python{{cypress_python_version}} swh/web/manage.py migrate --settings=${DJANGO_SETTINGS_MODULE:-swh.web.settings.cypress}
           for create_users_script in swh/web/tests/create_test_*
