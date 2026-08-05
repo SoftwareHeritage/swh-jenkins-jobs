@@ -505,6 +505,8 @@
     repo_name: swh-dataportal
     pkg: dataportal
     python_module: swh.dataportal
+    do_artefact: true
+    artefact_path: "output/html"
     jobs:
       - "swh-jobs-{name}"
 

@@ -1,4 +1,4 @@
-stage('Generate artefact') {
+stage('Build artefact') {
   steps {
     sh '''
     {{artefact_command}}
@@ -12,4 +12,4 @@ stage('Generate artefact') {
       )
     }
   } // post
-} // generate artefact
+} // build artefact
