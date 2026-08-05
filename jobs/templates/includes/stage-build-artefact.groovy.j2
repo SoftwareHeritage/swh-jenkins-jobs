@@ -1,0 +1,15 @@
+stage('Generate artefact') {
+  steps {
+    sh '''
+    {{artefact_command}}
+    '''
+  }
+  post {
+    always {
+      archiveArtifacts(
+        allowEmptyArchive: false,
+        artifacts: '{{artefact_path}}',
+      )
+    }
+  } // post
+} // generate artefact

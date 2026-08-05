@@ -13,6 +13,9 @@
     do_cypress: false
     cypress_python_version: "3.13"
     do_rust: false
+    do_artefact: false
+    artefact_path: "output/html"
+    artefact_command: "tox -e artefact"
     timeout: 10
     tox_max_concurrent: 6
     properties:
