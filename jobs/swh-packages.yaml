@@ -326,6 +326,7 @@
     name: DSEA
     display-name: swh-search
     repo_name: swh-search
+    use_cibuildwheel: true
     pkg: search
     deb-extra-repositories: elasticsearch
     python_module: swh.search
