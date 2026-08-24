@@ -124,6 +124,17 @@ pipeline {
     }
     {%- endif %}
 
+    {% if wheels_abi3 %}
+      // for packages with abi3 extension module, mypy stage cannot be executed
+      // in parallel with Python tests due to concurrency issues when compiling
+      // the extension shared library
+      stage ('mypy') {
+        steps {
+          sh '''tox -e mypy'''
+        }
+      }
+    {% endif %}
+
     stage('Checks') {
       options {
         timeout(time: {{ timeout }}, unit: 'MINUTES')
@@ -135,11 +146,13 @@ pipeline {
             sh '''SKIP={{precommit_skip_checks}} pre-commit run --all-files --show-diff-on-failure'''
           }
         }
-        stage ('mypy') {
-          steps {
-            sh '''tox -e mypy'''
+        {% if not wheels_abi3 %}
+          stage ('mypy') {
+            steps {
+              sh '''tox -e mypy'''
+            }
           }
-        }
+        {% endif %}
         {% filter indent(width=8) %}
           {%- include 'includes/stage-python-tests.groovy.j2' -%}
         {% endfilter %}

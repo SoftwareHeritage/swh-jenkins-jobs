@@ -1,7 +1,11 @@
 stage('Python tests') {
   steps {
     script {
+      {% if wheels_abi3 %}
+      def max_concurrent = 1
+      {% else %}
       def max_concurrent = {{ tox_max_concurrent }}
+      {% endif %}
       def lock_prefix = "${env.JOB_NAME}-${env.BUILD_ID}-lock"
       def tox_env_idx = 0
       parallel env.TOX_ENVIRONMENT.split(',').collectEntries { tox_env -> [
