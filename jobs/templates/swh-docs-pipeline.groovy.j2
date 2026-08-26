@@ -28,7 +28,6 @@ pipeline {
           crudini --del .mrconfig swh-py-template
           # only fetch the HEAD branch instead of all (potentially large) branches
           sed -i '/swh-docs/!s/git clone/git clone --single-branch/g' .mrconfig
-          pip3.11 install pre-commit
           mr -j 4 -t update
           '''
         }
@@ -42,18 +41,57 @@ pipeline {
             if ("${env.gitlabMergeRequestIid}" != "null") {
               sh "git fetch origin merge-requests/${env.gitlabMergeRequestIid}/head:merge_request && \
                   git checkout merge_request"
-            } else {
+            } else if ("${env.gitlabSourceBranch}" != "null") {
               sh "git checkout ${env.gitlabSourceBranch}"
+            } else {
+              sh "git checkout master"
             }
             sh '''#!/bin/bash
+            git clean -dfx
             # check for possible typos by running codespell pre-commit hook
+            pip3.11 install pre-commit
             SKIP=mypy pre-commit run --all-files --show-diff-on-failure
-            SPHINXOPTS='-W -T --jobs auto --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -vv run -e sphinx-dev -x testenv:sphinx-dev.basepython={{sphinx_basepython}}
+            {% if sphinx_opts %}
+            SPHINXOPTS='{{sphinx_opts}}' \
+            {% endif %}
+            SPHINXOPTCOLOR='--no-color' \
+              tox -vv run -e {{tox_env}} -x testenv:{{tox_env}}.basepython={{sphinx_basepython}}
             '''
           }
         }
       }
     }
+
+    {% if publish %}
+      stage('Publish documentation') {
+        steps([$class: 'BapSshPromotionPublisherPlugin']) {
+          {% if production_jenkins %}
+            sshPublisher(
+              continueOnError: false,
+              failOnError: true,
+              publishers: [
+                sshPublisherDesc(
+                  configName: "pergamon",
+                  verbose: true,
+                  transfers: [
+                    sshTransfer(
+                      sourceFiles: "swh-docs/docs/_build/html/**",
+                      removePrefix: "swh-docs/docs/_build/html",
+                      remoteDirectory: "sphinx",
+                      cleanRemote: true
+                    )
+                  ]
+                )
+              ]
+            )
+          {% endif %}
+
+          archiveArtifacts(
+            artifacts: 'swh-docs/docs/_build/html/**/*',
+          )
+        }
+      }
+    {% endif %}
   }
 
   post {
@@ -61,6 +99,11 @@ pipeline {
       {% filter indent(width=6) %}
         {%- include 'jobs/templates/includes/update-gitlab-commit-status-failure.groovy.j2' -%}
       {% endfilter %}
+      archiveArtifacts(
+        allowEmptyArchive: true,
+        artifacts: 'swh-docs/docs/errors.log,swh-docs/.tox/log/*',
+        fingerprint: true,
+      )
     }
     success {
       {% filter indent(width=2) %}
@@ -82,12 +125,6 @@ pipeline {
       {% endfilter %}
     }
     always {
-      archiveArtifacts(
-        allowEmptyArchive: true,
-        artifacts: 'swh-docs/docs/errors.log,swh-docs/.tox/log/*',
-        fingerprint: true,
-      )
-
       publishHTML (target: [
         allowMissing: true,
         alwaysLinkToLastBuild: false,

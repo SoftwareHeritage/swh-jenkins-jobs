@@ -58,19 +58,6 @@ hudson.setNodes(hudson.getNodes())
 
 jenkins.setLabelString('built-in')
 
-// register swh-sphinx docker node for documentation build
-cloud = new DockerCloud(
-  'docker',
-  new DockerAPI(new DockerServerEndpoint('unix:///var/run/docker.sock', '')),
-  []
-)
-swhSphinxBase = new DockerTemplateBase(
-  'container-registry.softwareheritage.org/swh/infra/ci-cd/swh-jenkins-dockerfiles/sphinx:latest'
-)
-cloud.addTemplate(
-  new DockerTemplate(swhSphinxBase, new DockerComputerAttachConnector(), 'swh-sphinx', '/home/jenkins', ''))
-jenkins.clouds.add(cloud)
-
 jenkins.save()
 
 // Get the folder where this job should be

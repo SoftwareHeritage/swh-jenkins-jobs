@@ -7,116 +7,7 @@
       - "{name}/dev"
       - "{name}/builds"
 
-- job-template:
-    name: "{name}/publish"
-    description: Build the documentation and publish it
-    node: swh-sphinx
-    gitlab_project_name: swh/devel/swh-environment
-    sphinx_basepython: py311
-    properties:
-      - build-discarder:
-          days-to-keep: 20
-
-    triggers: !j2-yaml: |
-      {% if production_jenkins %}
-      - timed: "@midnight"
-      {% else %}
-      []
-      {% endif %}
-
-    scm:
-      - git:
-          url: "{gitlab_url}/{gitlab_project_name}.git"
-          branches:
-            - origin/master
-
-    builders:
-      - shell: !j2: |
-          #!/bin/bash
-          set -ex
-
-          crudini --del .mrconfig snippets
-          crudini --del .mrconfig swh-py-template
-
-          # Don't fetch potentially large debian branches
-          sed -i '/swh-docs/!s/git clone/git clone --single-branch/g' .mrconfig
-
-          mr -j 4 -t update
-          mr -j 4 -t run sh -c 'git checkout --detach `git describe --abbrev=0 --tags`; git clean -dfx'
-          cd swh-docs
-          git checkout master
-          git clean -dfx
-          SPHINXOPTCOLOR='--no-color' tox run -e sphinx -x testenv:sphinx.basepython={{sphinx_basepython}}
-
-    publishers: !j2-yaml: |
-      {% if production_jenkins %}
-      - ssh:
-          target: "sphinx"
-          site: "pergamon"
-          clean-remote: true
-          source: "swh-docs/docs/_build/html/**"
-          remove-prefix: "swh-docs/docs/_build/html"
-          fail-on-error: true
-          verbose: true
-      {% endif %}
-      - archive:
-          artifacts: swh-docs/docs/_build/html/**/*
-
-- job-template:
-    name: "{name}/dev"
-    description: Build the documentation from git repos
-    node: swh-sphinx
-    gitlab_project_name: swh/devel/swh-environment
-    sphinx_basepython: py311
-    properties:
-      - build-discarder:
-          days-to-keep: 20
-
-    triggers: !j2-yaml: |
-      {% if production_jenkins %}
-      - timed: "H 9-22/2 * * *"
-      {% else %}
-      []
-      {% endif %}
-
-    scm:
-      - git:
-          url: "{gitlab_url}/{gitlab_project_name}.git"
-          branches:
-            - origin/master
-
-    builders:
-      - shell: !j2: |
-          #!/bin/bash
-          set -ex
-
-          crudini --del .mrconfig snippets
-          crudini --del .mrconfig swh-py-template
-
-          # Don't fetch potentially large debian branches
-          sed -i '/swh-docs/!s/git clone/git clone --single-branch/g' .mrconfig
-
-          pip3.11 install pre-commit
-          mr -j 4 -t update
-          mr -t run sh -c 'echo -n "`basename $PWD` " && git describe' | grep -v 'mr run' > revisions.txt
-          cd swh-docs
-          git clean -dfx
-
-          # check for possible typos by running codespell pre-commit hook
-          SKIP=mypy pre-commit run --all-files --show-diff-on-failure
-          SPHINXOPTS='-W -T --jobs auto --keep-going -w errors.log' SPHINXOPTCOLOR='--no-color' tox -vv run -e sphinx-dev -x testenv:sphinx-dev.basepython={{sphinx_basepython}}
-
-    publishers:
-      - archive:
-          artifacts: "revisions.txt,swh-docs/docs/errors.log,swh-docs/.tox/log/*"
-      - html-publisher:
-          name: "SWH Documentation (HEAD)"
-          dir: "swh-docs/docs/_build/html"
-          files: "index.html"
-          keep-all: false
-          includes: "**/*"
-
-- job-template:
+- job-template: &sphinx_builds
     name: "{name}/builds"
     display_name: GitLab builds
     project-type: pipeline
@@ -124,6 +15,9 @@
     sphinx_basepython: py311
     concurrent: true
     sandbox: true
+    publish: false
+    sphinx_opts: -W -T --jobs auto --keep-going -w errors.log
+    tox_env: sphinx-dev
     properties:
       - build-discarder:
           days-to-keep: 20
@@ -143,3 +37,29 @@
           # secret jenkins token is generated when executing tox
           secret-token: !include-raw-verbatim: jobs/templates/jenkins-token
     dsl: !include-jinja2: templates/swh-docs-pipeline.groovy.j2
+
+
+- job-template:
+    name: "{name}/publish"
+    description: Build the documentation and publish it
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
+      - timed: "@daily"
+      {% else %}
+      []
+      {% endif %}
+    publish: true
+    sphinx_opts:
+    tox_env: sphinx
+    <<: *sphinx_builds
+
+- job-template:
+    name: "{name}/dev"
+    description: Build the documentation from git repos
+    triggers: !j2-yaml: |
+      {% if production_jenkins %}
+      - timed: "H 9-22/2 * * *"
+      {% else %}
+      []
+      {% endif %}
+    <<: *sphinx_builds
