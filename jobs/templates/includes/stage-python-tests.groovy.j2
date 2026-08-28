@@ -8,7 +8,7 @@ stage('Python tests') {
           (tox_env): {
             lock("${lock_prefix}-${tox_env_idx++ % max_concurrent}") {
               sh """
-              tox --installpkg dist/*.whl --workdir .tox${tox_env} -e ${tox_env} -- \
+              COVERAGE_FILE=.coverage${tox_env} tox --installpkg dist/*.whl --workdir .tox${tox_env} -e ${tox_env} -- \
                 {%- if wheels_abi3 %}
                 {#- ensure extension modules installed in virtualenv can be imported #}
                 --import-mode importlib \
