@@ -198,7 +198,8 @@
     repo_name: swh-loader-cvs
     pkg: loader.cvs
     python_module: swh.loader.cvs
-    include_bdist: false
+    use_cibuildwheel: true
+    wheels_abi3: true
     jobs:
       - "swh-jobs-{name}"
 
@@ -235,7 +236,8 @@
     repo_name: swh-loader-svn
     pkg: loader.svn
     python_module: swh.loader.svn
-    include_bdist: false
+    use_cibuildwheel: true
+    wheels_abi3: true
     jobs:
       - "swh-jobs-{name}"
 
