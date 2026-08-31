@@ -51,9 +51,9 @@ pipeline {
             # check for possible typos by running codespell pre-commit hook
             pip3.11 install pre-commit
             SKIP=mypy pre-commit run --all-files --show-diff-on-failure
-            {% if sphinx_opts %}
+            {%- if sphinx_opts %}
             SPHINXOPTS='{{sphinx_opts}}' \
-            {% endif %}
+            {%- endif %}
             SPHINXOPTCOLOR='--no-color' \
               tox -vv run -e {{tox_env}} -x testenv:{{tox_env}}.basepython={{sphinx_basepython}}
             '''
