@@ -40,6 +40,7 @@ cloudbees-bitbucket-branch-source
 cloudbees-disk-usage-simple
 cloudbees-folder
 command-launcher
+commons-collections4-api
 commons-compress-api
 commons-lang3-api
 commons-math3-api
@@ -84,9 +85,12 @@ htmlpublisher
 http_request
 instance-identity
 ionicons-api
+jackson-annotations2-api
 jackson2-api
+jackson3-api
 jakarta-activation-api
 jakarta-mail-api
+jakarta-xml-bind-api
 javadoc
 javax-activation-api
 javax-mail-api
@@ -94,7 +98,9 @@ jaxb
 jdk-tool
 jenkins-design-language
 jersey2-api
+jersey3-api
 jjwt-api
+job-restrictions
 joda-time-api
 jquery
 jquery3-api
@@ -115,9 +121,11 @@ metrics
 mina-sshd-api-common
 mina-sshd-api-core
 okhttp-api
+oss-symbols-api
 pam-auth
 pipeline-build-step
 pipeline-graph-analysis
+pipeline-graph-view
 pipeline-groovy-lib
 pipeline-input-step
 pipeline-milestone-step
@@ -146,6 +154,7 @@ scm-api
 script-security
 shiningpanda
 snakeyaml-api
+snakeyaml-engine-api
 ssh-agent
 ssh-credentials
 ssh-slaves
@@ -153,12 +162,13 @@ sshd
 structs
 subversion
 swarm
-timestamper
 throttle-concurrents
+timestamper
 token-macro
 trilead-api
 variant
 warnings-ng
+woodstox-core-api
 workflow-aggregator
 workflow-api
 workflow-basic-steps
