@@ -277,6 +277,7 @@
     pkg: shard
     python_module: swh.shard
     use_cibuildwheel: true
+    wheels_abi3: true
     default_tox_environment: py311,ctests
     full_tox_environment: py311,py313,ctests
     timeout: 20
