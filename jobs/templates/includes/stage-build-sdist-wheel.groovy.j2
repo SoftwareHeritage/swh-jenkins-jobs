@@ -1,0 +1,23 @@
+stage('Build sdist and wheel') {
+  when {
+    expression { return params.SKIP_TESTS != null ? params.SKIP_TESTS : true }
+  }
+  steps {
+    sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist'
+    {%- if use_cibuildwheel and include_bdist %}
+      sh '''
+      # remove directories that can contain shared libraries so cibuildwheel
+      # will not copy them into the docker container building wheels or
+      # wheel repair step can fail otherwise
+      rm -rf target* .tox*
+      # also remove compiled extension modules produced by tests
+      find swh -name *.so | xargs rm -f
+      $SWH_PYTHON_FOR_GLOBAL_TOOLS -m cibuildwheel --platform linux --output-dir dist/
+      '''
+    {%- elif include_bdist %}
+      sh '''
+      $SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --wheel
+      '''
+    {%- endif %}
+  }
+}

@@ -111,26 +111,9 @@ pipeline {
       {% endif %}
     }
 
-    stage('Build package sdist and wheel') {
-      steps {
-        {% if production_jenkins %}
-        withCredentials([
-          string(credentialsId: 'sccache-redis-endpoint', variable: 'SCCACHE_REDIS_ENDPOINT'),
-          string(credentialsId: 'sccache-redis-password', variable: 'SCCACHE_REDIS_PASSWORD'),
-        ]) {
-        {% endif %}
-          sh """
-          export RUSTC_WRAPPER=sccache
-          export CARGO_INCREMENTAL=0
-          export RUSTFLAGS="-C target-cpu={{ rust_cpu_target }}"
-          pip3.11 install build
-          python3.11 -m build
-          """
-        {% if production_jenkins %}
-        }
-        {% endif %}
-      }
-    }
+    {% filter indent(width=4) %}
+      {%- include 'includes/stage-build-sdist-wheel.groovy.j2' -%}
+    {% endfilter %}
 
     {%- if do_rust %}
     stage('Rust') {
@@ -189,11 +172,6 @@ pipeline {
         } // sphinx doc
       } // parallel
     } // Checks stage
-    {%- if use_cibuildwheel %}
-    {% filter indent(width=4) %}
-      {%- include 'includes/stage-build-wheel.groovy.j2' -%}
-    {% endfilter %}
-    {%- endif %}
   } // stages
 
   post {
@@ -225,6 +203,15 @@ pipeline {
           reportName: 'SWH Documentation ({{gitlab_project_name}})',
           includes: '**/*']
       )
+      script {
+        if (params.SDIST_WHEEL_ARTIFACTS) {
+          archiveArtifacts(
+            allowEmptyArchive: false,
+            artifacts: 'dist/*',
+            fingerprint: true
+          )
+        }
+      }
     }
     cleanup {
       cleanWs()

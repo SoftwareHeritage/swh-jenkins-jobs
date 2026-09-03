@@ -11,6 +11,7 @@
     jenkins_docker_gid: !include: jenkins-docker-gid
     docker_gid: !include: docker-gid
     docker_options: --tmpfs /tmp:exec
+    include_bdist: true
     use_cibuildwheel: false
     wheels_abi3: false
     incoming_tag_auto_pypi_host: pypi.org

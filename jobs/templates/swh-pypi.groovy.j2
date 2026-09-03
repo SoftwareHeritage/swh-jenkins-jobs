@@ -13,6 +13,7 @@ switch (params.PYPI_HOST) {
 
 // Whether we do the publication step
 def publish_ok = not params.dry_run
+def artifactsBuildJobId
 
 {% include 'includes/jenkins-job-exists.groovy.j2' %}
 
@@ -24,7 +25,7 @@ pipeline {
   {% endfilter %}
 
   stages {
-    stage('Run tests') {
+    stage('Build sdist and wheel then run tests') {
       when {
         expression { return !params.SKIP_TESTS }
         expression { jenkinsJobExists('/{{name}}/gitlab-builds') }
@@ -32,18 +33,39 @@ pipeline {
       }
       agent none
       steps {
-        triggerBuild(
-          job: '/{{name}}/gitlab-builds',
-          parameters: [
-            string(name: 'REVISION', value: params.GIT_TAG),
-            string(name: 'TOX_PROFILE', value: "full"),
-          ],
-          propagate: !params.IGNORE_TESTS,
+        script {
+          artifactsBuildJobId = triggerBuild(
+            job: '/{{name}}/gitlab-builds',
+            parameters: [
+              string(name: 'REVISION', value: params.GIT_TAG),
+              string(name: 'TOX_PROFILE', value: "full"),
+              booleanParam(name: 'SDIST_WHEEL_ARTIFACTS', value: true),
+            ],
+          ).number
+        }
+      }
+    }
+
+    stage('Copy built sdist and wheel') {
+      when {
+        expression { return !params.SKIP_TESTS }
+      }
+      steps {
+        copyArtifacts(
+          projectName: '/{{name}}/gitlab-builds',
+          selector: specific("${artifactsBuildJobId}"),
+          filter: 'dist/*'
         )
       }
     }
 
+    // when skipping tests, sdist and wheel are built by this job
+    // so package repository must be cloned
+
     stage('Checkout') {
+      when {
+        expression { return params.SKIP_TESTS }
+      }
       steps {
         checkout([
           $class: 'GitSCM',
@@ -58,23 +80,16 @@ pipeline {
           extensions: [],
           gitTool: 'Default',
         ])
-        sh '''rm -rf dist/'''
       }
     }
 
-    stage('Build sdist') {
-      steps {
-        sh '$SWH_PYTHON_FOR_GLOBAL_TOOLS -m build --sdist'
-      }
-    }
-
-    {%- if include_bdist %}
     {% filter indent(width=4) %}
-      {%- include 'includes/stage-build-wheel.groovy.j2' -%}
+      {%- include 'includes/stage-build-sdist-wheel.groovy.j2' -%}
     {% endfilter %}
-    {%- endif %}
 
-    stage('Archive artifacts') {
+    // end of stages only executed when skipping tests
+
+    stage('Archive sdist and wheel as job artifacts') {
       steps {
         archiveArtifacts allowEmptyArchive: true,
           artifacts: 'dist/*',
@@ -82,7 +97,7 @@ pipeline {
       }
     }
 
-    stage('Publish') {
+    stage('Publish sdist and wheel') {
       when {
         anyOf {
           expression { return publish_ok }

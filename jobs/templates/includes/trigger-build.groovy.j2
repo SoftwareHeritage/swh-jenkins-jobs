@@ -45,4 +45,5 @@ def triggerBuild(Map args) {
       propagate: args.get("propagate", true)
     )
   }
+  return buildInfo
 }

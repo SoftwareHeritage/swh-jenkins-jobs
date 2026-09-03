@@ -2,7 +2,6 @@
     name: "{name}/pypi-upload"
     display-name: "Upload to PyPI"
     docker_image: tox
-    include_bdist: true
     project-type: pipeline
     sandbox: true
     properties:
@@ -38,11 +37,6 @@
       - bool:
           name: SKIP_TESTS
           default: false
-          description: |
-            Do not run tests on the repository.
-      - bool:
-          name: IGNORE_TESTS
-          default: false
-          description: |
-            Proceed even if the tests are failing on the repository.
+          description: Do not run package tests prior publication on PyPI.
+
     dsl: !include-jinja2: swh-pypi.groovy.j2
