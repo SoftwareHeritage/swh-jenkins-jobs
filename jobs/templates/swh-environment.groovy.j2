@@ -1,5 +1,12 @@
 env.SWH_MERGE_REQUESTS = params.APPLY_MERGE_REQUESTS.split("\n").join(",")
 
+def branch = "master"
+if (env.gitlabMergeRequestIid) {
+  branch = "merge-requests/${env.gitlabMergeRequestIid}"
+} else if (env.gitlabSourceBranch) {
+  branch = env.gitlabSourceBranch
+}
+
 pipeline {
   {% filter indent(width=2) %}
     {%- include 'templates/includes/agent-docker.groovy.j2' -%}
@@ -23,6 +30,13 @@ pipeline {
             refspec: '+refs/heads/*:refs/remotes/origin/* \
                       +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
           ]],
+          branches: [[
+            name: branch
+          ]],
+          browser: [
+            $class: 'GitLab',
+            repoUrl: '{{gitlab_url}}/{{gitlab_project_name}}'
+          ],
         ])
       }
     }
