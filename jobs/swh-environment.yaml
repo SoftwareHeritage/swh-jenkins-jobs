@@ -26,9 +26,19 @@
     triggers: !j2-yaml: |
       {% if production_jenkins %}
       - timed: "H */6 * * *"
-      {% else %}
-      []
       {% endif %}
+      - gitlab:
+          trigger-push: true
+          trigger-merge-request: true
+          trigger-open-merge-request-push: source
+          trigger-only-if-new-commits-pushed: true
+          trigger-note: true
+          note-regex: "@jenkins.*retry.*build"
+          wip-skip: false
+          add-ci-message: true
+          cancel-pending-builds-on-update: true
+          # secret jenkins token is generated when executing tox
+          secret-token: !include-raw-verbatim: templates/jenkins-token
     parameters:
       - text:
           name: APPLY_MERGE_REQUESTS
