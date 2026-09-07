@@ -41,6 +41,10 @@ pipeline {
       }
     }
 
+    {% filter indent(width=4) %}
+      {%- include 'templates/includes/setup-git-credentials.groovy.j2' -%}
+    {% endfilter %}
+
     stage('Run tests') {
 
       steps {
