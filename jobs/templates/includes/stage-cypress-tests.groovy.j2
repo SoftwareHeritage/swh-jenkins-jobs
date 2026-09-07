@@ -20,6 +20,14 @@ stage('Cypress tests') {
           # modify location of cypress cache
           export CYPRESS_CACHE_FOLDER=$PWD/.cypress_cache
 
+          # force static assets regeneration
+          rm -rf swh/web/static/webpack-stats.json \
+            swh/web/static/robots.txt \
+            swh/web/static/js \
+            swh/web/static/css \
+            swh/web/static/fonts \
+            swh/web/static/jssources
+
           # install swh-web python requirements
           python{{cypress_python_version}} -m pip install -e .[testing]
 
