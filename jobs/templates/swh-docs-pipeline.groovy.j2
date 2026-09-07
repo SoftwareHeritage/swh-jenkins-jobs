@@ -34,6 +34,10 @@ pipeline {
       }
     }
 
+    {% filter indent(width=4) %}
+      {%- include 'templates/includes/setup-git-credentials.groovy.j2' -%}
+    {% endfilter %}
+
     stage('Build Software Heritage documentation') {
       steps {
         dir('swh-docs') {

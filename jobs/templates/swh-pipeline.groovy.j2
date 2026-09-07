@@ -86,6 +86,10 @@ pipeline {
       {%- include 'includes/stage-apply-dependent-merge-requests.groovy.j2' -%}
     {% endfilter %}
 
+    {% filter indent(width=4) %}
+      {%- include 'includes/setup-git-credentials.groovy.j2' -%}
+    {% endfilter %}
+
     stage('Install dependencies') {
       steps {
         {% if production_jenkins %}
