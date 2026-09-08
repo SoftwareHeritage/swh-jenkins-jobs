@@ -36,6 +36,13 @@ stage('Apply dependent merge requests on required swh packages') {
           }
         }
       }
+      // update hatchling configuration so packages are allowed to be fetched from git
+      sh """#!/bin/bash
+      if [ -f pyproject.toml ]; then
+          pip install toml-cli
+          toml set --toml-path pyproject.toml --to-bool tool.hatch.metadata.allow-direct-references true
+      fi
+      """
     }
   }
 }
