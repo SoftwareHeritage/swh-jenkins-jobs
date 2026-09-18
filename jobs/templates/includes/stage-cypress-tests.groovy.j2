@@ -29,7 +29,8 @@ stage('Cypress tests') {
             swh/web/static/jssources
 
           # install swh-web python requirements
-          pip install -e .[testing]
+          pip install uv
+          uv pip install -e .[testing]
 
           # ensure to remove previous test dbs (in case something went wrong when cleaning workspace)
           rm -f swh-web-test*.sqlite3*
