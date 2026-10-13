@@ -55,7 +55,7 @@
     do_rust: true
     gitlab_project_name: swh/devel/swh-datasets
     crate_names: []
-    extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
+    extra_rust_flags: -C target-feature=+pclmulqdq # for rocksdb
     timeout: 30
     default_branch_name: main
     throttle_categories:
@@ -294,7 +294,7 @@
     do_rust: true
     crate_names:
       - swh-osv
-    extra_rust_flags: -C target-feature=+pclmulqdq  # for rocksdb
+    extra_rust_flags: -C target-feature=+pclmulqdq # for rocksdb
     timeout: 30
     throttle_categories:
       - rust
@@ -510,6 +510,9 @@
     repo_name: swh-dataportal
     pkg: dataportal
     python_module: swh.dataportal
+    artifacts: output/html
+    artifacts_commands:
+      - "tox -e docs"
     jobs:
       - "swh-jobs-{name}"
 
