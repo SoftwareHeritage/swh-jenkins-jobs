@@ -13,6 +13,10 @@
     do_cypress: false
     cypress_python_version: "3.13"
     do_rust: false
+    # multiple paths separated by commas
+    artifacts: null
+    # a list of commands to execute to build the artifacts
+    artifacts_commands: null
     timeout: 10
     tox_max_concurrent: 6
     properties:

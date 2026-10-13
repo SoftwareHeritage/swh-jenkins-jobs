@@ -1,0 +1,17 @@
+stage('Build artifacts') {
+  steps {
+    sh '''
+    {% for cmd in artifacts_commands %}
+    {{ cmd }}
+    {% endfor %}
+    '''
+  }
+  post {
+    always {
+      archiveArtifacts(
+        allowEmptyArchive: false,
+        artifacts: '{{artifacts}}',
+      )
+    }
+  } // post
+} // build artifacts
