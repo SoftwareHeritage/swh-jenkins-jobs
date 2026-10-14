@@ -23,6 +23,8 @@
           option: project
           max-per-node: "{max_concurrent}"
           max-total: 0
+      - gitlab:
+          connection: "{gitlab_connection_name}"
     triggers: !j2-yaml: |
       {% if production_jenkins %}
       - timed: "H */6 * * *"
