@@ -510,9 +510,10 @@
     repo_name: swh-dataportal
     pkg: dataportal
     python_module: swh.dataportal
+    default_branch_name: main
     artifacts: output/html
     artifacts_commands:
-      - "tox -e docs"
+      - "tox -e build"
     jobs:
       - "swh-jobs-{name}"
 
