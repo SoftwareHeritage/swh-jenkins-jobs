@@ -6,35 +6,37 @@ stage('Apply dependent merge requests on required swh packages') {
     script {
       // list requirements-* files
       def requirementsFiles = sh(
-        script: "ls requirements-*.txt",
+        script: "ls requirements-*.txt tox.ini",
         returnStdout: true
       ).trim().split("\n")
       // iterate on requirements files
       for (requirementFile in requirementsFiles) {
+        def requirement = sh(
+          script: "cat $requirementFile",
+          returnStdout: true
+        ).trim()
         // iterate on merge requests to apply
         for (dependentMr in dependentMrs) {
-          def requirement = sh(
-            script: "cat $requirementFile",
-            returnStdout: true
-          ).trim()
           def packageName = dependentMr[0]
           def packageNameDot = packageName.replace("-", ".")
           def mrId = dependentMr[1]
-          if ((requirement =~ /(?m)^${packageNameDot}/).count) {
+          if ((requirement =~ /(?m)^[ ]*${packageNameDot}/).count) {
             // if a requirement file contain a package with a merge request to apply
             def swhPackage = packageNameDot
-            def extraMatch = requirement =~ /(?m)^${packageNameDot}(\[[^\]]+\])/
+            def extraMatch = requirement =~ /(?m)^[ ]*${packageNameDot}(\[[^\]]+\])/
             if (extraMatch.count) {
               // get extra deps for the package
               swhPackage += extraMatch[0][1]
+              packageNameDot += extraMatch[0][1].replace("[", "\\[").replace("]", "\\]")
             }
             // need to reset Matcher or jenkins will try to serialize it when leaving scope and crash
             extraMatch = null
             def mrRefUrl = "git\\+https://gitlab.softwareheritage.org/swh/devel/${packageName}.git@refs/merge-requests/$mrId/head"
             // replace package requirement to target merge request changes
-            sh "sed -i 's+^${packageNameDot}.*\$+${swhPackage}@${mrRefUrl}+' $requirementFile"
+            sh "sed -i 's+^\\([ ]*\\)${packageNameDot}\$+\\1${swhPackage}@${mrRefUrl}+' $requirementFile"
           }
         }
+        sh "cat $requirementFile"
       }
       // update hatchling configuration so packages are allowed to be fetched from git
       sh """#!/bin/bash

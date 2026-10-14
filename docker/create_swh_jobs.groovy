@@ -95,6 +95,7 @@ String[] signatures = [
   'staticMethod jenkins.model.Jenkins getInstance',
   'method jenkins.model.Jenkins getItemByFullName java.lang.String',
   'staticMethod java.net.URLEncoder encode java.lang.String',
+  'staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getCount java.util.regex.Matcher',
 ]
 
 for (String signature : signatures) {
