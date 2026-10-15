@@ -17,6 +17,8 @@
     artifacts: null
     # a list of commands to execute to build the artifacts
     artifacts_commands: null
+    # Whether to trigger the job to publish the artifacts
+    artifacts_publish: false
     timeout: 10
     tox_max_concurrent: 6
     properties:

@@ -514,6 +514,7 @@
     artifacts: output/html/**
     artifacts_commands:
       - "tox -e build"
+    artifacts_publish: true
     jobs:
       - "swh-jobs-{name}"
 

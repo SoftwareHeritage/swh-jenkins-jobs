@@ -12,6 +12,20 @@ stage('Build artifacts') {
         allowEmptyArchive: false,
         artifacts: '{{artifacts}}',
       )
+    {% if artifacts_publish %}
+      // Trigger the image build which reuse the html artifacts
+      triggerBuild(
+        job: '/swh-apps/build-docker-image',
+        parameters: [
+          string(name: 'APPLICATION', value: '{{repo_name}}'),
+        ],
+        // Ignore result the remaining parts of the pipeline
+        propagate: false,
+        // Do not wait for result for the remaining parts of the pipeline
+        wait: false
+      )
+  {% endif %}
+
     }
   } // post
 } // build artifacts
