@@ -32,7 +32,7 @@ def List<String> tox_envs = tox_environments.flatten().toUnique()
 env.TOX_ENVIRONMENT = tox_envs.join(',')
 
 {%- if artifacts %}
-{% include 'templates/includes/trigger-build.groovy.j2' %}
+{% include 'includes/trigger-build.groovy.j2' %}
 {%- endif %}
 
 {% include 'includes/parse-merge-requests-to-apply.groovy.j2' %}
