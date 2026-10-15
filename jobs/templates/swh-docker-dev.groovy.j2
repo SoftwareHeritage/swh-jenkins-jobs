@@ -85,6 +85,7 @@ pipeline {
         {% endif %}
           sh """
           docker build $dockerBuildOpts -t swh/stack .
+          docker build --pull -t swh/keycloak services/keycloak
           """
         {% if production_jenkins %}
         }
