@@ -1,6 +1,6 @@
-stage('Apply dependent merge requests on required swh packages') {
+stage('Apply dependent merge requests or commits on required swh packages') {
   when {
-    expression { return dependentMrs }
+    expression { return dependentRefs }
   }
   steps {
     script {
@@ -16,10 +16,10 @@ stage('Apply dependent merge requests on required swh packages') {
           returnStdout: true
         ).trim()
         // iterate on merge requests to apply
-        for (dependentMr in dependentMrs) {
-          def packageName = dependentMr[0]
+        for (dependentRef in dependentRefs) {
+          def packageName = dependentRef[0]
           def packageNameDot = packageName.replace("-", ".")
-          def mrId = dependentMr[1]
+          def refId = dependentRef[1]
           if ((requirement =~ /(?m)^[ ]*${packageNameDot}/).count) {
             // if a requirement file contain a package with a merge request to apply
             def swhPackage = packageNameDot
@@ -31,9 +31,16 @@ stage('Apply dependent merge requests on required swh packages') {
             }
             // need to reset Matcher or jenkins will try to serialize it when leaving scope and crash
             extraMatch = null
-            def mrRefUrl = "git\\+https://gitlab.softwareheritage.org/swh/devel/${packageName}.git@refs/merge-requests/$mrId/head"
+            def refUrl
+            if ((refId =~ /^[0-9]+$/).count) {
+              // ref is a merge request
+              refUrl = "git\\+https://gitlab.softwareheritage.org/swh/devel/${packageName}.git@refs/merge-requests/$refId/head"
+            } else {
+              // ref is a commit
+              refUrl = "git\\+https://gitlab.softwareheritage.org/swh/devel/${packageName}.git@$refId"
+            }
             // replace package requirement to target merge request changes
-            sh "sed -i 's+^\\([ ]*\\)${packageNameDot}\$+\\1${swhPackage}@${mrRefUrl}+' $requirementFile"
+            sh "sed -i 's+^\\([ ]*\\)${packageNameDot}[ *<>=!0-9\\.]*\$+\\1${swhPackage}@${refUrl}+' $requirementFile"
           }
         }
         sh "cat $requirementFile"

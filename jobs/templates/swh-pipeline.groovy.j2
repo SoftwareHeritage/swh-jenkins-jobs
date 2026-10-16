@@ -35,7 +35,7 @@ env.TOX_ENVIRONMENT = tox_envs.join(',')
 {% include 'includes/trigger-build.groovy.j2' %}
 {%- endif %}
 
-{% include 'includes/parse-merge-requests-to-apply.groovy.j2' %}
+{% include 'includes/parse-refs-to-apply.groovy.j2' %}
 
 {%- if use_cibuildwheel and not wheels_abi3 %}
 // as this job is not dedicated to release builds, restrict build of
@@ -87,7 +87,7 @@ pipeline {
     }
 
     {% filter indent(width=4) %}
-      {%- include 'includes/stage-apply-dependent-merge-requests.groovy.j2' -%}
+      {%- include 'includes/stage-apply-dependent-refs.groovy.j2' -%}
     {% endfilter %}
 
     {% filter indent(width=4) %}

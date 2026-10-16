@@ -1,0 +1,14 @@
+def depMrRegexp = /(?m)^[D|d]epends[-| ]on:?[ ]*https:\/\/gitlab.softwareheritage.org\/swh\/devel\/(.+)\/-\/merge_requests\/([0-9]+)\/?/
+def depCommitRegexp = /(?m)^[D|d]epends[-| ]on:?[ ]*https:\/\/gitlab.softwareheritage.org\/swh\/devel\/(.+)\/-\/commit\/([a-f0-9]+)\/?/
+def List<String[]> dependentRefs = []
+
+if (env.gitlabMergeRequestDescription) {
+  def dependentRefsMatch = env.gitlabMergeRequestDescription =~ depMrRegexp
+  for (dependentMrMatch in dependentRefsMatch) {
+    dependentRefs.add([dependentMrMatch[1], dependentMrMatch[2]])
+  }
+  def dependentCommitsMatch = env.gitlabMergeRequestDescription =~ depCommitRegexp
+  for (dependentCommitMatch in dependentCommitsMatch) {
+    dependentRefs.add([dependentCommitMatch[1], dependentCommitMatch[2]])
+  }
+}
