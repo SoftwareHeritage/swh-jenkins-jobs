@@ -17,8 +17,8 @@
     artifacts: null
     # a list of commands to execute to build the artifacts
     artifacts_commands: null
-    # Whether to trigger the job to publish the artifacts
-    artifacts_publish: false
+    # Whether to rebuild the docker image for commits on the main branch
+    build_docker_image_on_main_commit: false
     timeout: 10
     tox_max_concurrent: 6
     properties:

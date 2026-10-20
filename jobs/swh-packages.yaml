@@ -514,7 +514,7 @@
     artifacts: output/html/**
     artifacts_commands:
       - "tox -e build"
-    artifacts_publish: true
+    build_docker_image_on_main_commit: true
     jobs:
       - "swh-jobs-{name}"
 

@@ -31,7 +31,7 @@ def List<String> tox_envs = tox_environments.flatten().toUnique()
 
 env.TOX_ENVIRONMENT = tox_envs.join(',')
 
-{%- if artifacts %}
+{%- if build_docker_image_on_main_commit %}
 {% include 'includes/trigger-build.groovy.j2' %}
 {%- endif %}
 
@@ -227,6 +227,24 @@ pipeline {
         }
       }
     }
+    {% if build_docker_image_on_main_commit %}
+    success {
+      if (env.gitlabSourceBranch == '{{default_branch_name}}') {
+        // Trigger the image build which reuse the html artifacts
+        triggerBuild(
+          job: '/swh-apps/build-docker-image',
+          parameters: [
+            string(name: 'APPLICATION', value: '{{repo_name}}'),
+          ],
+          // Ignore result the remaining parts of the pipeline
+          propagate: false,
+          // Do not wait for result for the remaining parts of the pipeline
+          wait: false
+        )
+      }
+    }
+    {% endif %}
+
     cleanup {
       cleanWs()
     }
