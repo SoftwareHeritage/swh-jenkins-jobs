@@ -1,4 +1,5 @@
-{# When changing this script also update swh-docs-pipeline.groovy.j2 which inlines it #}
+{# When changing this script also update swh-docs-pipeline.groovy.j2 and
+swh-pipeline.groovy.j2 which inline it #}
 failure {
   {% filter indent(width=2) %}
     {%- include 'jobs/templates/includes/update-gitlab-commit-status-failure.groovy.j2' -%}

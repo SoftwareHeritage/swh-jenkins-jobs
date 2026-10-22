@@ -189,9 +189,36 @@ pipeline {
   } // stages
 
   post {
-    {% filter indent(width=4) %}
-      {%- include 'includes/update-gitlab-commit-status.groovy.j2' -%}
-    {% endfilter %}
+    failure {
+      {% filter indent(width=6) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-failure.groovy.j2' -%}
+      {% endfilter %}
+    }
+    success {
+      {% filter indent(width=6) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-success.groovy.j2' -%}
+      {% endfilter %}
+      {% if build_docker_image_on_main_commit %}
+      if (env.gitlabSourceBranch == '{{default_branch_name}}') {
+        // Trigger the image build which reuse the html artifacts
+        triggerBuild(
+          job: '/swh-apps/build-docker-image',
+          parameters: [
+            string(name: 'APPLICATION', value: '{{repo_name}}'),
+          ],
+          // Ignore result the remaining parts of the pipeline
+          propagate: false,
+          // Do not wait for result for the remaining parts of the pipeline
+          wait: false
+        )
+      }
+      {% endif %}
+    }
+    aborted {
+      {% filter indent(width=6) %}
+        {%- include 'jobs/templates/includes/update-gitlab-commit-status-aborted.groovy.j2' -%}
+      {% endfilter %}
+    }
     always {
       script {
         if (env.gitlabMergeRequestIid) {
@@ -227,24 +254,6 @@ pipeline {
         }
       }
     }
-    {% if build_docker_image_on_main_commit %}
-    success {
-      if (env.gitlabSourceBranch == '{{default_branch_name}}') {
-        // Trigger the image build which reuse the html artifacts
-        triggerBuild(
-          job: '/swh-apps/build-docker-image',
-          parameters: [
-            string(name: 'APPLICATION', value: '{{repo_name}}'),
-          ],
-          // Ignore result the remaining parts of the pipeline
-          propagate: false,
-          // Do not wait for result for the remaining parts of the pipeline
-          wait: false
-        )
-      }
-    }
-    {% endif %}
-
     cleanup {
       cleanWs()
     }
