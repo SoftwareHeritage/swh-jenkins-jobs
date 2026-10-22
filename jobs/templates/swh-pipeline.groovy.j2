@@ -199,18 +199,20 @@ pipeline {
         {%- include 'jobs/templates/includes/update-gitlab-commit-status-success.groovy.j2' -%}
       {% endfilter %}
       {% if build_docker_image_on_main_commit %}
-      if (env.gitlabSourceBranch == '{{default_branch_name}}') {
-        // Trigger the image build which reuse the html artifacts
-        triggerBuild(
-          job: '/swh-apps/build-docker-image',
-          parameters: [
-            string(name: 'APPLICATION', value: '{{repo_name}}'),
-          ],
-          // Ignore result the remaining parts of the pipeline
-          propagate: false,
-          // Do not wait for result for the remaining parts of the pipeline
-          wait: false
-        )
+      script {
+        if (env.gitlabSourceBranch == '{{default_branch_name}}') {
+          // Trigger the image build which reuse the html artifacts
+          triggerBuild(
+            job: '/swh-apps/build-docker-image',
+            parameters: [
+              string(name: 'APPLICATION', value: '{{repo_name}}'),
+            ],
+            // Ignore result the remaining parts of the pipeline
+            propagate: false,
+            // Do not wait for result for the remaining parts of the pipeline
+            wait: false
+          )
+        }
       }
       {% endif %}
     }
