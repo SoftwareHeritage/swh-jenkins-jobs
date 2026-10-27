@@ -78,11 +78,23 @@ pipeline {
 
     stage('Wait for swh package to be publicly available on PyPI') {
       steps {
-        sh """#!/bin/bash
-        set -x
-        timeout 5m bash -c "\
-        until pip index versions ${module} | grep \$(echo ${module_version} | cut -c2-); do sleep 1; done"
-        """
+        sh '''#!/bin/bash
+        loops=10
+        retcode=1
+        pip_version="$(echo $VERSION | cut -c2-)"
+        for i in $(seq 1 $loops); do
+           versions="$(pip --retries 1 --timeout 10 index versions --json $MODULE | jq -r '.versions[]')"
+           if ! grep -qx "${pip_version}" <<<"$versions"; then
+              sleep_time=$((10 * i))
+              echo "Version $VERSION of $MODULE not found in [${versions//$'\n'/, }], sleeping ${sleep_time} seconds"
+              sleep $sleep_time
+           else
+              retcode=0
+              break
+           fi
+        done
+        exit $retcode
+        '''
       }
     }
 
