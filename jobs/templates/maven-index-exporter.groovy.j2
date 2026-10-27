@@ -32,8 +32,8 @@ if (env.gitlabMergeRequestIid) {
 // Registry credentials: select the token created for the occasion in the docker hub
 // user (permissions required: Read / Write / Delete)
 // then click the 'Add' button
-def dockerCredentialsKeyID = 'docker-io'
-def registry_url = "registry-1.docker.io"
+def dockerCredentialsKeyID = 'gitlab-registry'
+def registry_url = "container-registry.softwareheritage.org/swh/devel/fixtures/maven-index-exporter"
 
 def image_label = env.BUILD_TAG
 
