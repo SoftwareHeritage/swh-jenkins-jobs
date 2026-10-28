@@ -537,3 +537,14 @@
       - "rust/{name}"
       - "rust/{name}/crates-upload"
       - "rust/{name}/gitlab-builds"
+
+- project:
+    name: swh-loader-github-ingestion
+    display-name: swh-loader-github-ingestion
+    repo_name: swh-loader-github-ingestion
+    pkg: loader.github_ingestion
+    python_module: swh.loader.github_ingestion
+    default_branch_name: main
+    gitlab_project_name: swh/devel/swh-loader-github-ingestion
+    jobs:
+      - "swh-jobs-{name}"
