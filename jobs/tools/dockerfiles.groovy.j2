@@ -89,5 +89,8 @@ pipeline {
     {% filter indent(width=4) %}
       {%- include 'jobs/templates/includes/update-gitlab-commit-status.groovy.j2' -%}
     {% endfilter %}
+    cleanup {
+      cleanWs()
+    }
   }
 }
